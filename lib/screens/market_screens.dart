@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
-  bool _favorite = false;
+  String? _activeCategory;
 
   @override
   void dispose() {
@@ -24,706 +24,271 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final query = _searchController.text.trim().toLowerCase();
-    final homeStores = <StoreData>[
-      marketStores.firstWhere((store) => store.id == 'lumpur-kentang-27'),
-      marketStores.firstWhere((store) => store.id == 'bakso-goreng-bangkit'),
-      marketStores.firstWhere((store) => store.id == 'klepon-ku'),
-      marketStores.firstWhere((store) => store.id == 'wiwit-sayur'),
-    ];
-    final matchingStores = homeStores
-        .where(
-          (store) =>
-              query.isEmpty ||
-              '${store.name} ${store.category} ${store.displayCategory}'
-                  .toLowerCase()
-                  .contains(query),
-        )
-        .take(4)
-        .toList();
+    final matchingStores = marketStores.where((store) {
+      final matchesCategory = _activeCategory == null ||
+          store.category.toLowerCase() == _activeCategory!.toLowerCase() ||
+          store.badge.toLowerCase().contains(_activeCategory!.toLowerCase()) ||
+          store.displayCategory.toLowerCase().contains(_activeCategory!.toLowerCase());
+      final matchesSearch = query.isEmpty ||
+          '${store.name} ${store.displayCategory} ${store.badge}'
+              .toLowerCase()
+              .contains(query);
+      return matchesCategory && matchesSearch;
+    }).toList();
 
     return MarketPage(
+      background: const Color(0xFFE1EDBF),
       child: Stack(
         children: [
-          Column(
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             children: [
-              Container(
-                padding: const EdgeInsets.fromLTRB(24, 20, 20, 8),
-                color: MarketColors.background,
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [MarketColors.yellow, MarketColors.green],
-                              begin: Alignment.bottomLeft,
-                              end: Alignment.topRight,
-                            ),
-                            borderRadius: BorderRadius.circular(17),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x334B6515),
-                                blurRadius: 7,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const MarketAsset(
-                            'c03df.svg',
-                            width: 20,
-                            height: 20,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Pasar Oro-Oro Dowo',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: MarketColors.brown,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -.6,
-                            ),
-                          ),
+              // 1. Header: Logo kuning dengan awan putih + Teks "Pasar Oro-Oro Dowo"
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFC21C),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x35000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 38,
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (_) => setState(() {}),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: MarketColors.ink,
-                        ),
-                        decoration: InputDecoration(
-                          prefixIcon: const Padding(
-                            padding: EdgeInsets.all(11),
-                            child: MarketAsset(
-                              '14528.svg',
-                              width: 16,
-                              height: 16,
-                              color: Color(0xFF9CA3AF),
-                            ),
-                          ),
-                          prefixIconConstraints: const BoxConstraints(
-                            minWidth: 40,
-                            minHeight: 36,
-                          ),
-                          hintText: 'Cari toko, produk, atau pedagang...',
-                          hintStyle: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(999),
-                            borderSide: const BorderSide(
-                              color: Color(0x474B6515),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(999),
-                            borderSide: const BorderSide(
-                              color: Color(0x474B6515),
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(999),
-                            borderSide: const BorderSide(
-                              color: MarketColors.greenDark,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: const Icon(
+                      Icons.cloud,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Pasar Oro-Oro Dowo',
+                    style: TextStyle(
+                      color: Color(0xFF594045),
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Search Bar: Kapsul putih dengan border hijau muda tipis
+              Container(
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: const Color(0x66C2DC80),
+                    width: 1.2,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x12000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  style: const TextStyle(fontSize: 13, color: MarketColors.ink),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
+                    ),
+                    hintText: 'Cari toko, produk, atau pedagang...',
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 13),
+                  ),
+                ),
               ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 100),
+              const SizedBox(height: 20),
+
+              // 2. Kategori Belanja heading + chevron
+              InkWell(
+                onTap: () => goTo(context, '/toko'),
+                child: const Row(
                   children: [
-                    _homeHero(context),
-                    const SizedBox(height: 10),
-                    _carouselDots(),
-                    const SizedBox(height: 16),
-                    _marketInformationCard(),
-                    const SizedBox(height: 16),
-                    _featureMenu(context),
-                    const SizedBox(height: 22),
-                    _homeSectionHeading(
-                      context,
-                      'Kategori Belanja',
-                      onTap: () => goTo(context, '/toko'),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 80,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _CategoryTile(
-                            'Pakaian',
-                            '3baa8.svg',
-                            pink: true,
-                            onTap: () => goTo(
-                              context,
-                              '/toko?category=Mainan%20%26%20Baju',
-                            ),
-                          ),
-                          _CategoryTile(
-                            'Sembako',
-                            '86e23.svg',
-                            onTap: () => goTo(
-                              context,
-                              '/toko?category=Sembako%20%26%20Perabotan',
-                            ),
-                          ),
-                          _CategoryTile(
-                            'Makanan',
-                            '43d40.svg',
-                            pink: true,
-                            onTap: () =>
-                                goTo(context, '/toko?category=Makanan'),
-                          ),
-                          _CategoryTile(
-                            'Perabotan',
-                            '86cbb.svg',
-                            onTap: () => goTo(
-                              context,
-                              '/toko?category=Sembako%20%26%20Perabotan',
-                            ),
-                          ),
-                          _CategoryTile(
-                            'Lainnya',
-                            '265dd.svg',
-                            plain: true,
-                            onTap: () => goTo(context, '/toko'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _homeSectionHeading(
-                      context,
-                      'Daftar Toko',
-                      onTap: () => goTo(context, '/toko'),
-                      trailingColor: MarketColors.pink,
-                    ),
-                    const SizedBox(height: 10),
-                    if (matchingStores.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text(
-                          'Tidak ada toko yang cocok.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: MarketColors.muted),
-                        ),
-                      )
-                    else
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: matchingStores.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 9,
-                              mainAxisSpacing: 9,
-                              mainAxisExtent: 254,
-                            ),
-                        itemBuilder: (context, index) => InkWell(
-                          borderRadius: BorderRadius.circular(18),
-                          onTap: () => goTo(
-                            context,
-                            '/detail-toko/${matchingStores[index].id}',
-                          ),
-                          child: _HomeStoreCard(store: matchingStores[index]),
+                    Expanded(
+                      child: Text(
+                        'Kategori Belanja',
+                        style: TextStyle(
+                          color: Color(0xFF594045),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                    const SizedBox(height: 10),
-                    _visitBanner(context),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFF594045),
+                      size: 22,
+                    ),
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // Kategori Card Putih dengan Shadow cokelat keabu-abuan (6 Kategori)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x35594045),
+                      blurRadius: 18,
+                      offset: Offset(0, 8),
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemW = (constraints.maxWidth - 5 * 4) / 6;
+                    const categoryData = [
+                      ('Makanan', Icons.restaurant_rounded, Color(0xFFD97706), Color(0xFFFDE68A), Color(0x40F59E0B)),
+                      ('Sayur\n& Buah', Icons.eco_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
+                      ('Kuliner\nLegend', Icons.restaurant_menu_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
+                      ('Daging\n& Ikan', Icons.set_meal_rounded, Color(0xFF047857), Color(0xFFD1FAE5), Color(0x3510B981)),
+                      ('Sembako\n& Perabotan', Icons.shopping_basket_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
+                      ('Mainan\n& Baju', Icons.rocket_launch_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
+                    ];
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(categoryData.length, (index) {
+                        final cat = categoryData[index];
+                        final catName = cat.$1;
+                        final isSelected = _activeCategory != null &&
+                            catName.replaceAll('\n', ' ').toLowerCase().contains(
+                              _activeCategory!.toLowerCase().split(' ').first,
+                            );
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            final label = catName.replaceAll('\n', ' ');
+                            _activeCategory = isSelected ? null : label;
+                          }),
+                          child: SizedBox(
+                            width: itemW,
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? cat.$3.withValues(alpha: 0.3)
+                                        : cat.$4,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: cat.$5,
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    cat.$2,
+                                    size: 21,
+                                    color: cat.$3,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  catName,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? cat.$3
+                                        : const Color(0xFF1F2937),
+                                    fontSize: 9.5,
+                                    height: 1.15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 3. Daftar Toko Heading
+              const Text(
+                'Daftar Toko',
+                style: TextStyle(
+                  color: Color(0xFF594045),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Grid Toko (2 Kolom)
+              if (matchingStores.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                    'Tidak ada toko yang cocok.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: MarketColors.muted),
+                  ),
+                )
+              else
+                GridView.builder(
+                  itemCount: matchingStores.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: 288,
+                  ),
+                  itemBuilder: (context, index) {
+                    final store = matchingStores[index];
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () => goTo(context, '/detail-toko/${store.id}'),
+                      child: _HomeStoreCard(store: store),
+                    );
+                  },
+                ),
             ],
           ),
+
+          // Floating Bottom Navigation
           Positioned(
             left: 15,
             right: 15,
             bottom: 12,
             child: _homeBottomNavigation(context),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _carouselDots() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 16,
-          height: 6,
-          decoration: BoxDecoration(
-            color: MarketColors.brown,
-            borderRadius: BorderRadius.circular(99),
-          ),
-        ),
-        const SizedBox(width: 6),
-        ...List.generate(
-          3,
-          (_) => Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Container(
-              width: 6,
-              height: 6,
-              decoration: const BoxDecoration(
-                color: MarketColors.brown,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _homeSectionHeading(
-    BuildContext context,
-    String title, {
-    required VoidCallback onTap,
-    Color trailingColor = MarketColors.brown,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: MarketColors.brown,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: onTap,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: trailingColor,
-          ),
-          child: Row(
-            children: [
-              const Text(
-                'Lihat Semua',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(width: 2),
-              MarketAsset(
-                'd28fc.svg',
-                width: 14,
-                height: 14,
-                color: trailingColor,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _homeHero(BuildContext context) {
-    return Container(
-      height: 176,
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 12),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFC2DC80), Color(0xD1C2DC80), MarketColors.yellow],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          stops: [0, .55, 1],
-        ),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x4D594045),
-            blurRadius: 8,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Pilih\nToko Favoritmu',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    height: 1.2,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Temukan berbagai toko menarik\ndi PasarKu',
-                  style: TextStyle(
-                    color: Color(0xF2FFFFFF),
-                    height: 1.35,
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: 160,
-                  height: 28,
-                  child: ElevatedButton(
-                    onPressed: () => goTo(context, '/toko'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: MarketColors.yellow,
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(0, 28),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      elevation: 2,
-                      shape: const StadiumBorder(),
-                    ),
-                    child: const Text(
-                      'Jelajahi Sekarang   →',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 4),
-          const MarketAsset('cb537.svg', width: 84, height: 96),
-        ],
-      ),
-    );
-  }
-
-  Widget _marketInformationCard() {
-    return Container(
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xB3594045)),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x6B594045),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 120,
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: const MarketAsset(
-                    '204f2.png',
-                    width: 134,
-                    height: 105,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 11),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              'Pasar Oro-Oro Dowo',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: MarketColors.brown,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () =>
-                                setState(() => _favorite = !_favorite),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 25,
-                              height: 25,
-                            ),
-                            icon: Icon(
-                              _favorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              size: 18,
-                              color: MarketColors.brown,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        'Pusat Belanja dan Kuliner\nTradisional di Tengah Kota',
-                        style: TextStyle(
-                          color: MarketColors.yellow,
-                          fontSize: 11,
-                          height: 1.45,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      const Expanded(
-                        child: Text(
-                          'Pasar yang sudah berdiri sejak lama dan menjadi ikon belanja masyarakat dengan beragam produk, harga…',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Color(0xA6594045),
-                            fontSize: 10,
-                            height: 1.6,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          const Row(
-            children: [
-              Expanded(
-                child: _MarketStat(
-                  icon: '9107e.svg',
-                  label: 'Jam Buka',
-                  value: '06.00 -\n17.00',
-                  note: 'Setiap Hari',
-                ),
-              ),
-              Expanded(
-                child: _MarketStat(
-                  icon: 'c5164.svg',
-                  label: 'Jumlah\nPedagang',
-                  value: '± 251',
-                  note: 'Pedagang',
-                ),
-              ),
-              Expanded(
-                child: _MarketStat(
-                  icon: '51c04.svg',
-                  label: 'Lokasi',
-                  value: 'Klojen, Kota Malang',
-                  note: 'Jawa Timur',
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _featureMenu(BuildContext context) {
-    const items = [
-      ('Denah\nPasar', 'a9678.svg', '/denah'),
-      ('AI perencana', 'e365f.svg', '/chatbot-rekomendasi'),
-      ('Fasilitas', 'f0bb1.svg', '/fasilitas-pasar'),
-      ('Rekomendasi', '0c309.svg', '/rekomendasi'),
-      ('Info\nKunjungan', '23853.svg', '/info-kunjungan'),
-    ];
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xB3594045)),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x4D594045),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: items.map((item) {
-          final green = item.$1 == 'AI perencana' || item.$1 == 'Rekomendasi';
-          return SizedBox(
-            width: 48,
-            child: InkWell(
-              onTap: () => goTo(context, item.$3),
-              child: Column(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: green
-                          ? const Color(0x47C2DC80)
-                          : const Color(0x7AFBBF24),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: MarketAsset(
-                      item.$2,
-                      width: 20,
-                      height: 22,
-                      color: green
-                          ? MarketColors.greenDark
-                          : const Color(0xFFF59E0B),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.$1,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF374151),
-                      fontSize: 9,
-                      height: 1.2,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _visitBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 12, 13),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xE6C2DC80)),
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          colors: [Color(0xF2FFFFFF), Color(0x3DC2DC80)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0x47C2DC80),
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const MarketAsset(
-                        'a7199.svg',
-                        width: 18,
-                        height: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'Rencanakan Kunjunganmu',
-                        style: TextStyle(
-                          color: MarketColors.ink,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Cek info terbaru, event, dan promo menarik di\nPasar Oro-Oro Dowo.',
-                  style: TextStyle(
-                    color: Color(0xCC594045),
-                    fontSize: 11,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 9),
-                SizedBox(
-                  height: 29,
-                  child: ElevatedButton(
-                    onPressed: () => goTo(context, '/info-kunjungan'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: MarketColors.brown,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      elevation: 2,
-                      shape: const StadiumBorder(),
-                      side: const BorderSide(color: MarketColors.green),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Lihat Info Kunjungan',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        MarketAsset(
-                          '0d8ef.svg',
-                          width: 14,
-                          height: 14,
-                          color: MarketColors.brown,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const MarketAsset('f6baa.svg', width: 68, height: 68),
         ],
       ),
     );
@@ -737,62 +302,66 @@ class _HomeScreenState extends State<HomeScreen> {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 71,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .97),
-        border: Border.all(color: const Color(0xC7C2DC80)),
+        color: Colors.white,
+        border: Border.all(color: const Color(0xBBC2DC80), width: 1.5),
         borderRadius: BorderRadius.circular(999),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x244B6515),
-            blurRadius: 22,
+            color: Color(0x254B6515),
+            blurRadius: 24,
+            spreadRadius: 0,
             offset: Offset(0, -4),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items.map((item) {
           final active = item.$1 == 'Home';
           return InkWell(
             onTap: () => goTo(context, item.$2),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
+            splashColor: const Color(0x30C2DC80),
+            highlightColor: const Color(0x18C2DC80),
             child: SizedBox(
-              width: 56,
+              width: 64,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 34,
-                    height: 34,
+                    width: 38,
+                    height: 38,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: active
-                          ? const Color(0x5CC2DC80)
+                          ? const Color(0x55C2DC80)
                           : Colors.transparent,
                       shape: BoxShape.circle,
                     ),
                     child: MarketAsset(
                       item.$3,
-                      width: 20,
-                      height: 20,
+                      width: 22,
+                      height: 22,
                       color: active
                           ? MarketColors.greenDark
-                          : const Color(0xFF7B8190),
+                          : const Color(0xFF9CA3AF),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.$1,
                     maxLines: 1,
-                    overflow: TextOverflow.visible,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: active
                           ? MarketColors.greenDark
                           : const Color(0xFF9CA3AF),
                       fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                      fontWeight:
+                          active ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ],
@@ -813,48 +382,49 @@ class _HomeStoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: const Color(0xB3594045)),
-        borderRadius: BorderRadius.circular(17),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x38594045),
-            blurRadius: 10,
-            offset: Offset(0, 5),
+            color: Color(0x28594045),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+            spreadRadius: 0,
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 116,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+          // Foto toko dengan badge kategori hijau tua
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
+            child: SizedBox(
+              height: 132,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   MarketAsset(store.image, fit: BoxFit.cover),
                   Positioned(
-                    left: 6,
-                    top: 6,
+                    left: 10,
+                    top: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
+                        horizontal: 10,
+                        vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: MarketColors.greenDark,
-                        borderRadius: BorderRadius.circular(99),
+                        color: const Color(0xFF4B6515),
+                        borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
                         store.badge,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 9,
-                          height: 13 / 9,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -864,220 +434,112 @@ class _HomeStoreCard extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Column(
-                children: [
-                  Text(
-                    store.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: MarketColors.ink,
-                      fontSize: 12,
-                      height: 1.3,
-                      fontWeight: FontWeight.w700,
-                    ),
+          // Info toko
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  store.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF1E293B),
+                    fontSize: 13.5,
+                    height: 1.25,
+                    fontWeight: FontWeight.w800,
                   ),
-                  Text(
-                    store.displayCategory,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      color: Color(0xFF9CA3AF),
-                      fontSize: 9.5,
-                    ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  store.displayCategory,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w500,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        size: 13,
-                        color: MarketColors.yellow,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 15,
+                      color: Color(0xFFF59E0B),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      store.rating,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFF59E0B),
                       ),
-                      Text(
-                        store.rating,
-                        style: const TextStyle(
-                          color: MarketColors.yellow,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 11,
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      color: const Color(0xFFD1D5DB),
+                    ),
+                    Text(
+                      store.products,
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
                       ),
-                      Container(
-                        width: 1,
-                        height: 10,
-                        margin: const EdgeInsets.symmetric(horizontal: 6),
-                        color: const Color(0xFFD1D5DB),
-                      ),
-                      Text(
-                        store.products,
-                        style: const TextStyle(
-                          color: Color(0xFF6B7280),
-                          fontSize: 9.5,
-                        ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Tombol Lihat Toko kuning-oranye berbentuk kapsul dengan bayangan lembut
+                Container(
+                  width: double.infinity,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66FFC21C),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: 29,
-            child: ElevatedButton(
-              onPressed: () => goTo(context, '/detail-toko/${store.id}'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MarketColors.yellow,
-                foregroundColor: Colors.white,
-                elevation: 2,
-                padding: EdgeInsets.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                shadowColor: const Color(0x4D594045),
-              ),
-              child: const Text(
-                'Lihat Toko',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MarketStat extends StatelessWidget {
-  const _MarketStat({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.note,
-  });
-
-  final String icon;
-  final String label;
-  final String value;
-  final String note;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 23,
-            height: 23,
-            margin: const EdgeInsets.only(top: 1),
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: Color(0x4DC2DC80),
-              shape: BoxShape.circle,
-            ),
-            child: MarketAsset(icon, width: 13, height: 13),
-          ),
-          const SizedBox(width: 5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 8),
-                ),
-                Text(
-                  value,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    height: 1.2,
-                    color: MarketColors.ink,
-                    fontWeight: FontWeight.w700,
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        goTo(context, '/detail-toko/${store.id}'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFC21C),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lihat Toko',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  note,
-                  style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 8),
                 ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CategoryTile extends StatelessWidget {
-  const _CategoryTile(
-    this.label,
-    this.icon, {
-    required this.onTap,
-    this.pink = false,
-    this.plain = false,
-  });
-
-  final String label;
-  final String icon;
-  final VoidCallback onTap;
-  final bool pink;
-  final bool plain;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 65,
-        padding: const EdgeInsets.symmetric(vertical: 9),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xB3594045)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: plain
-                    ? const Color(0x7AFBBF24)
-                    : pink
-                    ? const Color(0x7AFBBF24)
-                    : const Color(0x5CC2DC80),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: MarketAsset(
-                icon,
-                width: 20,
-                height: 20,
-                color: plain || pink
-                    ? const Color(0xFFF59E0B)
-                    : MarketColors.greenDark,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              maxLines: 1,
-              style: const TextStyle(
-                color: Color(0xFF374151),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1128,144 +590,507 @@ class _StoreListScreenState extends State<StoreListScreen> {
     }).toList();
 
     return MarketPage(
-      child: Column(
+      background: MarketColors.background,
+      child: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
-            color: const Color(0xFFF3EEF1),
-            child: Column(
-              children: [
-                const BrandHeader(),
-                const SizedBox(height: 12),
-                SearchField(
-                  controller: _searchController,
-                  hint: 'Cari toko, produk, atau pedagang...',
-                  onChanged: (_) => setState(() {}),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 15, 16, 18),
-              children: [
-                const SectionHeading('Kategori Belanja'),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(9),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(21),
-                    border: Border.all(color: const Color(0x33EA9CAF)),
-                  ),
-                  child: GridView.builder(
-                    itemCount: storeCategories.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisExtent: 72,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            children: [
+              // Header: Logo Kuning dengan Awan Putih + Judul
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF1C538),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x35000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
-                    itemBuilder: (context, index) {
-                      final category = storeCategories[index];
-                      final selected = category == _activeCategory;
-                      const icons = [
-                        Icons.restaurant,
-                        Icons.eco,
-                        Icons.local_cafe,
-                        Icons.set_meal,
-                        Icons.shopping_basket,
-                        Icons.toys,
-                      ];
-                      return Material(
-                        color: selected
-                            ? const Color(0xFFFFE3EB)
-                            : const Color(0xFFF8F5F3),
-                        borderRadius: BorderRadius.circular(16),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.cloud,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Pasar Oro-Oro Dowo',
+                    style: TextStyle(
+                      color: Color(0xFF3D3830),
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Search bar
+              Container(
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x12000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  style: const TextStyle(fontSize: 13, color: MarketColors.ink),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
+                    ),
+                    hintText: 'Cari toko, produk, atau pedagang...',
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 13),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Kategori Belanja heading + chevron
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Kategori Belanja',
+                      style: TextStyle(
+                        color: Color(0xFF1E2614),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Color(0xFF374151),
+                    size: 22,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Kategori Card Putih dengan Shadow Tebal (6 Kategori)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x35283216),
+                      blurRadius: 18,
+                      offset: Offset(0, 8),
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemW = (constraints.maxWidth - 5 * 4) / 6;
+                    const categoryData = [
+                      ('Makanan', Icons.restaurant_rounded, Color(0xFFD97706), Color(0xFFFDE68A), Color(0x40F59E0B)),
+                      ('Sayur\n& Buah', Icons.eco_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
+                      ('Kuliner\nLegend', Icons.restaurant_menu_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
+                      ('Daging\n& Ikan', Icons.set_meal_rounded, Color(0xFF047857), Color(0xFFD1FAE5), Color(0x3510B981)),
+                      ('Sembako\n& Perabotan', Icons.shopping_basket_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
+                      ('Mainan\n& Baju', Icons.rocket_launch_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
+                    ];
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(categoryData.length, (index) {
+                        final cat = categoryData[index];
+                        final catName = cat.$1;
+                        final isSelected = _activeCategory != null &&
+                            catName.replaceAll('\n', ' ').toLowerCase().contains(
+                              _activeCategory!.toLowerCase().split(' ').first,
+                            );
+                        return GestureDetector(
                           onTap: () => setState(() {
-                            _activeCategory = selected ? null : category;
+                            final label = catName.replaceAll('\n', ' ');
+                            _activeCategory = isSelected ? null : label;
                           }),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                icons[index],
-                                size: 21,
-                                color: index.isEven
-                                    ? MarketColors.pink
-                                    : MarketColors.greenDark,
-                              ),
-                              const SizedBox(height: 5),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                ),
-                                child: Text(
-                                  category,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: MarketColors.ink,
-                                    fontSize: 9,
-                                    height: 1.15,
-                                    fontWeight: FontWeight.w600,
+                          child: SizedBox(
+                            width: itemW,
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? cat.$3.withValues(alpha: 0.3)
+                                        : cat.$4,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: cat.$5,
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    cat.$2,
+                                    size: 21,
+                                    color: cat.$3,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 6),
+                                Text(
+                                  catName,
+                                  maxLines: 2,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? cat.$3
+                                        : const Color(0xFF1F2937),
+                                    fontSize: 9.5,
+                                    height: 1.15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Daftar Toko Heading
+              const Text(
+                'Daftar Toko',
+                style: TextStyle(
+                  color: Color(0xFF1E2614),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Grid Toko
+              if (stores.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                    'Tidak ada toko yang cocok.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: MarketColors.muted),
+                  ),
+                )
+              else
+                GridView.builder(
+                  itemCount: stores.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 16,
+                        mainAxisExtent: 288,
+                      ),
+                  itemBuilder: (context, index) {
+                    final store = stores[index];
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () => goTo(context, '/detail-toko/${store.id}'),
+                      child: _TokoStoreCard(store: store),
+                    );
+                  },
+                ),
+            ],
+          ),
+
+          // Floating Bottom Navigation
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 12,
+            child: _tokoBottomNavigation(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tokoBottomNavigation(BuildContext context) {
+    const items = <(String, String, String)>[
+      ('Home', '/home', 'dfd0c.svg'),
+      ('Toko', '/toko', '2781e.svg'),
+      ('Promo', '/promo', '75326.svg'),
+      ('Review Pasar', '/review-pasar', '3de6e.svg'),
+    ];
+    return Container(
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xBBC2DC80), width: 1.5),
+        borderRadius: BorderRadius.circular(999),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x254B6515),
+            blurRadius: 24,
+            offset: Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items.map((item) {
+          final active = item.$1 == 'Toko';
+          return InkWell(
+            onTap: () => goTo(context, item.$2),
+            borderRadius: BorderRadius.circular(16),
+            splashColor: const Color(0x30C2DC80),
+            highlightColor: const Color(0x18C2DC80),
+            child: SizedBox(
+              width: 64,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: active
+                          ? const Color(0x55C2DC80)
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: MarketAsset(
+                      item.$3,
+                      width: 22,
+                      height: 22,
+                      color: active
+                          ? MarketColors.greenDark
+                          : const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.$1,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: active
+                          ? MarketColors.greenDark
+                          : const Color(0xFF9CA3AF),
+                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                      fontWeight:
+                          active ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _TokoStoreCard extends StatelessWidget {
+  const _TokoStoreCard({required this.store});
+
+  final StoreData store;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x2E000000),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Gambar toko dengan badge kategori hijau
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
+            child: SizedBox(
+              height: 132,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  MarketAsset(store.image, fit: BoxFit.cover),
+                  Positioned(
+                    left: 10,
+                    top: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4C6D1F),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        store.badge,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
                         ),
-                      );
-                    },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Info toko
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  store.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF1E293B),
+                    fontSize: 13.5,
+                    height: 1.25,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 18),
-                SectionHeading('Daftar Toko'),
-                const SizedBox(height: 9),
-                if (stores.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(22),
-                    child: Text(
-                      'Tidak ada toko yang cocok.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: MarketColors.muted),
-                    ),
-                  )
-                else
-                  GridView.builder(
-                    itemCount: stores.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          mainAxisExtent: 235,
-                        ),
-                    itemBuilder: (context, index) {
-                      final store = stores[index];
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: () => goTo(context, '/detail-toko/${store.id}'),
-                        child: StoreCard(store: store),
-                      );
-                    },
+                const SizedBox(height: 3),
+                Text(
+                  store.displayCategory,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w500,
                   ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 15,
+                      color: Color(0xFFF59E0B),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      store.rating,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFF59E0B),
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 11,
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      color: const Color(0xFFD1D5DB),
+                    ),
+                    Text(
+                      store.products,
+                      style: const TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // Tombol Lihat Toko kuning bulat dengan glow shadow
+                Container(
+                  width: double.infinity,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66F5A623),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        goTo(context, '/detail-toko/${store.id}'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF9B824),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lihat Toko',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          const BottomNavigation(active: 'Toko'),
         ],
       ),
     );
   }
 }
+
 
 class StoreDetailScreen extends StatefulWidget {
   const StoreDetailScreen({required this.storeId, super.key});
