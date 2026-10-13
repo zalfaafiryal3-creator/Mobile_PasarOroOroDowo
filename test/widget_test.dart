@@ -103,4 +103,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Membantu (35)'), findsOneWidget);
   });
+
+  testWidgets('Visit info screen displays complete market guide', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(389, 841);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const PasarOroOroDowoApp());
+    await tester.pump(const Duration(milliseconds: 1801));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Selanjutnya'));
+    await tester.pumpAndSettle();
+
+    await tester.dragUntilVisible(
+      find.text('Info\nKunjungan'),
+      find.byType(ListView).first,
+      const Offset(0, -200),
+    );
+    await tester.tap(find.text('Info\nKunjungan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Info Kunjungan'), findsOneWidget);
+    expect(find.text('Buka Sekarang'), findsOneWidget);
+    expect(find.text('Cagar Budaya SNI'), findsOneWidget);
+    expect(find.text('Jam Operasional'), findsOneWidget);
+
+    await tester.dragUntilVisible(
+      find.text('Hari Pasaran & Kepadatan'),
+      find.byType(ListView).first,
+      const Offset(0, -300),
+    );
+    expect(find.text('Hari Pasaran & Kepadatan'), findsOneWidget);
+
+    await tester.dragUntilVisible(
+      find.text('Buka di Google Maps'),
+      find.byType(ListView).first,
+      const Offset(0, -400),
+    );
+    expect(find.text('Akses & Pilihan Transportasi'), findsOneWidget);
+    expect(find.text('Buka di Google Maps'), findsOneWidget);
+
+    await tester.dragUntilVisible(
+      find.text('Waktu Terbaik Berkunjung'),
+      find.byType(ListView).first,
+      const Offset(0, -400),
+    );
+    expect(find.text('Waktu Terbaik Berkunjung'), findsOneWidget);
+    expect(find.text('Tips Ramah Lingkungan'), findsOneWidget);
+
+    // Tap back button
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Pilih\nToko Favoritmu'), findsOneWidget);
+  });
 }

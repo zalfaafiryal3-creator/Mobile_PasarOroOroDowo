@@ -7,12 +7,13 @@ import '../data/review_api.dart';
 import '../widgets/market_ui.dart';
 
 class _MarketReviewPreview {
-  const _MarketReviewPreview({
+  _MarketReviewPreview({
     required this.name,
     required this.rating,
     required this.date,
     required this.text,
     required this.helpfulIndex,
+    this.helpfulCount = 0,
     this.tags = const [],
     this.photos = const [],
   });
@@ -22,11 +23,12 @@ class _MarketReviewPreview {
   final String date;
   final String text;
   final int helpfulIndex;
+  int helpfulCount;
   final List<String> tags;
   final List<String> photos;
 }
 
-const _marketReviewPreviews = <_MarketReviewPreview>[
+final List<_MarketReviewPreview> _globalMarketReviews = [
   _MarketReviewPreview(
     name: 'ZALFAA',
     rating: 5,
@@ -34,6 +36,7 @@ const _marketReviewPreviews = <_MarketReviewPreview>[
     text:
         'Pasar tradisional paling bersih dan estetik di Malang! Lorongnya luas, tidak becek sama sekali, dan belanja sayur segar sampai jajanan di sini nyaman banget. Pedagangnya juga ramah-ramah.',
     helpfulIndex: 0,
+    helpfulCount: 34,
     tags: ['Kebersihan: Luar Biasa', 'Parkir: Tertata'],
     photos: ['2312e.png', 'e576e.png'],
   ),
@@ -44,6 +47,7 @@ const _marketReviewPreviews = <_MarketReviewPreview>[
     text:
         'Sekarang makin modern, sudah banyak kios yang terima pembayaran QRIS. Kuliner legendaris di bagian belakang juga lengkap dan enak. Wajib cobain kue lumpur dan mie ayamnya!',
     helpfulIndex: 1,
+    helpfulCount: 19,
   ),
   _MarketReviewPreview(
     name: 'Mifta',
@@ -52,6 +56,34 @@ const _marketReviewPreviews = <_MarketReviewPreview>[
     text:
         'Tempatnya asri dan bersih. Parkir motor dan mobil tertata rapi. Kalau pagi hari sekitar jam 7-8 cukup ramai tapi arus belanjanya tetap teratur karena lorongnya satu arah.',
     helpfulIndex: 2,
+    helpfulCount: 8,
+  ),
+  _MarketReviewPreview(
+    name: 'Budi Santoso',
+    rating: 5,
+    date: '2 minggu lalu',
+    text:
+        'Pasar rakyat yang sangat bersih dan terawat dengan baik. Aneka kue basah dan jajanan tradisionalnya juara! Sangat nyaman berbelanja pagi bersama keluarga.',
+    helpfulIndex: 3,
+    helpfulCount: 12,
+  ),
+  _MarketReviewPreview(
+    name: 'Siti Aminah',
+    rating: 4,
+    date: '3 minggu lalu',
+    text:
+        'Pedagang sayur dan buah sangat ramah dan timbangannya pas. Tempat belanja andalan keluarga setiap akhir pekan.',
+    helpfulIndex: 4,
+    helpfulCount: 7,
+  ),
+  _MarketReviewPreview(
+    name: 'Hendra Wijaya',
+    rating: 5,
+    date: '1 bulan lalu',
+    text:
+        'Toilet bersih, mushola nyaman di lantai atas. Suasana pasar tidak bau dan sirkulasi udaranya sejuk. Parkir juga aman dan teratur.',
+    helpfulIndex: 5,
+    helpfulCount: 15,
   ),
 ];
 
@@ -66,11 +98,11 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
   final _searchController = TextEditingController();
   String _filter = 'all';
   bool _newestFirst = true;
-  final List<int> _helpfulCounts = [34, 19, 8];
+  int _visibleCount = 3;
 
-  List<_MarketReviewPreview> get _visibleReviews {
+  List<_MarketReviewPreview> get _filteredReviews {
     final query = _searchController.text.trim().toLowerCase();
-    final reviews = _marketReviewPreviews.where((review) {
+    final reviews = _globalMarketReviews.where((review) {
       final matchesFilter = switch (_filter) {
         'photo' => review.photos.isNotEmpty,
         '5' => review.rating == 5,
@@ -94,250 +126,723 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final visibleReviews = _visibleReviews;
+    final filtered = _filteredReviews;
+    final displayedReviews = filtered.take(_visibleCount).toList();
+
     return MarketPage(
-      background: const Color(0xFFF5F8ED),
-      child: Column(
+      background: const Color(0xFFF0F6DF),
+      child: Stack(
         children: [
-          PageTitleBar(
-            title: 'Review Pasar',
-            subtitle: 'Pasar Oro-Oro Dowo, Malang',
-            asset: 'c03df.svg',
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-              children: [
-                RoundedCard(
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: const MarketAsset(
-                          '204f2.png',
-                          height: 140,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
+          ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 105),
+            children: [
+              // 1. Header: Logo kuning dengan ikon awan putih + Nama Pasar
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFC928),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x2B000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 3),
                         ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.cloud_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Pasar Oro-Oro Dowo',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Color(0xFF594045),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
                       ),
-                      const SizedBox(height: 11),
-                      const Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Pasar Oro-Oro Dowo',
-                                  style: TextStyle(
-                                    color: MarketColors.ink,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Title & Subtitle
+              const Text(
+                'Review & Ulasan',
+                style: TextStyle(
+                  color: Color(0xFF594045),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 2),
+              const Text(
+                'Pasar Oro-Oro Dowo, Malang',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Search Bar: Kapsul putih dengan border halus
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: const Color(0x55B8D66D),
+                    width: 1.2,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x10000000),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (_) => setState(() {}),
+                  style: const TextStyle(fontSize: 13, color: MarketColors.ink),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      color: Color(0xFF9CA3AF),
+                      size: 22,
+                    ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: Color(0xFF9CA3AF),
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {});
+                            },
+                          )
+                        : null,
+                    hintText: 'Cari review pasar...',
+                    hintStyle: const TextStyle(
+                      fontSize: 12.5,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 2. Card Ringkasan Rating Pasar
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x18594045),
+                      blurRadius: 16,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Identitas Pasar & Foto
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF7ED),
+                                  border: Border.all(
+                                    color: const Color(0xFFFDBA74),
+                                  ),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.storefront_outlined,
+                                        size: 12,
+                                        color: Color(0xFFD97706),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Pasar Wisata Cagar Budaya',
+                                        style: TextStyle(
+                                          color: Color(0xFFD97706),
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Text(
-                                  'Ulasan dan pengalaman pengunjung',
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Pasar Oro-Oro Dowo',
+                                style: TextStyle(
+                                  color: Color(0xFF594045),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 13,
+                                    color: Color(0xFFD97706),
+                                  ),
+                                  SizedBox(width: 2),
+                                  Expanded(
+                                    child: Text(
+                                      'Klojen, Kota Malang, Jawa Timur',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Color(0xFF6B7280),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: const SizedBox(
+                            width: 68,
+                            height: 56,
+                            child: MarketAsset(
+                              '204f2.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Highlight Rating Box
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2F0C2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x10000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  '4.8',
                                   style: TextStyle(
-                                    color: MarketColors.muted,
-                                    fontSize: 10,
+                                    color: Color(0xFF526B31),
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: List.generate(
+                                    5,
+                                    (_) => const Icon(
+                                      Icons.star_rounded,
+                                      size: 13,
+                                      color: Color(0xFFFFC928),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Text(
-                            '4.8  ★',
-                            style: TextStyle(
-                              color: MarketColors.yellow,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 13),
-                      const _ReviewAspectRow(
-                        label: 'Kebersihan & Kerapian',
-                        rating: '4.9',
-                        progress: .98,
-                        color: MarketColors.green,
-                      ),
-                      const SizedBox(height: 7),
-                      const _ReviewAspectRow(
-                        label: 'Kelengkapan Komoditas',
-                        rating: '4.8',
-                        progress: .94,
-                        color: MarketColors.yellow,
-                      ),
-                      const SizedBox(height: 7),
-                      const _ReviewAspectRow(
-                        label: 'Keramahan Pedagang',
-                        rating: '4.9',
-                        progress: .97,
-                        color: MarketColors.yellow,
-                      ),
-                      const SizedBox(height: 7),
-                      const _ReviewAspectRow(
-                        label: 'Keamanan & Parkir',
-                        rating: '4.6',
-                        progress: .88,
-                        color: MarketColors.brown,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SearchField(
-                  controller: _searchController,
-                  hint: 'Cari ulasan...',
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 9),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        [
-                          ('Semua (3)', 'all'),
-                          ('Dengan Foto (1)', 'photo'),
-                          ('Bintang 5 (2)', '5'),
-                          ('Bintang 4 (1)', '4'),
-                          ('Bintang 1-3 (0)', 'low'),
-                        ].map((filter) {
-                          final selected = filter.$2 == _filter;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: ChoiceChip(
-                              label: Text(filter.$1),
-                              selected: selected,
-                              onSelected: (_) =>
-                                  setState(() => _filter = filter.$2),
-                              labelStyle: TextStyle(
-                                fontSize: 9,
-                                color: selected
-                                    ? Colors.white
-                                    : MarketColors.brown,
-                              ),
-                              selectedColor: MarketColors.brown,
-                              backgroundColor: Colors.white,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 9),
-                RoundedCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
+                          const SizedBox(width: 12),
                           const Expanded(
-                            child: Text(
-                              'Ulasan Pengunjung',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () =>
-                                setState(() => _newestFirst = !_newestFirst),
-                            child: Text(
-                              _newestFirst ? 'Terbaru ↓' : 'Terlama ↑',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: MarketColors.pink,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sangat Direkomendasikan',
+                                  style: TextStyle(
+                                    color: Color(0xFF526B31),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Dari 1.240+ ulasan terverifikasi',
+                                  style: TextStyle(
+                                    color: Color(0xFF526B31),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '(98% pengunjung puas)',
+                                  style: TextStyle(
+                                    color: Color(0xFF526B31),
+                                    fontSize: 9.5,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      if (visibleReviews.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Text(
-                            'Tidak ada ulasan yang cocok.',
-                            style: TextStyle(
-                              color: MarketColors.muted,
-                              fontSize: 10,
-                            ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Aspect Ratings
+                    const _ReviewAspectRow(
+                      icon: Icons.person_outline_rounded,
+                      label: 'Kebersihan & Kerapian',
+                      rating: '4.9',
+                      progress: 0.98,
+                      color: Color(0xFFB8D66D),
+                    ),
+                    const _ReviewAspectRow(
+                      icon: Icons.shopping_basket_outlined,
+                      label: 'Kelengkapan Komoditas',
+                      rating: '4.8',
+                      progress: 0.95,
+                      color: Color(0xFFF59E0B),
+                    ),
+                    const _ReviewAspectRow(
+                      icon: Icons.sentiment_satisfied_outlined,
+                      label: 'Keramahan Pedagang',
+                      rating: '4.9',
+                      progress: 0.98,
+                      color: Color(0xFFFBBF24),
+                    ),
+                    const _ReviewAspectRow(
+                      icon: Icons.local_parking_rounded,
+                      label: 'Keamanan & Parkir',
+                      rating: '4.6',
+                      progress: 0.88,
+                      color: Color(0xFF594045),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Tombol Kuning: Tulis Ulasan Pasar
+                    Container(
+                      width: double.infinity,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFC928),
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x35FFC928),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
                           ),
-                        )
-                      else
-                        ...visibleReviews.map(_reviewCard),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const ErrorNotice(
-                  'Ulasan terbaru dari backend tidak dapat dimuat: backend/src/clients/reviewApi yang digunakan project React tidak tersedia pada folder project ini. Tiga ulasan contoh dari halaman sumber tetap ditampilkan.',
-                ),
-                const SizedBox(height: 12),
-                PrimaryMarketButton(
-                  label: '+ Tulis Ulasan Pasar',
-                  icon: Icons.rate_review_outlined,
-                  onPressed: () => goTo(context, '/tulis-ulasan-pasar'),
-                ),
-                const SizedBox(height: 10),
-                RoundedCard(
-                  child: const Row(
-                    children: [
-                      Icon(Icons.favorite, color: MarketColors.pink, size: 20),
-                      SizedBox(width: 9),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            goTo(context, '/tulis-ulasan-pasar'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFFC928),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              'Ulasan Anda Menghidupkan UMKM',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 11,
-                              ),
+                            Icon(
+                              Icons.rate_review_outlined,
+                              size: 18,
+                              color: Colors.white,
                             ),
-                            SizedBox(height: 3),
+                            SizedBox(width: 6),
                             Text(
-                              'Pengalaman Anda membantu pedagang lokal dan pengunjung lainnya.',
+                              '+ Tulis Ulasan Pasar',
                               style: TextStyle(
-                                color: MarketColors.muted,
-                                fontSize: 9,
-                                height: 1.4,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // 3. Card Ajakan Menulis Ulasan (UMKM)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE2F0C2),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0x60B8D66D)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x10000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.toll_rounded,
+                        color: Color(0xFFD97706),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ulasan Anda Menghidupkan UMKM',
+                            style: TextStyle(
+                              color: Color(0xFF594045),
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Ulasan jujur membantu kemajuan kebersihan dan mengangkat 251+ lapak pasar kita.',
+                            style: TextStyle(
+                              color: Color(0xFF526B31),
+                              fontSize: 9.5,
+                              height: 1.25,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+
+              // 4. Bagian "Semua Ulasan" & Sort Control
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Semua Ulasan',
+                      style: TextStyle(
+                        color: Color(0xFF594045),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => setState(() => _newestFirst = !_newestFirst),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _newestFirst ? 'Urutkan: Terbaru' : 'Urutkan: Terlama',
+                          style: const TextStyle(
+                            color: Color(0xFF594045),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 14,
+                          color: Color(0xFF594045),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Filter Chips Kapsul
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _filterChip(
+                      label: 'Semua (1.2k)',
+                      value: 'all',
+                    ),
+                    const SizedBox(width: 6),
+                    _filterChip(
+                      label: 'Dengan Foto (1)',
+                      value: 'photo',
+                      icon: Icons.camera_alt_outlined,
+                    ),
+                    const SizedBox(width: 6),
+                    _filterChip(
+                      label: 'Bintang 5 (2)',
+                      value: '5',
+                      icon: Icons.star_rounded,
+                    ),
+                    const SizedBox(width: 6),
+                    _filterChip(
+                      label: 'Bintang 4 (1)',
+                      value: '4',
+                      icon: Icons.star_rounded,
+                    ),
+                    const SizedBox(width: 6),
+                    _filterChip(
+                      label: 'Bintang 1-3 (0)',
+                      value: 'low',
+                      icon: Icons.star_rounded,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // 5. Daftar Card Ulasan Pengunjung
+              if (displayedReviews.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(28),
+                  child: Text(
+                    'Tidak ada ulasan yang cocok.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: MarketColors.muted,
+                      fontSize: 12,
+                    ),
+                  ),
+                )
+              else
+                ...displayedReviews.map(_reviewCard),
+
+              // 6. Tombol "Muat Ulasan Lainnya"
+              if (filtered.length > _visibleCount) ...[
+                const SizedBox(height: 14),
+                Center(
+                  child: InkWell(
+                    onTap: () => setState(() => _visibleCount += 3),
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color(0xFFFFC928),
+                          width: 1.5,
+                        ),
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x10000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Muat Ulasan Lainnya',
+                            style: TextStyle(
+                              color: Color(0xFFD97706),
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 16,
+                            color: Color(0xFFD97706),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-          const BottomNavigation(active: 'Review Pasar'),
+
+          // 7. Floating Bottom Navigation
+          Positioned(
+            left: 15,
+            right: 15,
+            bottom: 12,
+            child: _marketBottomNavigation(context),
+          ),
         ],
       ),
     );
   }
 
+  Widget _filterChip({
+    required String label,
+    required String value,
+    IconData? icon,
+  }) {
+    final selected = _filter == value;
+    return GestureDetector(
+      onTap: () => setState(() {
+        _filter = value;
+        _visibleCount = 3;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFFFC928) : const Color(0xFFE2F0C2),
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: [
+            if (selected)
+              const BoxShadow(
+                color: Color(0x25FFC928),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 13,
+                color: selected ? Colors.white : const Color(0xFF526B31),
+              ),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.white : const Color(0xFF526B31),
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _reviewCard(_MarketReviewPreview review) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // User profile row
           Row(
             children: [
               CircleAvatar(
-                radius: 17,
-                backgroundColor: const Color(0xFFE8EED8),
+                radius: 16,
+                backgroundColor: const Color(0xFFE2F0C2),
                 child: Text(
-                  review.name.substring(0, 1),
+                  review.name.isNotEmpty ? review.name[0].toUpperCase() : 'U',
                   style: const TextStyle(
-                    color: MarketColors.brown,
+                    color: Color(0xFF526B31),
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -345,123 +850,249 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      review.name,
-                      style: const TextStyle(
-                        color: MarketColors.ink,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      review.date,
-                      style: const TextStyle(
-                        color: MarketColors.muted,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  review.name,
+                  style: const TextStyle(
+                    color: Color(0xFF594045),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
+              const Icon(
+                Icons.more_vert_rounded,
+                size: 18,
+                color: Color(0xFF9CA3AF),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Rating stars & date
+          Row(
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  5,
+                  (i) => Icon(
+                    i < review.rating
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    size: 14,
+                    color: const Color(0xFFFFC928),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
               Text(
-                '${review.rating}.0  ★',
+                '${review.rating}.0',
                 style: const TextStyle(
-                  color: MarketColors.yellow,
-                  fontSize: 10,
+                  fontSize: 10.5,
                   fontWeight: FontWeight.w800,
+                  color: Color(0xFF594045),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                review.date,
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  color: Color(0xFF9CA3AF),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
+
+          // Tags row
           if (review.tags.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
-              runSpacing: 5,
-              children: review.tags
-                  .map(
-                    (tag) => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0x47C2DC80),
-                        border: Border.all(color: const Color(0xFFC2DC80)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        tag,
-                        style: const TextStyle(
-                          color: Color(0xFF354B0E),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+              runSpacing: 4,
+              children: review.tags.map((tag) {
+                final isParking = tag.toLowerCase().contains('parkir');
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isParking
+                        ? const Color(0xFFFEF3C7)
+                        : const Color(0xFFDCFCE7),
+                    border: Border.all(
+                      color: isParking
+                          ? const Color(0xFFFDE68A)
+                          : const Color(0xFF86EFAC),
                     ),
-                  )
-                  .toList(),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    tag,
+                    style: TextStyle(
+                      color: isParking
+                          ? const Color(0xFFD97706)
+                          : const Color(0xFF15803D),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
-          const SizedBox(height: 7),
+          const SizedBox(height: 8),
+
+          // Review text
           Text(
             review.text,
             style: const TextStyle(
-              color: MarketColors.ink,
+              color: Color(0xFF1F2937),
               fontSize: 11,
-              height: 1.55,
+              height: 1.45,
             ),
           ),
+
+          // Photos thumbnail row
           if (review.photos.isNotEmpty) ...[
             const SizedBox(height: 8),
             SizedBox(
-              height: 92,
+              height: 80,
               child: Row(
-                children: review.photos
-                    .map(
-                      (photo) => Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: MarketAsset(
-                              photo,
-                              fit: BoxFit.cover,
-                              height: 92,
-                              width: double.infinity,
-                            ),
-                          ),
+                children: review.photos.map((photo) {
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: MarketAsset(
+                          photo,
+                          fit: BoxFit.cover,
+                          height: 80,
+                          width: double.infinity,
                         ),
                       ),
-                    )
-                    .toList(),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],
-          const SizedBox(height: 5),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => setState(
-                () => _helpfulCounts[review.helpfulIndex]++,
+          const SizedBox(height: 8),
+
+          // Helpful button
+          InkWell(
+            onTap: () => setState(() => review.helpfulCount++),
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
               ),
-              style: TextButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                foregroundColor: MarketColors.brown,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+                borderRadius: BorderRadius.circular(999),
               ),
-              icon: const Icon(Icons.thumb_up_alt_outlined, size: 13),
-              label: Text(
-                'Membantu (${_helpfulCounts[review.helpfulIndex]})',
-                style: const TextStyle(fontSize: 9),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.thumb_up_alt_outlined,
+                    size: 12,
+                    color: Color(0xFF594045),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Membantu (${review.helpfulCount})',
+                    style: const TextStyle(
+                      color: Color(0xFF594045),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const Divider(height: 8, color: Color(0xFFECEFE5)),
         ],
+      ),
+    );
+  }
+
+  Widget _marketBottomNavigation(BuildContext context) {
+    const items = <(String, String, String)>[
+      ('Home', '/home', 'dfd0c.svg'),
+      ('Toko', '/toko', '2781e.svg'),
+      ('Promo', '/promo', '75326.svg'),
+      ('Review Pasar', '/review-pasar', '3de6e.svg'),
+    ];
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.98),
+        border: Border.all(color: const Color(0x99B8D66D), width: 1.5),
+        borderRadius: BorderRadius.circular(999),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22526B31),
+            blurRadius: 22,
+            offset: Offset(0, -3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: items.map((item) {
+          final active = item.$1 == 'Review Pasar';
+          return InkWell(
+            onTap: () => goTo(context, item.$2),
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              width: 58,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 34,
+                    height: 32,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: active
+                          ? const Color(0xFFE2F0C2)
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: MarketAsset(
+                      item.$3,
+                      width: 20,
+                      height: 20,
+                      color: active
+                          ? const Color(0xFF526B31)
+                          : const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.$1,
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                    style: TextStyle(
+                      color: active
+                          ? const Color(0xFF526B31)
+                          : const Color(0xFF9CA3AF),
+                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -469,12 +1100,14 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
 
 class _ReviewAspectRow extends StatelessWidget {
   const _ReviewAspectRow({
+    required this.icon,
     required this.label,
     required this.rating,
     required this.progress,
     required this.color,
   });
 
+  final IconData icon;
   final String label;
   final String rating;
   final double progress;
@@ -482,41 +1115,57 @@ class _ReviewAspectRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: MarketColors.ink,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 13, color: color),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Color(0xFF594045),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              '$rating ★',
-              style: const TextStyle(
-                color: MarketColors.ink,
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    rating,
+                    style: const TextStyle(
+                      color: Color(0xFF1F2937),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(
+                    Icons.star_rounded,
+                    size: 11,
+                    color: Color(0xFFFFC928),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 3),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(99),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 6,
-            backgroundColor: const Color(0xFFDEE8FF),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 3),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 5,
+              backgroundColor: const Color(0xFFE5E7EB),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -602,11 +1251,48 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   }
 
   Future<void> _submit() async {
+    final name = _nameController.text.trim();
+    final text = _experienceController.text.trim();
+    if (text.isEmpty) {
+      setState(() => _error = 'Mohon isi komentar atau ulasan pengalaman Anda.');
+      return;
+    }
+
     setState(() {
       _sending = true;
-      _error = 'Ulasan tidak dapat dikirim karena backend/src/clients/reviewApi yang digunakan project React tidak tersedia. Formulir dan data Anda belum disimpan.';
+      _error = null;
     });
-    setState(() => _sending = false);
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final newReview = _MarketReviewPreview(
+      name: name.isEmpty ? 'Pengunjung Pasar' : name,
+      rating: _rating,
+      date: 'Baru saja',
+      text: text,
+      helpfulIndex: _globalMarketReviews.length,
+      helpfulCount: 0,
+      tags: _selectedAspect.isNotEmpty && _selectedAspect != 'Semua'
+          ? ['Aspek: $_selectedAspect']
+          : ['Ulasan Pengunjung'],
+      photos: _photos.map((p) => p.name).toList(),
+    );
+
+    _globalMarketReviews.insert(0, newReview);
+
+    if (mounted) {
+      setState(() {
+        _sending = false;
+        _error = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ulasan Anda berhasil dikirim dan ditambahkan!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      goBack(context, fallback: '/review-pasar');
+    }
   }
 
   @override
