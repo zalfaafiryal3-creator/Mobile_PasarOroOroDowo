@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/discovery_screens.dart';
 import 'screens/market_screens.dart';
 import 'screens/review_screens.dart';
+import 'screens/visit_planner/visit_planner_screen.dart' as visit_planner;
 import 'screens/welcome_screens.dart';
 import 'widgets/market_ui.dart';
 
@@ -22,45 +23,46 @@ class PasarOroOroDowoApp extends StatelessWidget {
       page = StoreDetailScreen(storeId: uri.pathSegments.last);
     } else {
       switch (path) {
-      case '/':
-        page = const SplashScreen();
-      case '/landing-page':
-        page = const LandingPage();
-      case '/home':
-        page = const HomeScreen();
-      case '/toko':
-        page = StoreListScreen(initialCategory: uri.queryParameters['category']);
-      case '/detail-toko':
-        page = StoreDetailScreen(storeId: uri.pathSegments.length > 1
-            ? uri.pathSegments.last
-            : 'lumpur-kentang-27');
-      case '/denah':
-        page = const MarketMapScreen();
-      case '/chatbot-rekomendasi':
-        page = const VisitPlannerScreen();
-      case '/fasilitas-pasar':
-        page = const FacilitiesScreen();
-      case '/info-kunjungan':
-        page = const VisitInfoScreen();
-      case '/promo':
-        page = const PromoScreen();
-      case '/rekomendasi':
-        page = const RecommendationsScreen();
-      case '/review-pasar':
-        page = const MarketReviewsScreen();
-      case '/tulis-ulasan-pasar':
-        page = const WriteMarketReviewScreen();
-      case '/tulis-ulasan-toko':
-        page = const WriteStoreReviewScreen();
-      default:
-        page = const HomeScreen();
+        case '/':
+          page = const SplashScreen();
+        case '/landing-page':
+          page = const LandingPage();
+        case '/home':
+          page = const HomeScreen();
+        case '/toko':
+          page = StoreListScreen(
+            initialCategory: uri.queryParameters['category'],
+          );
+        case '/detail-toko':
+          page = StoreDetailScreen(
+            storeId: uri.pathSegments.length > 1
+                ? uri.pathSegments.last
+                : 'lumpur-kentang-27',
+          );
+        case '/denah':
+          page = const MarketMapScreen();
+        case '/chatbot-rekomendasi':
+          page = const visit_planner.VisitPlannerScreen();
+        case '/fasilitas-pasar':
+          page = const FacilitiesScreen();
+        case '/info-kunjungan':
+          page = const VisitInfoScreen();
+        case '/promo':
+          page = const PromoScreen();
+        case '/rekomendasi':
+          page = const RecommendationsScreen();
+        case '/review-pasar':
+          page = const MarketReviewsScreen();
+        case '/tulis-ulasan-pasar':
+          page = const WriteMarketReviewScreen();
+        case '/tulis-ulasan-toko':
+          page = const WriteStoreReviewScreen();
+        default:
+          page = const HomeScreen();
       }
     }
 
-    return MaterialPageRoute<void>(
-      settings: settings,
-      builder: (_) => page,
-    );
+    return MaterialPageRoute<void>(settings: settings, builder: (_) => page);
   }
 
   @override

@@ -523,11 +523,7 @@ class VisitInfoScreen extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.location_on,
-                  size: 12,
-                  color: Color(0xFF526B31),
-                ),
+                Icon(Icons.location_on, size: 12, color: Color(0xFF526B31)),
                 SizedBox(width: 3),
                 Text(
                   'Pasar Oro-Oro Dowo, Malang',
@@ -572,7 +568,10 @@ class VisitInfoScreen extends StatelessWidget {
             children: [
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.35),
                     borderRadius: BorderRadius.circular(999),
@@ -582,11 +581,7 @@ class VisitInfoScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.circle,
-                          size: 7,
-                          color: Color(0xFF42491C),
-                        ),
+                        Icon(Icons.circle, size: 7, color: Color(0xFF42491C)),
                         SizedBox(width: 4),
                         Text(
                           'Buka Sekarang',
@@ -664,17 +659,11 @@ class VisitInfoScreen extends StatelessWidget {
           // Three stats pills
           Row(
             children: [
-              Expanded(
-                child: _buildHeroStatPill('JAM BUKA', '06.00 – 17.00'),
-              ),
+              Expanded(child: _buildHeroStatPill('JAM BUKA', '06.00 – 17.00')),
               const SizedBox(width: 8),
-              Expanded(
-                child: _buildHeroStatPill('PEDAGANG', '± 251 Kios'),
-              ),
+              Expanded(child: _buildHeroStatPill('PEDAGANG', '± 251 Kios')),
               const SizedBox(width: 8),
-              Expanded(
-                child: _buildHeroStatPill('EST. BERDIRI', 'Tahun 1932'),
-              ),
+              Expanded(child: _buildHeroStatPill('EST. BERDIRI', 'Tahun 1932')),
             ],
           ),
         ],
@@ -776,16 +765,16 @@ class VisitInfoScreen extends StatelessWidget {
                     ),
                     Text(
                       'Jadwal transaksi harian pasar',
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      style: TextStyle(fontSize: 9.5, color: Color(0xFF9CA3AF)),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE2F0C2),
                   borderRadius: BorderRadius.circular(999),
@@ -905,10 +894,7 @@ class VisitInfoScreen extends StatelessWidget {
                       SizedBox(height: 1),
                       Text(
                         'Area kuliner luar & food court semi-terbuka',
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: Color(0xFF9CA3AF),
-                        ),
+                        style: TextStyle(fontSize: 9, color: Color(0xFF9CA3AF)),
                       ),
                     ],
                   ),
@@ -1013,16 +999,16 @@ class VisitInfoScreen extends StatelessWidget {
                     ),
                     Text(
                       'Estimasi kepadatan pengunjung pasar',
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      style: TextStyle(fontSize: 9.5, color: Color(0xFF9CA3AF)),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE2F0C2),
                   borderRadius: BorderRadius.circular(999),
@@ -1048,8 +1034,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeTextColor: const Color(0xFF526B31),
             progress: 0.35,
             progressColor: const Color(0xFFB8D66D),
-            description:
-                'Sangat direkomendasikan untuk belanja sayuran harian, rempah-rempah, dan daging tanpa antrean.',
+            description: 'Sangat direkomendasikan untuk belanja sayuran harian, rempah-rempah, dan daging tanpa antrean.',
           ),
           const SizedBox(height: 12),
 
@@ -1061,8 +1046,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeTextColor: const Color(0xFFD97706),
             progress: 0.60,
             progressColor: const Color(0xFFF59E0B),
-            description:
-                'Ramai di pagi hari (06.30 – 09.30 WIB) karena kebutuhan stok masak akhir pekan.',
+            description: 'Ramai di pagi hari (06.30 – 09.30 WIB) karena kebutuhan stok masak akhir pekan.',
           ),
           const SizedBox(height: 12),
 
@@ -1075,8 +1059,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeTextColor: const Color(0xFF526B31),
             progress: 0.92,
             progressColor: const Color(0xFF4B6515),
-            description:
-                'Penuh pemburu jajanan legendaris seperti kue lumpur & roti bun lumpur 27.',
+            description: 'Penuh pemburu jajanan legendaris seperti kue lumpur & roti bun lumpur 27.',
           ),
         ],
       ),
@@ -1213,10 +1196,7 @@ class VisitInfoScreen extends StatelessWidget {
                     ),
                     Text(
                       'Rute mudah menuju Pasar Oro-Oro Dowo',
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      style: TextStyle(fontSize: 9.5, color: Color(0xFF9CA3AF)),
                     ),
                   ],
                 ),
@@ -1337,8 +1317,7 @@ class VisitInfoScreen extends StatelessWidget {
           _buildTransportOption(
             icon: Icons.directions_car_rounded,
             title: 'Kendaraan Pribadi',
-            body:
-                'Akses nyaman dari arah Jl. Ijen melalui Jl. Guntur atau Jl. Muria. Lahan parkir mobil tersedia di sisi utara & selatan.',
+            body: 'Akses nyaman dari arah Jl. Ijen melalui Jl. Guntur atau Jl. Muria. Lahan parkir mobil tersedia di sisi utara & selatan.',
           ),
           const SizedBox(height: 10),
 
@@ -1346,8 +1325,7 @@ class VisitInfoScreen extends StatelessWidget {
           _buildTransportOption(
             icon: Icons.directions_bus_rounded,
             title: 'Angkutan Kota (Mikrolet)',
-            body:
-                'Jalur angkot kode GL (Gadang – Landungsari), ASD, dan MM melintas di dekat perempatan Jl. Guntur.',
+            body: 'Jalur angkot kode GL (Gadang – Landungsari), ASD, dan MM melintas di dekat perempatan Jl. Guntur.',
           ),
           const SizedBox(height: 10),
 
@@ -1355,8 +1333,7 @@ class VisitInfoScreen extends StatelessWidget {
           _buildTransportOption(
             icon: Icons.local_taxi_rounded,
             title: 'Ojek & Taksi Online (Grab / Gojek)',
-            body:
-                'Pilih titik penurunan/jemput di "Lobby Utama Timur Pasar Oro-Oro Dowo" agar mudah dijangkau pengemudi.',
+            body: 'Pilih titik penurunan/jemput di "Lobby Utama Timur Pasar Oro-Oro Dowo" agar mudah dijangkau pengemudi.',
           ),
           const SizedBox(height: 14),
 
@@ -1493,10 +1470,7 @@ class VisitInfoScreen extends StatelessWidget {
                     ),
                     Text(
                       'Sesuaikan waktu dengan kebutuhan Anda',
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        color: Color(0xFF9CA3AF),
-                      ),
+                      style: TextStyle(fontSize: 9.5, color: Color(0xFF9CA3AF)),
                     ),
                   ],
                 ),
@@ -1512,8 +1486,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeBg: const Color(0xFFE2F0C2),
             badgeTextColor: const Color(0xFF526B31),
             title: 'Belanja Dapur Segar Petani',
-            body:
-                'Waktu terbaik mendapatkan sayuran hijau, rempah, daging segar baru potong, dan bumbu racik langsung dari petani/distributor Malang.',
+            body: 'Waktu terbaik mendapatkan sayuran hijau, rempah, daging segar baru potong, dan bumbu racik langsung dari petani/distributor Malang.',
             cardBg: const Color(0xFFF7FBF4),
             borderColor: const Color(0xFFE2F0C2),
           ),
@@ -1526,8 +1499,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeBg: const Color(0xFFFEF3C7),
             badgeTextColor: const Color(0xFFD97706),
             title: 'Jajanan Tradisional & Santai',
-            body:
-                'Nikmati jajanan legendaris seperti kue lumpur hangat, onde-onde, dan aneka kue basah sambil menikmati suasana santai.',
+            body: 'Nikmati jajanan legendaris seperti kue lumpur hangat, onde-onde, dan aneka kue basah sambil menikmati suasana santai.',
             cardBg: const Color(0xFFFFFDF5),
             borderColor: const Color(0xFFFEF3C7),
           ),
@@ -1540,8 +1512,7 @@ class VisitInfoScreen extends StatelessWidget {
             badgeBg: const Color(0xFFE2F0C2),
             badgeTextColor: const Color(0xFF526B31),
             title: 'Belanja Praktis & Tenang',
-            body:
-                'Lorong pasar jauh lebih sepi. Cocok untuk Anda yang ingin belanja kilat tanpa antre di kasir atau lapak.',
+            body: 'Lorong pasar jauh lebih sepi. Cocok untuk Anda yang ingin belanja kilat tanpa antre di kasir atau lapak.',
             cardBg: const Color(0xFFF4F9ED),
             borderColor: const Color(0xFFE2F0C2),
           ),
@@ -1717,7 +1688,9 @@ class VisitInfoScreen extends StatelessWidget {
                     width: 34,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: active ? const Color(0xFFE2F0C2) : Colors.transparent,
+                      color: active
+                          ? const Color(0xFFE2F0C2)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     alignment: Alignment.center,
@@ -3127,157 +3100,283 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
   String _rupiah(double amount) =>
       'Rp${amount.round().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
 
+  Widget _plannerHeader(BuildContext context) {
+    return Container(
+      height: 65,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        color: MarketColors.background,
+        border: Border(
+          bottom: BorderSide(color: MarketColors.green.withValues(alpha: .7)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: () => goBack(context),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 20,
+                  color: MarketColors.brown,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const MarketAsset('robot.png', width: 24, height: 24),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'AI Perencana Kunjungan',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: MarketColors.brown,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                const Text(
+                  'Susun rute kuliner otomatis sesuai preferensimu',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: MarketColors.greenDark,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MarketPage(
       child: Column(
         children: [
-          PageTitleBar(
-            title: 'AI Perencana Kunjungan',
-            subtitle: 'Susun rute kuliner otomatis sesuai preferensimu',
-            asset: 'robot.png',
-            onBack: () => goBack(context),
-          ),
+          _plannerHeader(context),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 18),
+              padding: const EdgeInsets.fromLTRB(12, 28, 12, 18),
               children: [
-                RoundedCard(
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(17),
+                    border: Border.all(color: MarketColors.brown, width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66594045),
+                        blurRadius: 5,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _preferenceTitle('Waktu Tersedia'),
-                      const SizedBox(height: 7),
-                      Wrap(
-                        spacing: 7,
-                        children: ['30 Menit', '1 Jam', '2 Jam +']
-                            .map(
-                              (value) => _selectPill(
-                                value,
-                                selected: _duration == value,
-                                onTap: () => setState(() => _duration = value),
-                              ),
-                            )
-                            .toList(),
+                      const SizedBox(height: 12),
+                      _choiceRow(
+                        ['30 Menit', '1 Jam', '2 Jam +'],
+                        _duration,
+                        (value) => setState(() => _duration = value),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 28),
                       _preferenceTitle('Preferensi Rasa'),
-                      const SizedBox(height: 7),
-                      Wrap(
-                        spacing: 7,
-                        children: ['Manis', 'Pedas', 'Asin', 'Gurih']
-                            .map(
-                              (value) => _selectPill(
-                                value,
-                                selected: _taste == value,
-                                onTap: () => setState(() => _taste = value),
-                              ),
-                            )
-                            .toList(),
+                      const SizedBox(height: 12),
+                      _choiceRow(
+                        ['Manis', 'Pedas', 'Asin'],
+                        _taste,
+                        (value) => setState(() => _taste = value),
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 18),
                       Row(
                         children: [
-                          const Expanded(
-                            child: Text(
-                              'Budget',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
+                          Expanded(
+                            child: _selectPill(
+                              'Gurih',
+                              selected: _taste == 'Gurih',
+                              onTap: () => setState(() => _taste = 'Gurih'),
                             ),
                           ),
-                          Text(
-                            _rupiah(_budget),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: MarketColors.pink,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Slider(
-                        value: _budget,
-                        min: 10000,
-                        max: 200000,
-                        divisions: 38,
-                        activeColor: MarketColors.pink,
-                        inactiveColor: const Color(0x55C2DC80),
-                        onChanged: (value) => setState(() => _budget = value),
-                      ),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Rp10.000',
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: MarketColors.muted,
-                            ),
-                          ),
-                          Text(
-                            'Rp200.000',
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: MarketColors.muted,
-                            ),
-                          ),
+                          const Expanded(child: SizedBox()),
+                          const Expanded(child: SizedBox()),
                         ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                PrimaryMarketButton(
-                  label: 'Buat Rekomendasi',
-                  icon: Icons.auto_awesome,
-                  onPressed: () => setState(() => _generated = true),
+                const SizedBox(height: 18),
+                Text(
+                  'Budget: ${_rupiah(_budget)}',
+                  style: const TextStyle(
+                    color: MarketColors.greenDark,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                const SizedBox(height: 12),
-                RoundedCard(
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 6,
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 12,
+                    ),
+                  ),
+                  child: SizedBox(
+                    height: 34,
+                    child: Slider(
+                      value: _budget,
+                      min: 10000,
+                      max: 200000,
+                      divisions: 38,
+                      activeColor: MarketColors.greenDark,
+                      inactiveColor: MarketColors.green,
+                      onChanged: (value) => setState(() => _budget = value),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 68,
+                  child: ElevatedButton(
+                    onPressed: () => setState(() => _generated = true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MarketColors.yellow,
+                      foregroundColor: MarketColors.greenDark,
+                      elevation: 5,
+                      shadowColor: MarketColors.brown.withValues(alpha: .6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(17),
+                      ),
+                    ),
+                    child: const Text(
+                      'Buat Rekomendasi',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  constraints: const BoxConstraints(minHeight: 360),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(17),
+                    border: Border.all(color: MarketColors.brown, width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x66594045),
+                        blurRadius: 5,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const MarketAsset('robot.png', width: 28, height: 28),
-                          const SizedBox(width: 7),
-                          _pill(
-                            'HASIL AI',
-                            color: MarketColors.greenDark,
-                            background: const Color(0x55C2DC80),
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: MarketColors.yellow,
+                          borderRadius: BorderRadius.circular(999),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x66594045),
+                              blurRadius: 4,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.smart_toy_outlined,
+                              size: 17,
+                              color: MarketColors.greenDark,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'HASIL AI',
+                              style: TextStyle(
+                                color: MarketColors.greenDark,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 11),
+                      const SizedBox(height: 22),
                       Text(
                         _generated
                             ? 'Rute $_duration, $_taste & hemat'
                             : 'Rute singkat 1 jam, pedas & hemat',
                         style: const TextStyle(
                           fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          color: MarketColors.brown,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        _generated
-                            ? 'Belum ada produk ${_taste.toLowerCase()} yang sesuai budget ${_rupiah(_budget)}.'
-                            : 'Memuat rekomendasi kuliner pasar…',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: MarketColors.muted,
-                          height: 1.45,
+                          fontSize: 16,
+                          color: MarketColors.greenDark,
                         ),
                       ),
                       if (_generated) ...[
-                        const SizedBox(height: 10),
-                        const ErrorNotice(
-                          'Data katalog untuk rute AI tidak tersedia. Sumber React mengambilnya dari backend yang tidak ada dalam folder project yang diberikan.',
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8E4),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: MarketColors.yellow),
+                          ),
+                          child: Text(
+                            'Rekomendasi belum dapat dibuat karena data katalog rute belum tersedia.',
+                            style: const TextStyle(
+                              color: MarketColors.brown,
+                              fontSize: 10,
+                              height: 1.4,
+                            ),
+                          ),
                         ),
                       ],
+                      const SizedBox(height: 18),
+                      const _PlannerStepMarker(number: '1'),
+                      const SizedBox(height: 58),
+                      const _PlannerStepMarker(number: '2'),
+                      const SizedBox(height: 58),
+                      const Divider(color: MarketColors.yellow, thickness: 1),
                     ],
                   ),
                 ),
@@ -3291,25 +3390,102 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
 
   Widget _preferenceTitle(String value) => Text(
     value,
-    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+    style: const TextStyle(
+      color: MarketColors.greenDark,
+      fontSize: 12,
+      fontWeight: FontWeight.w800,
+    ),
   );
+
+  Widget _choiceRow(
+    List<String> values,
+    String selected,
+    ValueChanged<String> onSelected,
+  ) {
+    return Row(
+      children: [
+        for (var index = 0; index < values.length; index++) ...[
+          Expanded(
+            child: _selectPill(
+              values[index],
+              selected: selected == values[index],
+              onTap: () => onSelected(values[index]),
+            ),
+          ),
+          if (index < values.length - 1) const SizedBox(width: 12),
+        ],
+      ],
+    );
+  }
 
   Widget _selectPill(
     String value, {
     required bool selected,
     required VoidCallback onTap,
   }) {
-    return ChoiceChip(
-      label: Text(value),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      labelStyle: TextStyle(
-        fontSize: 10,
-        color: selected ? Colors.white : MarketColors.brown,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? MarketColors.greenDark : Colors.white,
+          border: Border.all(color: MarketColors.yellow, width: 1),
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: selected
+              ? const [
+                  BoxShadow(
+                    color: Color(0x66594045),
+                    blurRadius: 3,
+                    offset: Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          value,
+          style: TextStyle(
+            color: selected ? MarketColors.yellow : MarketColors.greenDark,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-      selectedColor: MarketColors.pink,
-      backgroundColor: const Color(0xFFF8F5F3),
-      visualDensity: VisualDensity.compact,
+    );
+  }
+}
+
+class _PlannerStepMarker extends StatelessWidget {
+  const _PlannerStepMarker({required this.number});
+
+  final String number;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 30,
+      height: 30,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: MarketColors.yellow,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x66594045),
+            blurRadius: 4,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Text(
+        number,
+        style: const TextStyle(
+          color: MarketColors.greenDark,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
   }
 }

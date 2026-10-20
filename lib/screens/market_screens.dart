@@ -24,9 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _matchesCategory(StoreData store, String category) {
     final cat = category.toLowerCase();
-    final target = '${store.category} ${store.displayCategory} ${store.badge}'.toLowerCase();
+    final target = '${store.category} ${store.displayCategory} ${store.badge}'
+        .toLowerCase();
     if (cat == 'pakaian') {
-      return target.contains('pakaian') || target.contains('baju') || target.contains('mainan & baju');
+      return target.contains('pakaian') ||
+          target.contains('baju') ||
+          target.contains('mainan & baju');
     } else if (cat == 'sembako') {
       return target.contains('sembako');
     } else if (cat == 'makanan') {
@@ -58,9 +61,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final List<StoreData> displayedStores;
     if (query.isNotEmpty || _activeCategory != null) {
       displayedStores = marketStores.where((store) {
-        final matchesCat = _activeCategory == null ||
+        final matchesCat =
+            _activeCategory == null ||
             _matchesCategory(store, _activeCategory!);
-        final matchesSearch = query.isEmpty ||
+        final matchesSearch =
+            query.isEmpty ||
             '${store.name} ${store.displayCategory} ${store.badge} ${store.category}'
                 .toLowerCase()
                 .contains(query);
@@ -68,34 +73,40 @@ class _HomeScreenState extends State<HomeScreen> {
       }).toList();
     } else {
       displayedStores = defaultStoreIds
-          .map((id) => marketStores.firstWhere(
-                (s) => s.id == id,
-                orElse: () => marketStores.first,
-              ))
+          .map(
+            (id) => marketStores.firstWhere(
+              (s) => s.id == id,
+              orElse: () => marketStores.first,
+            ),
+          )
           .toList();
     }
 
     return MarketPage(
-      background: const Color(0xFFF0F6DF),
+      background: MarketColors.background,
       child: Stack(
         children: [
           ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 105),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 105),
             children: [
-              // 1. Header: Logo kuning dengan ikon awan putih + Nama Pasar
+              // 1. Header: logo gradasi dengan ikon awan + nama pasar
               Row(
                 children: [
                   Container(
-                    width: 42,
-                    height: 42,
+                    width: 38,
+                    height: 38,
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFFFC928),
+                      gradient: LinearGradient(
+                        colors: [MarketColors.yellow, MarketColors.green],
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                      ),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0x2B000000),
-                          blurRadius: 8,
+                          color: Color(0x334B6515),
+                          blurRadius: 7,
                           offset: Offset(0, 3),
                         ),
                       ],
@@ -131,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
-                    color: const Color(0x55B8D66D),
+                    color: MarketColors.green.withValues(alpha: .65),
                     width: 1.2,
                   ),
                   boxShadow: const [
@@ -179,20 +190,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // 3. Banner Gradasi Hijau Muda ke Kuning
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+                constraints: const BoxConstraints(minHeight: 176),
+                padding: const EdgeInsets.fromLTRB(20, 18, 14, 18),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFB8D66D),
-                      Color(0xFFFFC928),
-                    ],
+                    colors: [MarketColors.green, MarketColors.yellow],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x20526B31),
+                      color: Color(0x304B6515),
                       blurRadius: 14,
                       offset: Offset(0, 6),
                     ),
@@ -208,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Pilih\nToko Favoritmu',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18.5,
+                              fontSize: 19.5,
                               fontWeight: FontWeight.w800,
                               height: 1.15,
                             ),
@@ -218,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Temukan berbagai toko menarik\ndi PasarKu',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.95),
-                              fontSize: 10.5,
+                              fontSize: 11.5,
                               height: 1.25,
                             ),
                           ),
@@ -228,8 +237,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(999),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                                horizontal: 15,
+                                vertical: 8,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -250,8 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Text(
                                       'Jelajahi Sekarang',
                                       style: TextStyle(
-                                        color: Color(0xFFD97706),
-                                        fontSize: 11,
+                                        color: MarketColors.greenDark,
+                                        fontSize: 11.5,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
@@ -259,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icon(
                                       Icons.arrow_forward_rounded,
                                       size: 13,
-                                      color: Color(0xFFD97706),
+                                      color: MarketColors.greenDark,
                                     ),
                                   ],
                                 ),
@@ -327,9 +336,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: MarketColors.brown, width: 1),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x18594045),
+                        color: Color(0x40594045),
                         blurRadius: 16,
                         offset: Offset(0, 6),
                       ),
@@ -343,8 +353,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(14),
                             child: const SizedBox(
-                              width: 110,
-                              height: 80,
+                              width: 138,
+                              height: 100,
                               child: MarketAsset(
                                 '204f2.png',
                                 fit: BoxFit.cover,
@@ -364,8 +374,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                          color: Color(0xFF594045),
-                                          fontSize: 14.5,
+                                          color: MarketColors.brown,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
@@ -373,18 +383,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          _isMarketFavorite = !_isMarketFavorite;
+                                          _isMarketFavorite =
+                                              !_isMarketFavorite;
                                         });
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(seconds: 1),
-                                            content: Text(
-                                              _isMarketFavorite
-                                                  ? 'Pasar Oro-Oro Dowo ditambahkan ke favorit'
-                                                  : 'Dihapus dari favorit',
-                                            ),
-                                          ),
-                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 1,
+                                                ),
+                                                content: Text(
+                                                  _isMarketFavorite
+                                                      ? 'Pasar Oro-Oro Dowo ditambahkan ke favorit'
+                                                      : 'Dihapus dari favorit',
+                                                ),
+                                              ),
+                                            );
                                       },
                                       child: Icon(
                                         _isMarketFavorite
@@ -393,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         size: 19,
                                         color: _isMarketFavorite
                                             ? const Color(0xFFE11D48)
-                                            : const Color(0xFF594045),
+                                            : MarketColors.brown,
                                       ),
                                     ),
                                   ],
@@ -402,8 +416,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Text(
                                   'Pusat Belanja dan Kuliner\nTradisional di Tengah Kota',
                                   style: TextStyle(
-                                    color: Color(0xFFD97706),
-                                    fontSize: 9.5,
+                                    color: MarketColors.yellow,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w700,
                                     height: 1.2,
                                   ),
@@ -415,7 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: Color(0xFF6B7280),
-                                    fontSize: 9,
+                                    fontSize: 10,
                                     height: 1.25,
                                   ),
                                 ),
@@ -430,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 7,
+                          vertical: 9,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF7FAF2),
@@ -480,6 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: MarketColors.brown, width: 1),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x18594045),
@@ -502,6 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         label: 'AI-\nperencana',
                         icon: Icons.image_outlined,
                         route: '/chatbot-rekomendasi',
+                        greenAccent: true,
                       ),
                     ),
                     Expanded(
@@ -516,6 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         label: 'Rekomendasi\n',
                         icon: Icons.history_rounded,
                         route: '/rekomendasi',
+                        greenAccent: true,
                       ),
                     ),
                     Expanded(
@@ -576,11 +593,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _CategoryBox(
                       name: 'Pakaian',
                       icon: Icons.checkroom_rounded,
-                      iconColor: const Color(0xFFF59E0B),
+                      greenAccent: false,
                       isSelected: _activeCategory == 'Pakaian',
                       onTap: () => setState(() {
-                        _activeCategory =
-                            _activeCategory == 'Pakaian' ? null : 'Pakaian';
+                        _activeCategory = _activeCategory == 'Pakaian'
+                            ? null
+                            : 'Pakaian';
                       }),
                     ),
                   ),
@@ -589,11 +607,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _CategoryBox(
                       name: 'Sembako',
                       icon: Icons.shopping_basket_rounded,
-                      iconColor: const Color(0xFF10B981),
+                      greenAccent: true,
                       isSelected: _activeCategory == 'Sembako',
                       onTap: () => setState(() {
-                        _activeCategory =
-                            _activeCategory == 'Sembako' ? null : 'Sembako';
+                        _activeCategory = _activeCategory == 'Sembako'
+                            ? null
+                            : 'Sembako';
                       }),
                     ),
                   ),
@@ -602,11 +621,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _CategoryBox(
                       name: 'Makanan',
                       icon: Icons.soup_kitchen_rounded,
-                      iconColor: const Color(0xFFF59E0B),
+                      greenAccent: false,
                       isSelected: _activeCategory == 'Makanan',
                       onTap: () => setState(() {
-                        _activeCategory =
-                            _activeCategory == 'Makanan' ? null : 'Makanan';
+                        _activeCategory = _activeCategory == 'Makanan'
+                            ? null
+                            : 'Makanan';
                       }),
                     ),
                   ),
@@ -615,11 +635,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _CategoryBox(
                       name: 'Perabotan',
                       icon: Icons.work_outline_rounded,
-                      iconColor: const Color(0xFF10B981),
+                      greenAccent: true,
                       isSelected: _activeCategory == 'Perabotan',
                       onTap: () => setState(() {
-                        _activeCategory =
-                            _activeCategory == 'Perabotan' ? null : 'Perabotan';
+                        _activeCategory = _activeCategory == 'Perabotan'
+                            ? null
+                            : 'Perabotan';
                       }),
                     ),
                   ),
@@ -628,11 +649,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _CategoryBox(
                       name: 'Lainnya',
                       icon: Icons.more_horiz_rounded,
-                      iconColor: const Color(0xFFF59E0B),
+                      greenAccent: false,
                       isSelected: _activeCategory == 'Lainnya',
                       onTap: () => setState(() {
-                        _activeCategory =
-                            _activeCategory == 'Lainnya' ? null : 'Lainnya';
+                        _activeCategory = _activeCategory == 'Lainnya'
+                            ? null
+                            : 'Lainnya';
                       }),
                     ),
                   ),
@@ -698,7 +720,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 14,
-                    mainAxisExtent: 282,
+                    mainAxisExtent: 265,
                   ),
                   itemBuilder: (context, index) {
                     final store = displayedStores[index];
@@ -715,8 +737,13 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(22),
+                  gradient: const LinearGradient(
+                    colors: [Colors.white, Color(0xFFF5F8E9)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: MarketColors.green, width: 1),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x18594045),
@@ -738,13 +765,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 24,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFDCFCE7),
+                                  color: const Color(0xFFEAF3D4),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: const Icon(
                                   Icons.calendar_month_rounded,
                                   size: 15,
-                                  color: Color(0xFF526B31),
+                                  color: MarketColors.greenDark,
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -783,7 +810,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(
-                                  color: const Color(0x60526B31),
+                                  color: MarketColors.green,
                                   width: 1,
                                 ),
                                 borderRadius: BorderRadius.circular(999),
@@ -803,7 +830,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Text(
                                       'Lihat Info Kunjungan',
                                       style: TextStyle(
-                                        color: Color(0xFF526B31),
+                                        color: MarketColors.brown,
                                         fontSize: 10.5,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -812,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Icon(
                                       Icons.arrow_forward_rounded,
                                       size: 12,
-                                      color: Color(0xFF526B31),
+                                      color: MarketColors.brown,
                                     ),
                                   ],
                                 ),
@@ -829,8 +856,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-
-          // 10. Floating Bottom Navigation
           Positioned(
             left: 15,
             right: 15,
@@ -854,11 +879,11 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.98),
-        border: Border.all(color: const Color(0x99B8D66D), width: 1.5),
+        border: Border.all(color: MarketColors.green, width: 1.5),
         borderRadius: BorderRadius.circular(999),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x22526B31),
+            color: Color(0x334B6515),
             blurRadius: 22,
             offset: Offset(0, -3),
           ),
@@ -882,7 +907,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: active
-                          ? const Color(0xFFE2F0C2)
+                          ? const Color(0xFFEAF3D4)
                           : Colors.transparent,
                       shape: BoxShape.circle,
                     ),
@@ -891,7 +916,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 20,
                       height: 20,
                       color: active
-                          ? const Color(0xFF526B31)
+                          ? MarketColors.greenDark
                           : const Color(0xFF9CA3AF),
                     ),
                   ),
@@ -902,11 +927,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     overflow: TextOverflow.visible,
                     style: TextStyle(
                       color: active
-                          ? const Color(0xFF526B31)
+                          ? MarketColors.greenDark
                           : const Color(0xFF9CA3AF),
                       fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight:
-                          active ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ],
@@ -941,14 +965,14 @@ class _MarketStatItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 22,
-            height: 22,
+            width: 26,
+            height: 26,
             alignment: Alignment.center,
             decoration: const BoxDecoration(
-              color: Color(0xFFE2F0C2),
+              color: Color(0xFFEAF3D4),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 12, color: const Color(0xFF526B31)),
+            child: Icon(icon, size: 14, color: MarketColors.greenDark),
           ),
           const SizedBox(width: 4),
           Column(
@@ -958,7 +982,7 @@ class _MarketStatItem extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 7.5,
+                  fontSize: 9,
                   color: Color(0xFF6B7280),
                   fontWeight: FontWeight.w500,
                 ),
@@ -966,17 +990,14 @@ class _MarketStatItem extends StatelessWidget {
               Text(
                 main,
                 style: const TextStyle(
-                  fontSize: 9,
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF1F2937),
                 ),
               ),
               Text(
                 sub,
-                style: const TextStyle(
-                  fontSize: 7.5,
-                  color: Color(0xFF9CA3AF),
-                ),
+                style: const TextStyle(fontSize: 9, color: Color(0xFF9CA3AF)),
               ),
             ],
           ),
@@ -991,11 +1012,13 @@ class _HomeShortcutItem extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.route,
+    this.greenAccent = false,
   });
 
   final String label;
   final IconData icon;
   final String route;
+  final bool greenAccent;
 
   @override
   Widget build(BuildContext context) {
@@ -1009,14 +1032,16 @@ class _HomeShortcutItem extends StatelessWidget {
             width: 42,
             height: 42,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFEF3C7),
+            decoration: BoxDecoration(
+              color: greenAccent
+                  ? const Color(0xFFEAF3D4)
+                  : const Color(0xFFFFF0C2),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: 20,
-              color: const Color(0xFFD97706),
+              color: greenAccent ? MarketColors.greenDark : MarketColors.brown,
             ),
           ),
           const SizedBox(height: 4),
@@ -1041,14 +1066,14 @@ class _CategoryBox extends StatelessWidget {
   const _CategoryBox({
     required this.name,
     required this.icon,
-    required this.iconColor,
+    required this.greenAccent,
     required this.isSelected,
     required this.onTap,
   });
 
   final String name;
   final IconData icon;
-  final Color iconColor;
+  final bool greenAccent;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -1063,12 +1088,14 @@ class _CategoryBox extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFFB8D66D) : const Color(0x35594045),
+            color: isSelected ? MarketColors.green : MarketColors.brown,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? const Color(0x30B8D66D) : const Color(0x10594045),
+              color: isSelected
+                  ? const Color(0x30C2DC80)
+                  : const Color(0x10594045),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -1076,14 +1103,31 @@ class _CategoryBox extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 21, color: iconColor),
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: greenAccent
+                    ? const Color(0xFFEAF3D4)
+                    : const Color(0xFFFFF0C2),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(
+                icon,
+                size: 21,
+                color: greenAccent
+                    ? MarketColors.greenDark
+                    : MarketColors.brown,
+              ),
+            ),
             const SizedBox(height: 4),
             Text(
               name,
               maxLines: 1,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isSelected ? const Color(0xFF526B31) : const Color(0xFF594045),
+                color: isSelected ? MarketColors.greenDark : MarketColors.brown,
                 fontSize: 9.5,
                 fontWeight: FontWeight.w700,
               ),
@@ -1112,7 +1156,7 @@ class _BannerShoppingBag extends StatelessWidget {
             child: Text(
               '✦',
               style: TextStyle(
-                color: Color(0xFF526B31),
+                color: MarketColors.greenDark,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
@@ -1127,10 +1171,7 @@ class _BannerShoppingBag extends StatelessWidget {
                   width: 32,
                   height: 18,
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0xFF526B31),
-                      width: 3,
-                    ),
+                    border: Border.all(color: MarketColors.greenDark, width: 3),
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(16),
                     ),
@@ -1141,10 +1182,7 @@ class _BannerShoppingBag extends StatelessWidget {
                   height: 56,
                   decoration: BoxDecoration(
                     color: const Color(0xFFF9FDE8),
-                    border: Border.all(
-                      color: const Color(0xFF526B31),
-                      width: 3,
-                    ),
+                    border: Border.all(color: MarketColors.greenDark, width: 3),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: const [
                       BoxShadow(
@@ -1157,7 +1195,7 @@ class _BannerShoppingBag extends StatelessWidget {
                   child: const Center(
                     child: Icon(
                       Icons.favorite_rounded,
-                      color: Color(0xFF526B31),
+                      color: MarketColors.greenDark,
                       size: 24,
                     ),
                   ),
@@ -1188,12 +1226,9 @@ class _VisitPlannerIllustration extends StatelessWidget {
               width: 52,
               height: 38,
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF3C7),
+                color: const Color(0xFFFFF0C2),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFFF59E0B),
-                  width: 2.5,
-                ),
+                border: Border.all(color: MarketColors.yellow, width: 2.5),
               ),
               child: Center(
                 child: Container(
@@ -1215,12 +1250,9 @@ class _VisitPlannerIllustration extends StatelessWidget {
                     width: 23,
                     height: 9,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDE68A),
+                      color: const Color(0xFFFFF0C2),
                       borderRadius: BorderRadius.circular(3),
-                      border: Border.all(
-                        color: const Color(0xFFF59E0B),
-                        width: 2,
-                      ),
+                      border: Border.all(color: MarketColors.yellow, width: 2),
                     ),
                   ),
                 ),
@@ -1231,12 +1263,9 @@ class _VisitPlannerIllustration extends StatelessWidget {
                     width: 23,
                     height: 9,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDE68A),
+                      color: const Color(0xFFFFF0C2),
                       borderRadius: BorderRadius.circular(3),
-                      border: Border.all(
-                        color: const Color(0xFFF59E0B),
-                        width: 2,
-                      ),
+                      border: Border.all(color: MarketColors.yellow, width: 2),
                     ),
                   ),
                 ),
@@ -1248,7 +1277,7 @@ class _VisitPlannerIllustration extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
-                color: Color(0xFFB8D66D),
+                color: MarketColors.green,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -1260,7 +1289,7 @@ class _VisitPlannerIllustration extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.location_on_rounded,
-                color: Color(0xFF526B31),
+                color: MarketColors.greenDark,
                 size: 20,
               ),
             ),
@@ -1281,7 +1310,8 @@ class _HomeStoreCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: MarketColors.green, width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0x18594045),
@@ -1294,11 +1324,9 @@ class _HomeStoreCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(20),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
             child: SizedBox(
-              height: 126,
+              height: 122,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -1312,7 +1340,7 @@ class _HomeStoreCard extends StatelessWidget {
                         vertical: 3.5,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF526B31),
+                        color: MarketColors.greenDark,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -1365,7 +1393,7 @@ class _HomeStoreCard extends StatelessWidget {
                     const Icon(
                       Icons.star_rounded,
                       size: 15,
-                      color: Color(0xFFF59E0B),
+                      color: MarketColors.yellow,
                     ),
                     const SizedBox(width: 2),
                     Text(
@@ -1373,7 +1401,7 @@ class _HomeStoreCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFF59E0B),
+                        color: MarketColors.yellow,
                       ),
                     ),
                     Container(
@@ -1400,7 +1428,7 @@ class _HomeStoreCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x35FFC928),
+                        color: Color(0x35FBBF24),
                         blurRadius: 8,
                         offset: Offset(0, 3),
                       ),
@@ -1409,7 +1437,7 @@ class _HomeStoreCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => goTo(context, '/detail-toko/${store.id}'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFC928),
+                      backgroundColor: MarketColors.yellow,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shadowColor: Colors.transparent,
@@ -1586,7 +1614,10 @@ class _StoreListScreenState extends State<StoreListScreen> {
 
               // Kategori Card Putih dengan Shadow Tebal (6 Kategori)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(28),
@@ -1603,22 +1634,65 @@ class _StoreListScreenState extends State<StoreListScreen> {
                   builder: (context, constraints) {
                     final itemW = (constraints.maxWidth - 5 * 4) / 6;
                     const categoryData = [
-                      ('Makanan', Icons.restaurant_rounded, Color(0xFFD97706), Color(0xFFFDE68A), Color(0x40F59E0B)),
-                      ('Sayur\n& Buah', Icons.eco_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
-                      ('Kuliner\nLegend', Icons.restaurant_menu_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
-                      ('Daging\n& Ikan', Icons.set_meal_rounded, Color(0xFF047857), Color(0xFFD1FAE5), Color(0x3510B981)),
-                      ('Sembako\n& Perabotan', Icons.shopping_basket_rounded, Color(0xFFEA580C), Color(0xFFFED7AA), Color(0x40F97316)),
-                      ('Mainan\n& Baju', Icons.rocket_launch_rounded, Color(0xFF15803D), Color(0xFFDCFCE7), Color(0x3510B981)),
+                      (
+                        'Makanan',
+                        Icons.restaurant_rounded,
+                        Color(0xFFD97706),
+                        Color(0xFFFDE68A),
+                        Color(0x40F59E0B),
+                      ),
+                      (
+                        'Sayur\n& Buah',
+                        Icons.eco_rounded,
+                        Color(0xFF15803D),
+                        Color(0xFFDCFCE7),
+                        Color(0x3510B981),
+                      ),
+                      (
+                        'Kuliner\nLegend',
+                        Icons.restaurant_menu_rounded,
+                        Color(0xFFEA580C),
+                        Color(0xFFFED7AA),
+                        Color(0x40F97316),
+                      ),
+                      (
+                        'Daging\n& Ikan',
+                        Icons.set_meal_rounded,
+                        Color(0xFF047857),
+                        Color(0xFFD1FAE5),
+                        Color(0x3510B981),
+                      ),
+                      (
+                        'Sembako\n& Perabotan',
+                        Icons.shopping_basket_rounded,
+                        Color(0xFFEA580C),
+                        Color(0xFFFED7AA),
+                        Color(0x40F97316),
+                      ),
+                      (
+                        'Mainan\n& Baju',
+                        Icons.rocket_launch_rounded,
+                        Color(0xFF15803D),
+                        Color(0xFFDCFCE7),
+                        Color(0x3510B981),
+                      ),
                     ];
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(categoryData.length, (index) {
                         final cat = categoryData[index];
                         final catName = cat.$1;
-                        final isSelected = _activeCategory != null &&
-                            catName.replaceAll('\n', ' ').toLowerCase().contains(
-                              _activeCategory!.toLowerCase().split(' ').first,
-                            );
+                        final isSelected =
+                            _activeCategory != null &&
+                            catName
+                                .replaceAll('\n', ' ')
+                                .toLowerCase()
+                                .contains(
+                                  _activeCategory!
+                                      .toLowerCase()
+                                      .split(' ')
+                                      .first,
+                                );
                         return GestureDetector(
                           onTap: () => setState(() {
                             final label = catName.replaceAll('\n', ' ');
@@ -1645,11 +1719,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
-                                    cat.$2,
-                                    size: 21,
-                                    color: cat.$3,
-                                  ),
+                                  child: Icon(cat.$2, size: 21, color: cat.$3),
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
@@ -1702,13 +1772,12 @@ class _StoreListScreenState extends State<StoreListScreen> {
                   itemCount: stores.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 16,
-                        mainAxisExtent: 288,
-                      ),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: 288,
+                  ),
                   itemBuilder: (context, index) {
                     final store = stores[index];
                     return InkWell(
@@ -1798,8 +1867,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                           ? MarketColors.greenDark
                           : const Color(0xFF9CA3AF),
                       fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight:
-                          active ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ],
@@ -1837,9 +1905,7 @@ class _TokoStoreCard extends StatelessWidget {
         children: [
           // Gambar toko dengan badge kategori hijau
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             child: SizedBox(
               height: 132,
               child: Stack(
@@ -1952,8 +2018,7 @@ class _TokoStoreCard extends StatelessWidget {
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: () =>
-                        goTo(context, '/detail-toko/${store.id}'),
+                    onPressed: () => goTo(context, '/detail-toko/${store.id}'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF9B824),
                       foregroundColor: Colors.white,
@@ -1982,7 +2047,6 @@ class _TokoStoreCard extends StatelessWidget {
     );
   }
 }
-
 
 class StoreDetailScreen extends StatefulWidget {
   const StoreDetailScreen({required this.storeId, super.key});
