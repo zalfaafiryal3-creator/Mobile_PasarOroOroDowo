@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'screens/discovery_screens.dart';
+import 'screens/market_map/market_map_screen.dart';
 import 'screens/market_screens.dart';
+import 'screens/recommendations/recommendations_screen.dart' as recommendations;
 import 'screens/review_screens.dart';
 import 'screens/visit_planner/visit_planner_screen.dart' as visit_planner;
 import 'screens/welcome_screens.dart';
@@ -50,7 +52,7 @@ class PasarOroOroDowoApp extends StatelessWidget {
         case '/promo':
           page = const PromoScreen();
         case '/rekomendasi':
-          page = const RecommendationsScreen();
+          page = const recommendations.RecommendationsScreen();
         case '/review-pasar':
           page = const MarketReviewsScreen();
         case '/tulis-ulasan-pasar':

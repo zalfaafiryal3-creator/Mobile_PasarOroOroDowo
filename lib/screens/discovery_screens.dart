@@ -4,46 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../data/market_data.dart';
 import '../widgets/market_ui.dart';
 
-class MarketMapScreen extends StatelessWidget {
-  const MarketMapScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MarketPage(
-      child: Column(
-        children: [
-          PageTitleBar(
-            title: 'Denah Pasar Oro-Oro Dowo',
-            subtitle: 'Lihat tata letak pasar',
-            onBack: () => goBack(context),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(8),
-                  child: InteractiveViewer(
-                    minScale: .7,
-                    maxScale: 4,
-                    child: const MarketAsset(
-                      'denah.jpg',
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class FacilitiesScreen extends StatelessWidget {
   const FacilitiesScreen({super.key});
 
@@ -2607,14 +2567,16 @@ class _PromoScreenState extends State<PromoScreen> {
   }
 }
 
-class RecommendationsScreen extends StatefulWidget {
-  const RecommendationsScreen({super.key});
+class LegacyRecommendationsScreen extends StatefulWidget {
+  const LegacyRecommendationsScreen({super.key});
 
   @override
-  State<RecommendationsScreen> createState() => _RecommendationsScreenState();
+  State<LegacyRecommendationsScreen> createState() =>
+      _LegacyRecommendationsScreenState();
 }
 
-class _RecommendationsScreenState extends State<RecommendationsScreen> {
+class _LegacyRecommendationsScreenState
+    extends State<LegacyRecommendationsScreen> {
   final Set<String> _savedProducts = {};
   bool _sortByRating = false;
 
@@ -3097,6 +3059,8 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
   double _budget = 100000;
   bool _generated = false;
 
+  double get _boundedBudget => _budget.clamp(10000.0, 120000.0).toDouble();
+
   String _rupiah(double amount) =>
       'Rp${amount.round().toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
 
@@ -3110,41 +3074,45 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
           bottom: BorderSide(color: MarketColors.green.withValues(alpha: .7)),
         ),
       ),
-      child: Row(
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Material(
-            color: Colors.white,
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () => goBack(context),
-              child: const SizedBox(
-                width: 40,
-                height: 40,
-                child: Icon(
-                  Icons.arrow_back_rounded,
-                  size: 20,
-                  color: MarketColors.brown,
+          Positioned(
+            left: 0,
+            child: Material(
+              color: Colors.white,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => goBack(context),
+                child: const SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    size: 20,
+                    color: MarketColors.brown,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const MarketAsset('robot.png', width: 24, height: 24),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Flexible(
                       child: Text(
                         'AI Perencana Kunjungan',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: MarketColors.brown,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -3233,7 +3201,7 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Budget: ${_rupiah(_budget)}',
+                  'Budget: ${_rupiah(_boundedBudget)}',
                   style: const TextStyle(
                     color: MarketColors.greenDark,
                     fontSize: 12,
@@ -3253,10 +3221,10 @@ class _VisitPlannerScreenState extends State<VisitPlannerScreen> {
                   child: SizedBox(
                     height: 34,
                     child: Slider(
-                      value: _budget,
+                      value: _boundedBudget,
                       min: 10000,
-                      max: 200000,
-                      divisions: 38,
+                      max: 120000,
+                      divisions: 22,
                       activeColor: MarketColors.greenDark,
                       inactiveColor: MarketColors.green,
                       onChanged: (value) => setState(() => _budget = value),
