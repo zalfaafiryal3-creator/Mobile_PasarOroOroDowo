@@ -332,7 +332,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               child: Text(action),
             )
           else if (trailing != null)
-            trailing,
+              trailing ?? const SizedBox.shrink(),
         ],
       ),
     );

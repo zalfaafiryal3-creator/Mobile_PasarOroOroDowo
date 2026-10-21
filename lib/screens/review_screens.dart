@@ -1697,14 +1697,14 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   }
 }
 
-class WriteStoreReviewScreen extends StatefulWidget {
-  const WriteStoreReviewScreen({super.key});
+class LegacyWriteStoreReviewScreen extends StatefulWidget {
+  const LegacyWriteStoreReviewScreen({super.key});
 
   @override
-  State<WriteStoreReviewScreen> createState() => _WriteStoreReviewScreenState();
+  State<LegacyWriteStoreReviewScreen> createState() => _LegacyWriteStoreReviewScreenState();
 }
 
-class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
+class _LegacyWriteStoreReviewScreenState extends State<LegacyWriteStoreReviewScreen> {
   final _nameController = TextEditingController();
   final _experienceController = TextEditingController();
   final _picker = ImagePicker();

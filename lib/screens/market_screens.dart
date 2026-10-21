@@ -1465,16 +1465,17 @@ class _HomeStoreCard extends StatelessWidget {
   }
 }
 
-class StoreListScreen extends StatefulWidget {
-  const StoreListScreen({this.initialCategory, super.key});
+// StoreListScreen moved to lib/screens/store_list/store_list_screen.dart
+class LegacyStoreListScreen extends StatefulWidget {
+  const LegacyStoreListScreen({this.initialCategory, super.key});
 
   final String? initialCategory;
 
   @override
-  State<StoreListScreen> createState() => _StoreListScreenState();
+  State<LegacyStoreListScreen> createState() => _LegacyStoreListScreenState();
 }
 
-class _StoreListScreenState extends State<StoreListScreen> {
+class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
   final _searchController = TextEditingController();
   String? _activeCategory;
 

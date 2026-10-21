@@ -49,8 +49,18 @@ class MarketPage extends StatelessWidget {
         child: Center(
           child: Container(
             width: 402,
+            height: double.infinity,
             constraints: const BoxConstraints(maxWidth: 402),
-            color: background,
+            decoration: BoxDecoration(
+              color: background,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x22000000),
+                  blurRadius: 20,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
             child: child,
           ),
         ),

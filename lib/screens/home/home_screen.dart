@@ -82,9 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
+    return MarketPage(
+      background: Colors.white,
+      child: Container(
         decoration: const BoxDecoration(
           color: Color(0xFFFBFDF6),
           gradient: LinearGradient(
@@ -96,13 +96,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Colors.white,
             ],
           ),
+          border: Border.symmetric(
+            vertical: BorderSide(
+              color: Color(0x33EA9CAF),
+              width: 1,
+            ),
+          ),
         ),
-        child: SafeArea(
-          bottom: false,
-          child: Stack(
-            children: [
-              // Scrollable Content
-              CustomScrollView(
+        child: Stack(
+          children: [
+            // Scrollable Content
+            Positioned.fill(
+              child: CustomScrollView(
                 slivers: [
                   // Top Header as pinned/scrollable
                   SliverToBoxAdapter(
@@ -140,16 +145,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+            ),
 
-              // Floating Bottom Navigation Bar
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 16,
-                child: _buildBottomNavigationBar(context),
-              ),
-            ],
-          ),
+            // Floating Bottom Navigation Bar
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: _buildBottomNavigationBar(context),
+            ),
+          ],
         ),
       ),
     );

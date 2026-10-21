@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -77,91 +78,91 @@ class MarketFacilitiesScreen extends StatelessWidget {
 
   // --- Top Navigation Header ---
   Widget _buildHeader(BuildContext context) {
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        border: const Border(
-          bottom: BorderSide(color: Color.fromRGBO(194, 220, 128, 0.25)),
-        ),
-      ),
-      child: Row(
-        children: [
-          // Back button
-          InkWell(
-            onTap: () => goBack(context),
-            borderRadius: BorderRadius.circular(9999),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.05),
-                    blurRadius: 2,
-                    offset: Offset(0, 1),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          color: Colors.transparent,
+          child: Row(
+            children: [
+              // Back button
+              InkWell(
+                onTap: () => goBack(context),
+                borderRadius: BorderRadius.circular(9999),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.05),
+                        blurRadius: 2,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Center(
-                child: SvgPicture.string(
-                  '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  child: Center(
+                    child: SvgPicture.string(
+                      '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3.1875 7.5L7.85417 12.1667L6.66667 13.3333L0 6.66667L6.66667 0L7.85417 1.16667L3.1875 5.83333H13.3333V7.5H3.1875V7.5" fill="#111C2D"/>
 </svg>''',
-                  width: 14,
-                  height: 14,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Title and Location Subtitle
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Fasilitas Pasar',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.4,
-                    color: Color(0xFF594045),
-                    height: 1.5,
+                      width: 14,
+                      height: 14,
+                    ),
                   ),
                 ),
-                Row(
+              ),
+              const SizedBox(width: 8),
+              // Title and Location Subtitle
+              Expanded(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.string(
-                      '''<svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4.78524 11.4891C4.63983 11.4891 4.495 11.4637 4.35075 11.4127C4.2065 11.3618 4.07742 11.2854 3.9635 11.1835C3.3176 10.5932 2.74695 10.0198 2.25154 9.46332C1.75613 8.90683 1.34267 8.36619 1.01116 7.8414C0.679657 7.31661 0.428253 6.80836 0.256952 6.31665C0.0856507 5.82494 0 5.3487 0 4.88796C0 3.39707 0.481303 2.20969 1.44391 1.32582C2.40652 0.441939 3.52029 0 4.78524 0C6.05018 0 7.16396 0.441939 8.12657 1.32582C9.08917 2.20969 9.57048 3.39707 9.57048 4.88796C9.57048 5.3487 9.48483 5.82494 9.31352 6.31665C9.14222 6.80836 8.89082 7.31661 8.55931 7.8414C8.22781 8.36619 7.81435 8.90683 7.31894 9.46332C6.82352 10.0198 6.25287 10.5932 5.60698 11.1835C5.49306 11.2854 5.36398 11.3618 5.21973 11.4127C5.07548 11.4637 4.93065 11.4891 4.78524 11.4891V11.4891M4.78524 5.98678C5.1177 5.98678 5.40107 5.86964 5.63535 5.63535C5.86964 5.40107 5.98678 5.1177 5.98678 4.78524C5.98678 4.45278 5.86964 4.16941 5.63535 3.93512C5.40107 3.70084 5.1177 3.5837 4.78524 3.5837C4.45278 3.5837 4.16941 3.70084 3.93512 3.93512C3.70084 4.16941 3.5837 4.45278 3.5837 4.78524C3.5837 5.1177 3.70084 5.40107 3.93512 5.63535C4.16941 5.86964 4.45278 5.98678 4.78524 5.98678V5.98678" fill="#4B6515"/>
-</svg>''',
-                      width: 10,
-                      height: 12,
-                    ),
-                    const SizedBox(width: 4),
                     const Text(
-                      'Pasar Oro-Oro Dowo, Malang',
+                      'Fasilitas Pasar',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF4B6515),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                        color: Color(0xFF594045),
+                        height: 1.5,
                       ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.string(
+                          '''<svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.78524 11.4891C4.63983 11.4891 4.495 11.4637 4.35075 11.4127C4.2065 11.3618 4.07742 11.2854 3.9635 11.1835C3.3176 10.5932 2.74695 10.0198 2.25154 9.46332C1.75613 8.90683 1.34267 8.36619 1.01116 7.8414C0.679657 7.31661 0.428253 6.80836 0.256952 6.31665C0.0856507 5.82494 0 5.3487 0 4.88796C0 3.39707 0.481303 2.20969 1.44391 1.32582C2.40652 0.441939 3.52029 0 4.78524 0C6.05018 0 7.16396 0.441939 8.12657 1.32582C9.08917 2.20969 9.57048 3.39707 9.57048 4.88796C9.57048 5.3487 9.48483 5.82494 9.31352 6.31665C9.14222 6.80836 8.89082 7.31661 8.55931 7.8414C8.22781 8.36619 7.81435 8.90683 7.31894 9.46332C6.82352 10.0198 6.25287 10.5932 5.60698 11.1835C5.49306 11.2854 5.36398 11.3618 5.21973 11.4127C5.07548 11.4637 4.93065 11.4891 4.78524 11.4891V11.4891M4.78524 5.98678C5.1177 5.98678 5.40107 5.86964 5.63535 5.63535C5.86964 5.40107 5.98678 5.1177 5.98678 4.78524C5.98678 4.45278 5.86964 4.16941 5.63535 3.93512C5.40107 3.70084 5.1177 3.5837 4.78524 3.5837C4.45278 3.5837 4.16941 3.70084 3.93512 3.93512C3.70084 4.16941 3.5837 4.45278 3.5837 4.78524C3.5837 5.1177 3.70084 5.40107 3.93512 5.63535C4.16941 5.86964 4.45278 5.98678 4.78524 5.98678V5.98678" fill="#4B6515"/>
+</svg>''',
+                          width: 10,
+                          height: 12,
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'Pasar Oro-Oro Dowo, Malang',
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF4B6515),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 40), // Balance back button
+            ],
           ),
-          const SizedBox(width: 40), // Balance back button
-        ],
+        ),
       ),
     );
   }
