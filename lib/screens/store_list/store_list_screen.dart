@@ -552,6 +552,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
 
   Widget _buildStoreCard(BuildContext context, StoreData store) {
     return Container(
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -559,31 +560,22 @@ class _StoreListScreenState extends State<StoreListScreen> {
           color: const Color(0x4DEA9CAF), // rgba(234, 156, 175, 0.30)
           width: 1,
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Store Image + Category Badge
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            child: SizedBox(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
               height: 116,
+              color: const Color(0x40C2DC80), // rgba(194, 220, 128, 0.25)
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(
-                    color: const Color(0x40C2DC80),
-                    child: MarketAsset(store.image, fit: BoxFit.cover),
-                  ),
+                  MarketAsset(store.image, fit: BoxFit.cover),
                   Positioned(
-                    left: 6,
+                    left: 5,
                     top: 6,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -597,6 +589,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       child: Text(
                         store.badge.isNotEmpty ? store.badge : 'Makanan',
                         style: const TextStyle(
+                          fontFamily: 'Inter',
                           color: Colors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -609,15 +602,17 @@ class _StoreListScreenState extends State<StoreListScreen> {
             ),
           ),
 
-          // Details
+          const SizedBox(height: 14),
+
+          // Store Details
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Column(
                     children: [
                       Text(
                         store.name,
@@ -625,41 +620,39 @@ class _StoreListScreenState extends State<StoreListScreen> {
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          fontFamily: 'Inter',
                           color: Color(0xFF1F2937),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          height: 1.25,
+                          height: 1.33,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 1),
                       Text(
                         store.displayCategory,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
+                          fontFamily: 'Inter',
                           color: Color(0xFF9CA3AF),
-                          fontSize: 9.5,
+                          fontSize: 10,
                           fontWeight: FontWeight.w400,
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            '★',
-                            style: TextStyle(
+                          Text(
+                            '★ ${store.rating}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
                               color: Color(0xFFF59E0B),
                               fontSize: 10,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            store.rating,
-                            style: const TextStyle(
-                              color: Color(0xFFF59E0B),
-                              fontSize: 9.5,
                               fontWeight: FontWeight.w700,
+                              height: 1.5,
                             ),
                           ),
                           const Padding(
@@ -667,26 +660,33 @@ class _StoreListScreenState extends State<StoreListScreen> {
                             child: Text(
                               '|',
                               style: TextStyle(
+                                fontFamily: 'Inter',
                                 color: Color(0xFFD1D5DB),
-                                fontSize: 9.5,
+                                fontSize: 10,
+                                height: 1.5,
                               ),
                             ),
                           ),
                           Text(
                             store.products,
                             style: const TextStyle(
+                              fontFamily: 'Inter',
                               color: Color(0xFF6B7280),
-                              fontSize: 9.5,
+                              fontSize: 10,
                               fontWeight: FontWeight.w400,
+                              height: 1.5,
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
+                ),
 
-                  // Lihat Toko Button
-                  InkWell(
+                // CTA Button
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: InkWell(
                     onTap: () => goTo(context, '/detail-toko/${store.id}'),
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -697,9 +697,10 @@ class _StoreListScreenState extends State<StoreListScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
-                            color: Color(0x66C2DC80),
+                            color: Color(0xFFC2DC80),
                             blurRadius: 4,
-                            offset: Offset(0, 3),
+                            spreadRadius: 0,
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
@@ -707,16 +708,18 @@ class _StoreListScreenState extends State<StoreListScreen> {
                         child: Text(
                           'Lihat Toko',
                           style: TextStyle(
+                            fontFamily: 'Inter',
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
+                            height: 1.5,
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
