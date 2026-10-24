@@ -119,33 +119,47 @@ class BrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // Brand Logo Icon Shape (Figma #495:733)
         Container(
           width: 36,
           height: 36,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [MarketColors.pink, MarketColors.pinkLight],
+              colors: [Color(0xFFFBBF24), Color(0xFFC2DC80)],
               begin: Alignment.bottomLeft,
               end: Alignment.topRight,
             ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: const [
-              BoxShadow(color: MarketColors.green, offset: Offset(0, 4)),
+              BoxShadow(
+                color: Color(0x66C2DC80),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Color(0x33D56989),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
             ],
           ),
-          child: const MarketAsset('c03df.svg', width: 20, height: 20),
+          child: SvgPicture.string(
+            '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.99996 1.66667C8.15901 1.66667 6.66663 3.15905 6.66663 5C6.66754 5.56269 6.81088 6.11598 7.08329 6.60833C6.40046 6.4046 5.67032 6.42504 4.99996 6.66667C3.15901 6.66667 1.66663 8.15905 1.66663 10C1.66663 11.841 3.15901 13.3333 4.99996 13.3333C5.75656 13.3351 6.49125 13.0794 7.08329 12.6083C7.4676 13.9319 8.6268 14.8824 9.99996 15C11.3731 14.8824 12.5323 13.9319 12.9166 12.6083C13.5087 13.0794 14.2434 13.3351 15 13.3333C16.8409 13.3333 18.3333 11.841 18.3333 10C18.3272 8.64721 17.504 7.43229 16.25 6.925C16.0743 6.15559 15.6314 5.47346 15 5C15 3.15905 13.5076 1.66667 11.6666 1.66667L9.99996 1.66667" fill="white"/>
+</svg>''',
+            width: 20,
+            height: 20,
+          ),
         ),
-        const SizedBox(width: 8),
-        const Expanded(
-          child: Text(
-            'Pasar Oro-Oro Dowo',
-            style: TextStyle(
-              color: MarketColors.pink,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -.6,
-            ),
+        const SizedBox(width: 10),
+        const Text(
+          'Pasar Oro-Oro Dowo',
+          style: TextStyle(
+            color: Color(0xFF594045),
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.6,
           ),
         ),
       ],

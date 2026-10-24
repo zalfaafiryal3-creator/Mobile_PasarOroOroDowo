@@ -272,166 +272,236 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.fromLTRB(22, 22, 16, 22),
+          padding: const EdgeInsets.fromLTRB(24, 26, 0, 26),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(32),
             gradient: const LinearGradient(
-              colors: [Color(0xFFB1D864), Color(0xFFD6DF65), Color(0xFFF7BD28)],
-              stops: [0.0, 0.55, 1.0],
+              colors: [
+                Color(0xFFB8D96A), // hijau pastel atas-kiri
+                Color(0xFFCCDE6E), // hijau-kuning tengah
+                Color(0xFFE8C84A), // kuning keemasan tengah-kanan
+                Color(0xFFF5C833), // kuning emas kanan-bawah
+              ],
+              stops: [0.0, 0.38, 0.72, 1.0],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x22B1D864),
-                blurRadius: 16,
-                offset: Offset(0, 6),
+                color: Color(0x50404040),
+                blurRadius: 28,
+                spreadRadius: 0,
+                offset: Offset(0, 12),
               ),
               BoxShadow(
-                color: Color(0x14000000),
+                color: Color(0x20000000),
                 blurRadius: 8,
-                offset: Offset(0, 2),
+                offset: Offset(0, 3),
               ),
             ],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Text Column
+              // ─── Text + Button Column ───────────────────────────────
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Pilih\nToko Favoritmu',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        height: 1.2,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Temukan berbagai toko menarik\ndi PasarKu',
-                      style: TextStyle(
-                        color: Color(0xFFF7FDF0),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () => goTo(context, '/toko'),
-                      borderRadius: BorderRadius.circular(9999),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Pilih\nToko Favoritmu',
+                        style: TextStyle(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(9999),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x35E09500),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          height: 1.12,
+                          letterSpacing: -0.5,
+                          shadows: [
+                            Shadow(
+                              color: Color(0x28000000),
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Jelajahi Sekarang',
-                              style: TextStyle(
-                                color: Color(0xFFE58F00),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Temukan berbagai toko menarik\ndi PasarKu',
+                        style: TextStyle(
+                          color: Color(0xFFF6FFED),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Capsule button
+                      InkWell(
+                        onTap: () => goTo(context, '/toko'),
+                        borderRadius: BorderRadius.circular(9999),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(9999),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x55F59E0B),
+                                blurRadius: 16,
+                                offset: Offset(0, 6),
                               ),
-                            ),
-                            SizedBox(width: 6),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 16,
-                              color: Color(0xFFE58F00),
-                            ),
-                          ],
+                              BoxShadow(
+                                color: Color(0x20E67E22),
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Jelajahi Sekarang',
+                                style: TextStyle(
+                                  color: Color(0xFFE09000),
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                              SizedBox(width: 7),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 17,
+                                color: Color(0xFFE09000),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ─── Shopping Bag SVG Illustration ─────────────────────
+              SizedBox(
+                width: 118,
+                height: 130,
+                child: Stack(
+                  children: [
+                    // Bag SVG
+                    Positioned.fill(
+                      child: SvgPicture.string(
+                        '''<svg width="118" height="130" viewBox="0 0 110 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Plus / sparkle top-right -->
+  <path d="M94 18V30M88 24H100" stroke="#3A5C14" stroke-width="2.6" stroke-linecap="round"/>
+
+  <!-- Handle – white backing (thick) -->
+  <path d="M37 50C37 26 73 26 73 50" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <!-- Handle – dark aubergine outline -->
+  <path d="M37 50C37 26 73 26 73 50" stroke="#5C3D4A" stroke-width="2.8" stroke-linecap="round"/>
+
+  <!-- Bag body – light sage fill, green stroke -->
+  <path d="M28 46H82C85.8 46 88.5 48.8 89 52.5L94.5 104C95 109 91 113 86.5 113H23.5C19 113 15 109 15.5 104L21 52.5C21.5 48.8 24.2 46 28 46Z"
+    fill="#EDF7D6" stroke="#8FB847" stroke-width="1.6"/>
+
+  <!-- Bag side crease lines -->
+  <line x1="29" y1="46" x2="22.5" y2="113" stroke="#8FB847" stroke-width="1.3" stroke-opacity="0.6"/>
+  <line x1="81" y1="46" x2="87.5" y2="113" stroke="#8FB847" stroke-width="1.3" stroke-opacity="0.6"/>
+
+  <!-- Heart (dark olive green) -->
+  <path d="M55 94C55 94 39 82 39 68C39 61.5 44 56.5 50 56.5C52.7 56.5 55 59 55 59C55 59 57.3 56.5 60 56.5C66 56.5 71 61.5 71 68C71 82 55 94 55 94Z"
+    fill="#3A5C14"/>
+</svg>''',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // Shopping bag graphic
-              SizedBox(
-                width: 105,
-                height: 115,
-                child: SvgPicture.string(
-                  '''<svg width="105" height="115" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Sparkle star top right -->
-  <path d="M88 20V28M88 24H84M88 24H92" stroke="#486014" stroke-width="2.2" stroke-linecap="round"/>
-  
-  <!-- Handle -->
-  <path d="M33 42C33 22 67 22 67 42" stroke="white" stroke-width="7" stroke-linecap="round"/>
-  <path d="M33 42C33 22 67 22 67 42" stroke="#5C453E" stroke-width="2" stroke-linecap="round"/>
-  
-  <!-- Bag Body -->
-  <path d="M24 38H76C79 38 81 40 81.5 43L87.5 95C88 99 85 102 81 102H19C15 102 12 99 12.5 95L18.5 43C19 40 21 38 24 38Z" fill="#F4F8E8" stroke="#5C7A20" stroke-width="1.8"/>
-  
-  <!-- Inner soft gradient -->
-  <path d="M22 42L15 97C14.8 98.5 16 100 17.5 100H82.5C84 100 85.2 98.5 85 97L78 42H22Z" fill="#EAF3D3" fill-opacity="0.6"/>
-  
-  <!-- Green Heart in Center -->
-  <path d="M50 82C50 82 36 71 36 59.5C36 53.5 40.5 49 46 49C48.5 49 50 51 50 51C50 51 51.5 49 54 49C59.5 49 64 53.5 64 59.5C64 71 50 82 50 82Z" fill="#3E5412"/>
-</svg>''',
-                ),
-              ),
             ],
           ),
         ),
-        const SizedBox(height: 10),
-        // Carousel indicators (matching reference: 1 capsule + 3 dots, dark grey)
+
+        const SizedBox(height: 13),
+
+        // ─── Carousel Indicators ─────────────────────────────────────
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Active pill
             Container(
-              width: 20,
-              height: 6,
+              width: 24,
+              height: 7,
               decoration: BoxDecoration(
-                color: const Color(0xFF383838),
+                color: const Color(0xFF4A3040),
                 borderRadius: BorderRadius.circular(9999),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x22000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 5),
+            const SizedBox(width: 6),
+            // Dot 2
             Container(
-              width: 6,
-              height: 6,
+              width: 7,
+              height: 7,
               decoration: const BoxDecoration(
-                color: Color(0xFF383838),
+                color: Color(0xFF4A3040),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x22000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 5),
+            const SizedBox(width: 6),
+            // Dot 3
             Container(
-              width: 6,
-              height: 6,
+              width: 7,
+              height: 7,
               decoration: const BoxDecoration(
-                color: Color(0xFF383838),
+                color: Color(0xFF4A3040),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x22000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 5),
+            const SizedBox(width: 6),
+            // Dot 4
             Container(
-              width: 6,
-              height: 6,
+              width: 7,
+              height: 7,
               decoration: const BoxDecoration(
-                color: Color(0xFF383838),
+                color: Color(0xFF4A3040),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x22000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
             ),
           ],
@@ -445,13 +515,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.2),
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(
+          color: const Color(0xFF2C2420),
+          width: 1.8,
+        ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x10000000),
-            blurRadius: 14,
-            offset: Offset(0, 4),
+            color: Color(0x33000000),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Color(0x12000000),
+            blurRadius: 8,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -466,10 +545,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Market Gate Image (local asset 204f2.png)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(24),
                   child: const SizedBox(
-                    width: 118,
-                    height: 98,
+                    width: 126,
+                    height: 108,
                     child: MarketAsset('204f2.png', fit: BoxFit.cover),
                   ),
                 ),
@@ -480,16 +559,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Expanded(
                             child: Text(
                               'Pasar Oro-Oro Dowo',
                               style: TextStyle(
-                                color: Color(0xFF4A3528),
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.3,
+                                color: Color(0xFF4A3438),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.4,
                               ),
                             ),
                           ),
@@ -499,14 +578,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 _isFavorite = !_isFavorite;
                               });
                             },
-                            child: Icon(
-                              _isFavorite
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              size: 20,
-                              color: _isFavorite
-                                  ? const Color(0xFFE11D48)
-                                  : const Color(0xFF4A3528),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 2, left: 4),
+                              child: Icon(
+                                _isFavorite
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                size: 21,
+                                color: _isFavorite
+                                    ? const Color(0xFFE11D48)
+                                    : const Color(0xFF4A3438),
+                              ),
                             ),
                           ),
                         ],
@@ -515,21 +597,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Text(
                         'Pusat Belanja dan Kuliner\nTradisional di Tengah Kota',
                         style: TextStyle(
-                          color: Color(0xFFE58900),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFF39C12),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
                           height: 1.25,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 5),
                       const Text(
                         'Pasar yang sudah berdiri sejak lama dan menjadi ikon belanja masyarakat dengan beragam produk, harga...',
-                        maxLines: 3,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Color(0xFF6B7280),
-                          fontSize: 9.5,
+                          color: Color(0xFF757D8A),
+                          fontSize: 10,
                           height: 1.35,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -542,10 +625,10 @@ class _HomeScreenState extends State<HomeScreen> {
           // Bottom Stats Strip (rounded inner box, 3 clean stats)
           Container(
             margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFFF7F8FA),
-              borderRadius: BorderRadius.circular(20),
+              color: const Color(0xFFF6F7F9),
+              borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -554,8 +637,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 30,
-                      height: 30,
+                      width: 34,
+                      height: 34,
                       alignment: Alignment.center,
                       decoration: const BoxDecoration(
                         color: Color(0xFFE5ECCF),
@@ -563,8 +646,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: const Icon(
                         Icons.access_time_rounded,
-                        size: 16,
-                        color: Color(0xFF466014),
+                        size: 18,
+                        color: Color(0xFF4B6319),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -574,24 +657,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Jam Buka',
                           style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 8.5,
+                            color: Color(0xFF98A1B0),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           '06.00 -\n17.00',
                           style: TextStyle(
-                            color: Color(0xFF2D3B1A),
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3E2D32),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
                             height: 1.15,
                           ),
                         ),
                         Text(
                           'Setiap Hari',
                           style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 8,
+                            color: Color(0xFF98A1B0),
+                            fontSize: 8.5,
                           ),
                         ),
                       ],
@@ -603,8 +687,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 30,
-                      height: 30,
+                      width: 34,
+                      height: 34,
                       alignment: Alignment.center,
                       decoration: const BoxDecoration(
                         color: Color(0xFFE5ECCF),
@@ -612,8 +696,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: const Icon(
                         Icons.people_outline_rounded,
-                        size: 16,
-                        color: Color(0xFF466014),
+                        size: 18,
+                        color: Color(0xFF4B6319),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -623,24 +707,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Jumlah\nPedagang',
                           style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 8.5,
-                            height: 1.1,
+                            color: Color(0xFF98A1B0),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
+                            height: 1.15,
                           ),
                         ),
                         Text(
                           '± 251',
                           style: TextStyle(
-                            color: Color(0xFF2D3B1A),
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3E2D32),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                         Text(
                           'Pedagang',
                           style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 8,
+                            color: Color(0xFF98A1B0),
+                            fontSize: 8.5,
                           ),
                         ),
                       ],
@@ -652,8 +737,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Container(
-                      width: 30,
-                      height: 30,
+                      width: 34,
+                      height: 34,
                       alignment: Alignment.center,
                       decoration: const BoxDecoration(
                         color: Color(0xFFE5ECCF),
@@ -661,8 +746,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: const Icon(
                         Icons.location_on_outlined,
-                        size: 16,
-                        color: Color(0xFF466014),
+                        size: 18,
+                        color: Color(0xFF4B6319),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -672,16 +757,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Lokasi',
                           style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 8.5,
+                            color: Color(0xFF98A1B0),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           'Kloje\nJawa',
                           style: TextStyle(
-                            color: Color(0xFF2D3B1A),
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3E2D32),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
                             height: 1.15,
                           ),
                         ),

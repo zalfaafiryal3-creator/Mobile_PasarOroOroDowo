@@ -153,48 +153,10 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
       child: Stack(
         children: [
           ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 105),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 105),
             children: [
-              // 1. Header: Logo kuning dengan ikon awan putih + Nama Pasar
-              Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFC928),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x2B000000),
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.cloud_rounded,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Pasar Oro-Oro Dowo',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Color(0xFF594045),
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // 1. Header: Brand Logo + Nama Pasar (standard Home & Toko)
+              const BrandHeader(),
               const SizedBox(height: 14),
 
               // Title & Subtitle

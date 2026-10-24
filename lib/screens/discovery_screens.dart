@@ -1741,59 +1741,13 @@ class _PromoScreenState extends State<PromoScreen> {
           Column(
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 color: MarketColors.background,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(9, 4, 8, 12),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFFBBF24), Color(0xFFC2DC80)],
-                                begin: Alignment.bottomLeft,
-                                end: Alignment.topRight,
-                              ),
-                              borderRadius: BorderRadius.circular(17),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x334B6515),
-                                  offset: Offset(0, 4),
-                                  blurRadius: 7,
-                                ),
-                              ],
-                            ),
-                            child: const MarketAsset(
-                              'c03df.svg',
-                              width: 20,
-                              height: 20,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Pasar Oro-Oro Dowo',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: MarketColors.brown,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -.6,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
+                    const BrandHeader(),
+                    const SizedBox(height: 14),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 1),
                       child: Row(
