@@ -857,9 +857,9 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
             ],
           ),
           Positioned(
-            left: 15,
-            right: 15,
-            bottom: 12,
+            left: 16,
+            right: 16,
+            bottom: 16,
             child: _homeBottomNavigation(context),
           ),
         ],
@@ -875,17 +875,22 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.98),
-        border: Border.all(color: MarketColors.green, width: 1.5),
-        borderRadius: BorderRadius.circular(999),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x334B6515),
-            blurRadius: 22,
-            offset: Offset(0, -3),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -896,45 +901,49 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
           return InkWell(
             onTap: () => goTo(context, item.$2),
             borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 34,
-                    height: 32,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0xFFEAF3D4)
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: MarketAsset(
-                      item.$3,
-                      width: 20,
-                      height: 20,
-                      color: active
-                          ? MarketColors.greenDark
-                          : const Color(0xFF9CA3AF),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      color: active
-                          ? MarketColors.greenDark
-                          : const Color(0xFF9CA3AF),
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -1708,17 +1717,19 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
                                   height: 44,
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? cat.$3.withValues(alpha: 0.3)
-                                        : cat.$4,
+                                    color: cat.$4,
                                     shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: cat.$5,
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                                    boxShadow: isSelected
+                                        ? [
+                                            BoxShadow(
+                                              color: (index % 2 == 0)
+                                                  ? const Color(0x738BC34A) // hijau muda untuk background kuning
+                                                  : const Color(0x59FFC107), // kuning keemasan untuk background hijau muda
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 6),
+                                            ),
+                                          ]
+                                        : null,
                                   ),
                                   child: Icon(cat.$2, size: 21, color: cat.$3),
                                 ),
@@ -1795,7 +1806,7 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
           Positioned(
             left: 16,
             right: 16,
-            bottom: 12,
+            bottom: 16,
             child: _tokoBottomNavigation(context),
           ),
         ],
@@ -1811,68 +1822,75 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xBBC2DC80), width: 1.5),
-        borderRadius: BorderRadius.circular(999),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x254B6515),
-            blurRadius: 24,
-            offset: Offset(0, -4),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: items.map((item) {
           final active = item.$1 == 'Toko';
           return InkWell(
             onTap: () => goTo(context, item.$2),
             borderRadius: BorderRadius.circular(16),
-            splashColor: const Color(0x30C2DC80),
-            highlightColor: const Color(0x18C2DC80),
-            child: SizedBox(
-              width: 64,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0x55C2DC80)
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: MarketAsset(
-                      item.$3,
-                      width: 22,
-                      height: 22,
-                      color: active
-                          ? MarketColors.greenDark
-                          : const Color(0xFF9CA3AF),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: active
-                          ? MarketColors.greenDark
-                          : const Color(0xFF9CA3AF),
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),

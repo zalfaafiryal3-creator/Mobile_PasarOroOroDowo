@@ -427,9 +427,9 @@ class VisitInfoScreen extends StatelessWidget {
 
           // Bottom Floating Navigation
           Positioned(
-            left: 20,
-            right: 20,
-            bottom: 14,
+            left: 16,
+            right: 16,
+            bottom: 16,
             child: _marketBottomNavigation(context),
           ),
         ],
@@ -1618,17 +1618,22 @@ class VisitInfoScreen extends StatelessWidget {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.98),
-        border: Border.all(color: const Color(0x99B8D66D), width: 1.5),
-        borderRadius: BorderRadius.circular(999),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x22526B31),
-            blurRadius: 22,
-            offset: Offset(0, -3),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -1639,45 +1644,49 @@ class VisitInfoScreen extends StatelessWidget {
           return InkWell(
             onTap: () => goTo(context, item.$2),
             borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 34,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0xFFE2F0C2)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
-                    child: MarketAsset(
-                      item.$3,
-                      width: 18,
-                      height: 18,
-                      color: active
-                          ? const Color(0xFF526B31)
-                          : const Color(0xFF9CA3AF),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      color: active
-                          ? const Color(0xFF526B31)
-                          : const Color(0xFF9CA3AF),
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -2067,9 +2076,9 @@ class _PromoScreenState extends State<PromoScreen> {
             ],
           ),
           Positioned(
-            left: 15,
-            right: 15,
-            bottom: 12,
+            left: 16,
+            right: 16,
+            bottom: 16,
             child: _promoBottomNavigation(context),
           ),
         ],
@@ -2085,17 +2094,22 @@ class _PromoScreenState extends State<PromoScreen> {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 71,
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 11),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .95),
-        border: Border.all(color: const Color(0xA6C2DC80)),
-        borderRadius: BorderRadius.circular(999),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1A4B6515),
-            blurRadius: 25,
-            offset: Offset(0, -4),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -2105,46 +2119,50 @@ class _PromoScreenState extends State<PromoScreen> {
           final active = item.$1 == 'Promo';
           return InkWell(
             onTap: () => goTo(context, item.$2),
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 48,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 30,
-                    height: 30,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0xFFE2F0C2)
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: MarketAsset(
-                      item.$3,
-                      width: 20,
-                      height: 23,
-                      color: active
-                          ? const Color(0xFF4F6818)
-                          : const Color(0xFF9CA3AF),
-                    ),
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      color: active
-                          ? const Color(0xFF4F6818)
-                          : const Color(0xFF9CA3AF),
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 9.5,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -2156,13 +2174,13 @@ class _PromoScreenState extends State<PromoScreen> {
     return Container(
       constraints: const BoxConstraints(minHeight: 160),
       clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.fromLTRB(14, 15, 14, 12),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFC2DC80), Color(0xFFD1DF9A), Color(0xFFFBBF24)],
+          colors: [Color(0xFFC2DC80), Color(0xFFD4E89A), Color(0xFFF5CE5A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          stops: [0, .55, 1],
+          stops: [0.0, 0.50, 1.0],
         ),
         borderRadius: BorderRadius.circular(19),
         boxShadow: const [
@@ -2174,109 +2192,117 @@ class _PromoScreenState extends State<PromoScreen> {
         ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
+          // Top-right decorative triangle pattern (matching reference image)
           Positioned(
-            top: 8,
-            right: 18,
-            child: Transform.rotate(
-              angle: .21,
-              child: Icon(
-                Icons.auto_awesome,
-                size: 44,
-                color: Colors.white.withValues(alpha: .35),
+            top: -4,
+            right: -4,
+            child: SizedBox(
+              width: 72,
+              height: 72,
+              child: CustomPaint(
+                painter: _TrianglePatternPainter(),
               ),
             ),
           ),
-          Positioned(
-            right: -25,
-            bottom: -50,
-            child: Container(
-              width: 138,
-              height: 138,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: .24)),
-              ),
-            ),
-          ),
+          // Main content column
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Badge pill with calendar icon
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: .7),
+                  color: Colors.white.withValues(alpha: .65),
                   borderRadius: BorderRadius.circular(99),
                 ),
-                child: const Text(
-                  'AGENDA UTAMA PASAR',
-                  style: TextStyle(
-                    color: Color(0xFF607345),
-                    fontSize: 7,
-                    height: 10 / 7,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 9,
+                      color: Color(0xFF607345),
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'AGENDA UTAMA PASAR',
+                      style: TextStyle(
+                        color: Color(0xFF607345),
+                        fontSize: 8,
+                        height: 1.2,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 10),
+              // Title
               const Text(
                 'Festival Belanja Pasar',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  height: 23 / 18,
-                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2D3B1A),
+                  fontSize: 20,
+                  height: 1.25,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 5),
+              // Description
               const SizedBox(
-                width: 255,
+                width: 240,
                 child: Text(
                   'Penawaran serentak pedagang Pasar Oro-Oro Dowo untuk produk segar, bumbu tradisi, dan jajanan tempo doeloe.',
                   style: TextStyle(
-                    color: Color(0xF5FFFFFF),
-                    fontSize: 9,
-                    height: 13 / 9,
+                    color: Color(0xFF3A4D24),
+                    fontSize: 10,
+                    height: 1.5,
                   ),
                 ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 10),
+              // Bottom row: period pill + duration pill
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(9, 5, 11, 5),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .9),
+                      color: Colors.white.withValues(alpha: .92),
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: const Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.calendar_month_outlined,
-                          size: 12,
-                          color: MarketColors.yellow,
+                          Icons.access_time_rounded,
+                          size: 13,
+                          color: Color(0xFFFBBF24),
                         ),
-                        SizedBox(width: 5),
+                        SizedBox(width: 6),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'PERIODE BERLAKU',
                               style: TextStyle(
-                                color: MarketColors.muted,
-                                fontSize: 6,
-                                height: 7 / 6,
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 6.5,
+                                height: 1.2,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
                               ),
                             ),
                             Text(
                               '15 Okt – 31 Okt 2026',
                               style: TextStyle(
-                                color: Color(0xFF39412F),
-                                fontSize: 8,
-                                height: 10 / 8,
+                                color: Color(0xFF2D3B1A),
+                                fontSize: 9,
+                                height: 1.3,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -2285,22 +2311,22 @@ class _PromoScreenState extends State<PromoScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 7),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: 10,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .9),
+                      color: const Color(0xFF7FAD3A),
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: const Text(
                       '16 Hari',
                       style: TextStyle(
-                        color: Color(0xFF51683B),
-                        fontSize: 8,
-                        height: 10 / 8,
+                        color: Colors.white,
+                        fontSize: 9,
+                        height: 1.2,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -2893,7 +2919,7 @@ class _LegacyRecommendationsScreenState
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: const Color(0x22D56989)),
+          border: Border.all(color: const Color(0xFFC2DC80)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3476,4 +3502,46 @@ Widget _pill(
       style: TextStyle(color: color, fontSize: 8, fontWeight: FontWeight.w700),
     ),
   );
+}
+
+/// Custom painter for the decorative triangle/chevron pattern in the top-right
+/// corner of the AGENDA UTAMA PASAR featured card, matching the reference image.
+class _TrianglePatternPainter extends CustomPainter {
+  const _TrianglePatternPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x30FFFFFF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    // Draw two nested chevron / triangle outlines pointing to bottom-right
+    // First (outer) chevron
+    final path1 = Path()
+      ..moveTo(size.width * 0.55, 0)
+      ..lineTo(size.width, size.height * 0.55)
+      ..moveTo(size.width * 0.72, 0)
+      ..lineTo(size.width, size.height * 0.72)
+      ..moveTo(size.width * 0.88, 0)
+      ..lineTo(size.width, size.height * 0.88)
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width, 0);
+
+    // Draw layered diagonal lines from top-right corner resembling the reference
+    for (int i = 0; i < 5; i++) {
+      final double offset = i * (size.width / 5.5);
+      final path = Path()
+        ..moveTo(size.width - offset, 0)
+        ..lineTo(size.width, offset);
+      canvas.drawPath(path, paint);
+    }
+
+    canvas.drawPath(path1, paint);
+  }
+
+  @override
+  bool shouldRepaint(_TrianglePatternPainter oldDelegate) => false;
 }

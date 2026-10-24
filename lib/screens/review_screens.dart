@@ -27,6 +27,25 @@ class _MarketReviewPreview {
   final List<String> tags;
   final List<String> photos;
 }
+void addGlobalMarketReview({
+  required String name,
+  required int rating,
+  required String text,
+  List<String> tags = const [],
+  List<String> photos = const [],
+}) {
+  final newReview = _MarketReviewPreview(
+    name: name.isEmpty ? 'Pengunjung Pasar' : name,
+    rating: rating,
+    date: 'Baru saja',
+    text: text,
+    helpfulIndex: _globalMarketReviews.length,
+    helpfulCount: 0,
+    tags: tags.isNotEmpty ? tags : ['Ulasan Pengunjung'],
+    photos: photos,
+  );
+  _globalMarketReviews.insert(0, newReview);
+}
 
 final List<_MarketReviewPreview> _globalMarketReviews = [
   _MarketReviewPreview(
@@ -754,9 +773,9 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
 
           // 7. Floating Bottom Navigation
           Positioned(
-            left: 15,
-            right: 15,
-            bottom: 12,
+            left: 16,
+            right: 16,
+            bottom: 16,
             child: _marketBottomNavigation(context),
           ),
         ],
@@ -1030,17 +1049,22 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
       ('Review Pasar', '/review-pasar', '3de6e.svg'),
     ];
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.98),
-        border: Border.all(color: const Color(0x99B8D66D), width: 1.5),
-        borderRadius: BorderRadius.circular(999),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x22526B31),
-            blurRadius: 22,
-            offset: Offset(0, -3),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -1051,45 +1075,49 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
           return InkWell(
             onTap: () => goTo(context, item.$2),
             borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: 58,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 34,
-                    height: 32,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? const Color(0xFFE2F0C2)
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: MarketAsset(
-                      item.$3,
-                      width: 20,
-                      height: 20,
-                      color: active
-                          ? const Color(0xFF526B31)
-                          : const Color(0xFF9CA3AF),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
-                    style: TextStyle(
-                      color: active
-                          ? const Color(0xFF526B31)
-                          : const Color(0xFF9CA3AF),
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: active
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),

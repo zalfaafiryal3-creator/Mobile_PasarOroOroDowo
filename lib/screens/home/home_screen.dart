@@ -269,208 +269,174 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- HERO BANNER ---
   Widget _buildHeroBanner(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                colors: [Color(0xFFC2DC80), Color(0xFFC2DC80), Color(0xE6FBBF24)],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x1A000000),
-                  blurRadius: 6,
-                  offset: Offset(0, 4),
-                ),
-              ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(22, 22, 16, 22),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFB1D864), Color(0xFFD6DF65), Color(0xFFF7BD28)],
+              stops: [0.0, 0.55, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: Stack(
-              clipBehavior: Clip.antiAlias,
-              children: [
-                // Decorative blur circles
-                Positioned(
-                  left: -30,
-                  top: -30,
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: -20,
-                  bottom: -20,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFFC2DC80).withValues(alpha: 0.3),
-                    ),
-                  ),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x22B1D864),
+                blurRadius: 16,
+                offset: Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Color(0x14000000),
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Text Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Text Column
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Pilih\nToko Favoritmu',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              height: 1.25,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 7),
-                          Text(
-                            'Temukan berbagai toko menarik\ndi PasarKu',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.95),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          InkWell(
-                            onTap: () => goTo(context, '/toko'),
-                            borderRadius: BorderRadius.circular(9999),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 7,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(9999),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x40FBBF24),
-                                    blurRadius: 6,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(
-                                    'Jelajahi Sekarang',
-                                    style: TextStyle(
-                                      color: Color(0xFFFBBF24),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  SvgPicture.string(
-                                    '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.91663 7H11.0833" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
-<path d="M7 2.91666L11.0833 6.99999L7 11.0833" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
-</svg>''',
-                                    width: 14,
-                                    height: 14,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                    const Text(
+                      'Pilih\nToko Favoritmu',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
+                        letterSpacing: -0.3,
                       ),
                     ),
-
-                    // Cute 3D Shopping bag graphic
-                    SizedBox(
-                      width: 96,
-                      height: 112,
-                      child: SvgPicture.string(
-                        '''<svg width="96" height="112" viewBox="0 0 96 112" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M30 41C30 17 66 17 66 41" stroke-width="5.4" stroke-linecap="round" stroke="#F3EEF1"/>
-<path d="M31.2 41C31.2 18.8 64.8 18.8 64.8 41" stroke-width="2.4" stroke-linecap="round" stroke="#594045"/>
-<path d="M25.8 35H70.2C76.1647 35 81 39.8353 81 45.8V90.2C81 96.1647 76.1647 101 70.2 101H25.8C19.8353 101 15 96.1647 15 90.2V45.8C15 39.8353 19.8353 35 25.8 35V35" fill="white"/>
-<path d="M15 41L24 101H72L81 41H15" fill="#C2DC80" fill-opacity="0.3"/>
-<path d="M27 35L19.2 101" stroke-width="1.2" stroke="#4B6515"/>
-<path d="M69 35L76.8 101" stroke-width="1.2" stroke="#4B6515"/>
-<path d="M48 74C48 74 37.2 65 37.2 57.2C37.2 52.4 40.8 49.4 45 49.4C48 49.4 48 52.4 48 52.4C48 52.4 48 49.4 51 49.4C55.2 49.4 58.8 52.4 58.8 57.2C58.8 65 48 74 48 74V74" fill="#4B6515"/>
-<path d="M81.6 23C81.6 24.3246 82.6754 25.4 84 25.4C85.3246 25.4 86.4 24.3246 86.4 23C86.4 21.6754 85.3246 20.6 84 20.6C82.6754 20.6 81.6 21.6754 81.6 23V23" fill="#4B6515"/>
-<path d="M84 17V23M84 23V29M84 23H78M84 23H90" stroke-width="1.2" stroke-linecap="round" stroke="#4B6515"/>
-</svg>''',
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Temukan berbagai toko menarik\ndi PasarKu',
+                      style: TextStyle(
+                        color: Color(0xFFF7FDF0),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () => goTo(context, '/toko'),
+                      borderRadius: BorderRadius.circular(9999),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(9999),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x35E09500),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Jelajahi Sekarang',
+                              style: TextStyle(
+                                color: Color(0xFFE58F00),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            SizedBox(width: 6),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 16,
+                              color: Color(0xFFE58F00),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Carousel indicators
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 16,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF594045),
-                  borderRadius: BorderRadius.circular(9999),
-                ),
               ),
-              const SizedBox(width: 6),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF594045).withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF594045).withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF594045).withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
+
+              // Shopping bag graphic
+              SizedBox(
+                width: 105,
+                height: 115,
+                child: SvgPicture.string(
+                  '''<svg width="105" height="115" viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sparkle star top right -->
+  <path d="M88 20V28M88 24H84M88 24H92" stroke="#486014" stroke-width="2.2" stroke-linecap="round"/>
+  
+  <!-- Handle -->
+  <path d="M33 42C33 22 67 22 67 42" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <path d="M33 42C33 22 67 22 67 42" stroke="#5C453E" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Bag Body -->
+  <path d="M24 38H76C79 38 81 40 81.5 43L87.5 95C88 99 85 102 81 102H19C15 102 12 99 12.5 95L18.5 43C19 40 21 38 24 38Z" fill="#F4F8E8" stroke="#5C7A20" stroke-width="1.8"/>
+  
+  <!-- Inner soft gradient -->
+  <path d="M22 42L15 97C14.8 98.5 16 100 17.5 100H82.5C84 100 85.2 98.5 85 97L78 42H22Z" fill="#EAF3D3" fill-opacity="0.6"/>
+  
+  <!-- Green Heart in Center -->
+  <path d="M50 82C50 82 36 71 36 59.5C36 53.5 40.5 49 46 49C48.5 49 50 51 50 51C50 51 51.5 49 54 49C59.5 49 64 53.5 64 59.5C64 71 50 82 50 82Z" fill="#3E5412"/>
+</svg>''',
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        // Carousel indicators (matching reference: 1 capsule + 3 dots, dark grey)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 20,
+              height: 6,
+              decoration: BoxDecoration(
+                color: const Color(0xFF383838),
+                borderRadius: BorderRadius.circular(9999),
+              ),
+            ),
+            const SizedBox(width: 5),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Color(0xFF383838),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Color(0xFF383838),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Color(0xFF383838),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -479,39 +445,35 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFF594045), width: 1),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x35351903),
-            blurRadius: 10,
-            offset: Offset(2, 6),
+            color: Color(0x10000000),
+            blurRadius: 14,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Top Market Info (Photo + Details)
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Market Gate Image
+                // Market Gate Image (local asset 204f2.png)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: SizedBox(
-                    width: 120,
-                    height: 96,
-                    child: Image.network(
-                      'https://api.builder.io/api/v1/image/assets/TEMP/8c7f14c72ec963e2a06640867a91ad0b7f072074?width=264',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const MarketAsset('1377a.png', fit: BoxFit.cover),
-                    ),
+                  borderRadius: BorderRadius.circular(18),
+                  child: const SizedBox(
+                    width: 118,
+                    height: 98,
+                    child: MarketAsset('204f2.png', fit: BoxFit.cover),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 // Market Info
                 Expanded(
                   child: Column(
@@ -524,9 +486,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Text(
                               'Pasar Oro-Oro Dowo',
                               style: TextStyle(
-                                color: Color(0xFF594045),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF4A3528),
+                                fontSize: 16.5,
+                                fontWeight: FontWeight.w800,
                                 letterSpacing: -0.3,
                               ),
                             ),
@@ -537,35 +499,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                 _isFavorite = !_isFavorite;
                               });
                             },
-                            child: SvgPicture.string(
-                              '''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1.33331 6.33332C1.33334 4.81462 2.26961 3.45312 3.68772 2.90959C5.10583 2.36606 6.71224 2.75302 7.72731 3.88266C7.79791 3.95814 7.89663 4.00098 7.99998 4.00098C8.10333 4.00098 8.20205 3.95814 8.27265 3.88266C9.28473 2.74546 10.8951 2.35348 12.3166 2.89831C13.7381 3.44314 14.6739 4.811 14.6666 6.33332C14.6666 7.85999 13.6666 8.99999 12.6666 9.99999L9.00531 13.542C8.75402 13.8306 8.39084 13.9973 8.00817 13.9998C7.6255 14.0022 7.26024 13.8401 7.00531 13.5547L3.33331 9.99999C2.33331 8.99999 1.33331 7.86666 1.33331 6.33332" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="${_isFavorite ? '#E11D48' : '#594045'}" fill="${_isFavorite ? '#E11D48' : 'none'}"/>
-</svg>''',
-                              width: 16,
-                              height: 16,
+                            child: Icon(
+                              _isFavorite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              size: 20,
+                              color: _isFavorite
+                                  ? const Color(0xFFE11D48)
+                                  : const Color(0xFF4A3528),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       const Text(
                         'Pusat Belanja dan Kuliner\nTradisional di Tengah Kota',
                         style: TextStyle(
-                          color: Color(0xFFFBBF24),
+                          color: Color(0xFFE58900),
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          height: 1.3,
+                          height: 1.25,
                         ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Pasar yang sudah berdiri sejak lama dan menjadi ikon belanja masyarakat dengan beragam produk, harga...',
-                        maxLines: 2,
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Color(0xFF6B7280),
-                          fontSize: 10,
-                          height: 1.3,
+                          fontSize: 9.5,
+                          height: 1.35,
                         ),
                       ),
                     ],
@@ -575,194 +539,155 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Bottom Stats Strip (3 stats)
+          // Bottom Stats Strip (rounded inner box, 3 clean stats)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            decoration: const BoxDecoration(
-              color: Color(0x99F3EEF1),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(23)),
-              border: Border(
-                top: BorderSide(color: Color(0xFFF3EEF1), width: 1),
-              ),
+            margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Item 1: Jam Buka
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        alignment: Alignment.center,
-                        decoration: const BoxDecoration(
-                          color: Color(0x40C2DC80),
-                          shape: BoxShape.circle,
-                        ),
-                        child: SvgPicture.string(
-                          '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1.16663 6.99999C1.16663 10.2195 3.78045 12.8333 6.99996 12.8333C10.2195 12.8333 12.8333 10.2195 12.8333 6.99999C12.8333 3.78049 10.2195 1.16666 6.99996 1.16666C3.78045 1.16666 1.16663 3.78049 1.16663 6.99999V6.99999" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-<path d="M7 3.5V7L9.33333 8.16667" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-</svg>''',
-                          width: 14,
-                          height: 14,
-                        ),
+                Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE5ECCF),
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 6),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Jam Buka',
-                            style: TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          Text(
-                            '06.00 - 17.00',
-                            style: TextStyle(
-                              color: Color(0xFF594045),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'Setiap Hari',
-                            style: TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 8.5,
-                            ),
-                          ),
-                        ],
+                      child: const Icon(
+                        Icons.access_time_rounded,
+                        size: 16,
+                        color: Color(0xFF466014),
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 36,
-                  color: const Color(0xFFF3F4F6),
+                    ),
+                    const SizedBox(width: 8),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Jam Buka',
+                          style: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 8.5,
+                          ),
+                        ),
+                        Text(
+                          '06.00 -\n17.00',
+                          style: TextStyle(
+                            color: Color(0xFF2D3B1A),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ),
+                        Text(
+                          'Setiap Hari',
+                          style: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 8,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
 
                 // Item 2: Jumlah Pedagang
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Row(
+                Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE5ECCF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.people_outline_rounded,
+                        size: 16,
+                        color: Color(0xFF466014),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: Color(0x40C2DC80),
-                            shape: BoxShape.circle,
-                          ),
-                          child: SvgPicture.string(
-                            '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9.33329 12.25V11.0833C9.33329 9.79553 8.28776 8.75 6.99996 8.75H3.49996C2.21216 8.75 1.16663 9.79553 1.16663 11.0833V12.25" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-<path d="M9.33331 1.82468C10.3624 2.09147 11.0811 3.0202 11.0811 4.08334C11.0811 5.14649 10.3624 6.07521 9.33331 6.34201" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-<path d="M12.8333 12.25V11.0833C12.8325 10.02 12.1129 9.09164 11.0833 8.82581" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-<path d="M2.91669 4.08333C2.91669 5.37113 3.96222 6.41667 5.25002 6.41667C6.53782 6.41667 7.58335 5.37113 7.58335 4.08333C7.58335 2.79553 6.53782 1.75 5.25002 1.75C3.96222 1.75 2.91669 2.79553 2.91669 4.08333H2.91669" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-</svg>''',
-                            width: 14,
-                            height: 14,
+                        Text(
+                          'Jumlah\nPedagang',
+                          style: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 8.5,
+                            height: 1.1,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Jumlah Pedagang',
-                              style: TextStyle(
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            Text(
-                              '± 251',
-                              style: TextStyle(
-                                color: Color(0xFF594045),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            Text(
-                              'Pedagang',
-                              style: TextStyle(
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 8.5,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '± 251',
+                          style: TextStyle(
+                            color: Color(0xFF2D3B1A),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          'Pedagang',
+                          style: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 8,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 36,
-                  color: const Color(0xFFF3F4F6),
+                  ],
                 ),
 
                 // Item 3: Lokasi
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Row(
+                Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE5ECCF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: Color(0xFF466014),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(
-                            color: Color(0x66C2DC80),
-                            shape: BoxShape.circle,
-                          ),
-                          child: SvgPicture.string(
-                            '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.6666 5.83332C11.6666 8.74591 8.43556 11.7792 7.35056 12.7161C7.14292 12.8722 6.85704 12.8722 6.6494 12.7161C5.5644 11.7792 2.33331 8.74591 2.33331 5.83332C2.33331 3.25772 4.42438 1.16666 6.99998 1.16666C9.57558 1.16666 11.6666 3.25772 11.6666 5.83332" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-<path d="M5.25 5.83334C5.25 6.79919 6.03415 7.58334 7 7.58334C7.96585 7.58334 8.75 6.79919 8.75 5.83334C8.75 4.86749 7.96585 4.08334 7 4.08334C6.03415 4.08334 5.25 4.86749 5.25 5.83334V5.83334" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-</svg>''',
-                            width: 14,
-                            height: 14,
+                        Text(
+                          'Lokasi',
+                          style: TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 8.5,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Lokasi',
-                                style: TextStyle(
-                                  color: Color(0xFF9CA3AF),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Text(
-                                'Klojen, Kota Malang',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Color(0xFF594045),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.15,
-                                ),
-                              ),
-                            ],
+                        Text(
+                          'Kloje\nJawa',
+                          style: TextStyle(
+                            color: Color(0xFF2D3B1A),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -1151,7 +1076,7 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0x4DEA9CAF), // rgba(234, 156, 175, 0.30)
+          color: const Color(0xFFC2DC80),
           width: 1,
         ),
       ),
@@ -1471,7 +1396,7 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x20D56989),
+            color: Color(0x20C2DC80),
             blurRadius: 20,
             offset: Offset(0, 4),
           ),

@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../data/review_api.dart';
 import '../../widgets/market_ui.dart';
+import '../review_screens.dart' show addGlobalMarketReview;
 
 class WriteMarketReviewScreen extends StatefulWidget {
   const WriteMarketReviewScreen({super.key});
@@ -25,6 +25,14 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   bool _sending = false;
   String? _error;
 
+  // Selected aspect chips (all selected by default as in the design)
+  final Set<String> _selectedAspects = {
+    'kebersihan',
+    'keramahan',
+    'parkir',
+    'kelengkapan',
+  };
+
   static const _ratingLabels = {
     1: 'Sangat Kecewa',
     2: 'Kurang Puas',
@@ -33,12 +41,12 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     5: 'Sangat Puas! / Sangat Direkomendasikan',
   };
 
-  // Mock images when no photos selected
+  // Mock sample images matching the reference mockup
   final List<String> _sampleImages = [
     'https://api.builder.io/api/v1/image/assets/TEMP/281087ddf5a502278dbbffd2002884256a7752c8?width=197',
     'https://api.builder.io/api/v1/image/assets/TEMP/f4caf1c7c8b48d3370ebb5e48d3299eefdb4750a?width=197',
   ];
-  final List<int> _removedSampleIndices = [];
+  final Set<int> _removedSampleIndices = {};
 
   @override
   void initState() {
@@ -86,6 +94,26 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
         rating: _rating,
       );
 
+      addGlobalMarketReview(
+        name: name,
+        rating: _rating,
+        text: text,
+        tags: _selectedAspects.map((a) {
+          switch (a) {
+            case 'kebersihan':
+              return 'Kebersihan: Bersih';
+            case 'keramahan':
+              return 'Keramahan: Ramah';
+            case 'parkir':
+              return 'Parkir: Tertata';
+            case 'kelengkapan':
+              return 'Komoditas: Lengkap';
+            default:
+              return 'Ulasan Pengunjung';
+          }
+        }).toList(),
+      );
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +133,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop(true);
         } else {
-          Navigator.of(context).pushReplacementNamed('/home');
+          goTo(context, '/review-pasar');
         }
       }
     } catch (e) {
@@ -132,27 +160,10 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     return MarketPage(
       background: Colors.white,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFFBFDF6),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0x40C2DC80), // 25% opacity
-              Color(0x20C2DC80), // 12.5% opacity
-              Colors.white,
-            ],
-          ),
-          border: Border.symmetric(
-            vertical: BorderSide(
-              color: Color(0x33EA9CAF),
-              width: 1,
-            ),
-          ),
-        ),
+        color: const Color(0xFFF4F9EC),
         child: Stack(
           children: [
-            // Scrollable content
+            // Scrollable form content
             Positioned.fill(
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -162,18 +173,22 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                   children: [
                     _buildHeader(),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          _buildMarketIdentityCard(),
+                          const SizedBox(height: 14),
                           _buildStarRatingSection(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
+                          _buildAspectChipsSection(),
+                          const SizedBox(height: 14),
                           _buildUserProfileSection(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           _buildTextStorySection(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           _buildUploadPhotoSection(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 14),
                           _buildHelpfulReviewBanner(),
                           const SizedBox(height: 20),
                           _buildSubmitButton(),
@@ -184,12 +199,12 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 ),
               ),
             ),
-            // Floating bottom navigation
-            Positioned(
-              left: 20,
-              right: 20,
-              bottom: 20,
-              child: _buildFloatingBottomNav(),
+            // Floating bottom navigation bar (matches standard floating pill)
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BottomNavigation(active: 'Review Pasar'),
             ),
           ],
         ),
@@ -197,13 +212,18 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     );
   }
 
-  // Header
+  // --- HEADER ---
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border(bottom: BorderSide(color: const Color(0xFFC2DC80).withValues(alpha: 0.25), width: 1)),
+        border: Border(
+          bottom: BorderSide(
+            color: const Color(0xFFC2DC80).withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
       ),
       child: SafeArea(
         bottom: false,
@@ -215,7 +235,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
                 } else {
-                  goTo(context, '/home');
+                  goTo(context, '/review-pasar');
                 }
               },
               borderRadius: BorderRadius.circular(9999),
@@ -225,10 +245,20 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Color(0x0D000000), blurRadius: 2, offset: Offset(0, 1))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                 alignment: Alignment.center,
-                child: SvgPicture.string('''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.1875 7.5L7.85417 12.1667L6.66667 13.3333L0 6.66667L6.66667 0L7.85417 1.16667L3.1875 5.83333H13.3333V7.5H3.1875V7.5" fill="#111C2D"/></svg>'''),
+                child: const Icon(
+                  Icons.arrow_back,
+                  size: 20,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
             // Title
@@ -262,24 +292,161 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 40, height: 40), // spacer
+            const SizedBox(width: 40, height: 40), // Spacer for center alignment
           ],
         ),
       ),
     );
   }
 
-  // Star rating section
+  // --- CARD 1: MARKET IDENTITY CARD ---
+  Widget _buildMarketIdentityCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: const MarketAsset(
+              '204f2.png',
+              width: 58,
+              height: 58,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Badge Pasar Wisata Cagar Budaya
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(9999),
+                    border: Border.all(
+                      color: const Color(0xFFFBBF24).withValues(alpha: 0.60),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.star,
+                        size: 11,
+                        color: Color(0xFFB45309),
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        'Pasar Wisata Cagar Budaya',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF92400E),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Pasar Oro-Oro Dowo',
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF594045),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.star,
+                      size: 13,
+                      color: Color(0xFFF59E0B),
+                    ),
+                    SizedBox(width: 3),
+                    Text(
+                      '4.8',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      '•',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 11,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '1.240+ ulasan terverifikasi',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- CARD 2: STAR RATING SECTION ---
   Widget _buildStarRatingSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFCE7F3).withValues(alpha: 0.70), width: 1),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
         boxShadow: const [
-          BoxShadow(color: Color(0x14D56989), blurRadius: 20, offset: Offset(0, 4)),
-          BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -308,6 +475,8 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             ),
           ),
           const SizedBox(height: 14),
+
+          // 5 Large Interactive Stars
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(5, (index) {
@@ -318,31 +487,42 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 child: InkWell(
                   onTap: () => setState(() => _rating = star),
                   borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    alignment: Alignment.center,
-                    child: SvgPicture.string('''<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 25.905L27.27 31.5L24.81 20.955L33 13.86L22.215 12.945L18 3L13.785 12.945L3 13.86L11.19 20.955L8.73 31.5L18 25.905" fill="${filled ? '#FBBF24' : '#E2E8F0'}"/></svg>'''),
+                  child: Icon(
+                    Icons.star_rounded,
+                    size: 40,
+                    color: filled ? const Color(0xFFFBBF24) : const Color(0xFFE2E8F0),
                   ),
                 ),
               );
             }),
           ),
           const SizedBox(height: 16),
+
+          // Rating Status Pill
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
             decoration: BoxDecoration(
               color: const Color(0xFFC2DC80),
               borderRadius: BorderRadius.circular(9999),
-              border: Border.all(color: const Color(0xFF4B6515), width: 1),
+              border: Border.all(
+                color: const Color(0xFF4B6515),
+                width: 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF594045), shape: BoxShape.circle)),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF594045),
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  _ratingLabels[_rating] ?? '',
+                  _ratingLabels[_rating] ?? 'Sangat Puas! / Sangat Direkomendasikan',
                   style: const TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 12,
@@ -359,17 +539,183 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     );
   }
 
-  // User profile section
+  // --- CARD 3: PENILAIAN ASPEK PASAR ---
+  Widget _buildAspectChipsSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PENILAIAN ASPEK PASAR',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 3),
+          const Text(
+            'Pilih aspek unggulan yang Anda rasakan',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFF64748B),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAspectItem(
+                  label: 'Kebersihan',
+                  icon: Icons.cleaning_services_outlined,
+                  isYellow: true,
+                  aspectKey: 'kebersihan',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildAspectItem(
+                  label: 'Keramahan',
+                  icon: Icons.sentiment_satisfied_alt_rounded,
+                  isYellow: false,
+                  aspectKey: 'keramahan',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAspectItem(
+                  label: 'Parkir Tertata',
+                  icon: Icons.local_parking_rounded,
+                  isYellow: false,
+                  aspectKey: 'parkir',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildAspectItem(
+                  label: 'Kelengkapan\nKomoditas',
+                  icon: Icons.shopping_basket_outlined,
+                  isYellow: true,
+                  aspectKey: 'kelengkapan',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAspectItem({
+    required String label,
+    required IconData icon,
+    required bool isYellow,
+    required String aspectKey,
+  }) {
+    final isSelected = _selectedAspects.contains(aspectKey);
+    final bgColor = isSelected
+        ? (isYellow
+            ? const Color(0xFFFEF3C7)
+            : const Color(0xFFE2F0C2))
+        : Colors.grey.shade50;
+    final borderColor = isSelected
+        ? (isYellow
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF84CC16))
+        : const Color(0xFFE2E8F0);
+    final iconColor = isSelected
+        ? (isYellow
+            ? const Color(0xFFD97706)
+            : const Color(0xFF4B6515))
+        : const Color(0xFF94A3B8);
+    final textColor = isSelected
+        ? (isYellow
+            ? const Color(0xFF78350F)
+            : const Color(0xFF1E3A1A))
+        : const Color(0xFF64748B);
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (_selectedAspects.contains(aspectKey)) {
+            _selectedAspects.remove(aspectKey);
+          } else {
+            _selectedAspects.add(aspectKey);
+          }
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor, width: 1.2),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: iconColor),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                  height: 1.2,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- CARD 4: USER NAME INPUT ---
   Widget _buildUserProfileSection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC2DC80), width: 1),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
         boxShadow: const [
-          BoxShadow(color: Color(0x14D56989), blurRadius: 20, offset: Offset(0, 4)),
-          BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -382,31 +728,59 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: Color(0xFF334155),
-              height: 1.33,
             ),
           ),
           const SizedBox(height: 8),
           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFC2DC80).withValues(alpha: 0.25),
+              color: const Color(0xFFE2F0C2).withValues(alpha: 0.50),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFC2DC80), width: 1),
-            ),
-            child: TextField(
-              controller: _nameController,
-              style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF1E293B)),
-              decoration: InputDecoration(
-                hintText: 'Nama Anda (mis. Budi Santoso)',
-                hintStyle: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, fontWeight: FontWeight.w400, color: const Color(0xFF64748B).withValues(alpha: 0.7)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                border: InputBorder.none,
-                isDense: true,
-                suffixIcon: Container(
-                  width: 36,
-                  alignment: Alignment.center,
-                  child: SvgPicture.string('''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.0001 14.4C11.5324 14.4 14.4001 11.5323 14.4001 8.00001C14.4001 4.46775 11.5324 1.60001 8.0001 1.60001C4.46784 1.60001 1.6001 4.46775 1.6001 8.00001C1.6001 11.5323 4.46784 14.4 8.0001 14.4V14.4M10.9657 6.96561C11.2689 6.6517 11.2645 6.15274 10.956 5.84415C10.6474 5.53556 10.1484 5.53123 9.8345 5.83441L7.2001 8.46881L6.1657 7.43441C5.85179 7.13123 5.35283 7.13556 5.04424 7.44415C4.73566 7.75274 4.73132 8.2517 5.0345 8.56561L6.6345 10.1656C6.9469 10.4779 7.4533 10.4779 7.7657 10.1656L10.9657 6.96561V6.96561" fill-rule="evenodd" clip-rule="evenodd" fill="#FBBF24"/></svg>'''),
-                ),
+              border: Border.all(
+                color: const Color(0xFFC2DC80),
+                width: 1.2,
               ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _nameController,
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1E293B),
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Masukkan Nama',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: const Color(0xFF64748B).withValues(alpha: 0.8),
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFBBF24),
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.check,
+                    size: 13,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -414,17 +788,23 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     );
   }
 
-  // Text story section
+  // --- CARD 5: STORY / EXPERIENCE INPUT ---
   Widget _buildTextStorySection() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC2DC80), width: 1),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
         boxShadow: const [
-          BoxShadow(color: Color(0x14D56989), blurRadius: 20, offset: Offset(0, 4)),
-          BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -435,32 +815,60 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             children: const [
               Text(
                 'Ceritakan Pengalaman Anda',
-                style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155), height: 1.33),
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF334155),
+                ),
               ),
               Text(
                 'Maks. 500 karakter',
-                style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8), height: 1.5),
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF94A3B8),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
             height: 105,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
+              color: const Color(0xFFFEF3C7).withValues(alpha: 0.70),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF59E0B), width: 1),
+              border: Border.all(
+                color: const Color(0xFFFBBF24),
+                width: 1.2,
+              ),
             ),
             child: TextField(
               controller: _experienceController,
               maxLines: 4,
               maxLength: 500,
-              buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
-              style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, color: Color(0xFF1E293B), height: 1.4),
+              buildCounter: (
+                context, {
+                required currentLength,
+                required isFocused,
+                maxLength,
+              }) =>
+                  null,
+              style: const TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 12,
+                color: Color(0xFF1E293B),
+                height: 1.4,
+              ),
               decoration: const InputDecoration(
-                hintText: 'Bagikan pengalaman kunjungan Anda, kualitas makanan, pelayanan, atau suasana pasar...',
-                hintStyle: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 11, color: Color(0xFF94A3B8)),
+                hintText: 'Bagikan pengalaman kamu tentang pasar ini...',
+                hintStyle: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 11,
+                  color: Color(0xFF94A3B8),
+                ),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
@@ -468,30 +876,64 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              '${_experienceController.text.length} / 500',
-              style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF64748B), height: 1.5),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: const [
+                  Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Color(0xFF10B981),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    'Ulasan memenuhi syarat kualitas',
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF10B981),
+                    ),
+                  ),
+                ],
+              ),
+              Text(
+                '${_experienceController.text.length} / 500',
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // Upload photo section
+  // --- CARD 6: UPLOAD PHOTO SECTION ---
   Widget _buildUploadPhotoSection() {
-    final int totalSelected = _photos.length + (_sampleImages.length - _removedSampleIndices.length);
+    final int totalSelected = _photos.length +
+        (_sampleImages.length - _removedSampleIndices.length);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC2DC80), width: 1),
+        border: Border.all(
+          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: 1,
+        ),
         boxShadow: const [
-          BoxShadow(color: Color(0x14D56989), blurRadius: 20, offset: Offset(0, 4)),
-          BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x12594045),
+            blurRadius: 16,
+            offset: Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -501,14 +943,37 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               RichText(
-                text: const TextSpan(children: [
-                  TextSpan(text: 'Tambah Foto Kunjungan ', style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF334155))),
-                  TextSpan(text: '(Opsional)', style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF94A3B8))),
-                ]),
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Tambah Foto Kunjungan ',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                    TextSpan(
+                      text: '(Opsional)',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF94A3B8),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Text(
                 '$totalSelected Terpilih',
-                style: const TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF594045)),
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF594045),
+                ),
               ),
             ],
           ),
@@ -517,16 +982,20 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
+                // + Foto Button
                 InkWell(
                   onTap: _pickPhotos,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    width: 100,
+                    width: 90,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDF2F8).withValues(alpha: 0.50),
+                      color: const Color(0xFFF7FEE7),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFC2DC80), width: 1.5, strokeAlign: BorderSide.strokeAlignInside),
+                      border: Border.all(
+                        color: const Color(0xFFC2DC80),
+                        width: 1.5,
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -534,24 +1003,122 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                         Container(
                           width: 28,
                           height: 28,
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
                           alignment: Alignment.center,
-                          child: SvgPicture.string('''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.99984 2.66669V13.3334M13.3332 8.00002H2.6665" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/></svg>'''),
+                          child: const Icon(
+                            Icons.add,
+                            size: 18,
+                            color: Color(0xFF4B6515),
+                          ),
                         ),
-                        const SizedBox(height: 6),
-                        const Text('+ Foto', style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF4B6515))),
+                        const SizedBox(height: 5),
+                        const Text(
+                          '+ Foto',
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF4B6515),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
+
+                // Sample Images
+                for (int idx = 0; idx < _sampleImages.length; idx++)
+                  if (!_removedSampleIndices.contains(idx)) ...[
+                    const SizedBox(width: 10),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 90,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFFE2E8F0),
+                              width: 1,
+                            ),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.network(
+                            _sampleImages[idx],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        if (idx == 1)
+                          Positioned(
+                            left: 5,
+                            bottom: 5,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xB3000000),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'Lorong',
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: 9,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: InkWell(
+                            onTap: () => setState(() {
+                              _removedSampleIndices.add(idx);
+                            }),
+                            child: Container(
+                              width: 20,
+                              height: 20,
+                              decoration: const BoxDecoration(
+                                color: Color(0x99000000),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                '✕',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                // Picked user photos
                 for (int i = 0; i < _photos.length; i++) ...[
                   const SizedBox(width: 10),
                   Stack(
                     children: [
                       Container(
-                        width: 100,
+                        width: 90,
                         height: 80,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0), width: 1)),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 1,
+                          ),
+                        ),
                         clipBehavior: Clip.antiAlias,
                         child: kIsWeb
                             ? Image.network(_photos[i].path, fit: BoxFit.cover)
@@ -565,9 +1132,19 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                           child: Container(
                             width: 20,
                             height: 20,
-                            decoration: const BoxDecoration(color: Color(0x99000000), shape: BoxShape.circle),
+                            decoration: const BoxDecoration(
+                              color: Color(0x99000000),
+                              shape: BoxShape.circle,
+                            ),
                             alignment: Alignment.center,
-                            child: const Text('✕', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              '✕',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -582,63 +1159,154 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     );
   }
 
-  // Helpful review banner
+  // --- CARD 7: HELPFUL REVIEW BANNER ---
   Widget _buildHelpfulReviewBanner() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF59E0B).withValues(alpha: 0.10),
+        color: const Color(0xFFE2F0C2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF59E0B), width: 1),
+        border: Border.all(
+          color: const Color(0xFFC2DC80),
+          width: 1.2,
+        ),
       ),
-      child: Row(
-        children: const [
-          Icon(Icons.lightbulb, color: Color(0xFFF59E0B), size: 24),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Ulasan yang membantu meningkatkan kualitas pasar dan memberi insight bagi pengunjung lainnya.',
-              style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 12, color: Color(0xFF92400E)),
+      child: Stack(
+        children: [
+          // Corner accents (top-right and bottom-right brackets)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Color(0xFFC2DC80), width: 2),
+                  right: BorderSide(color: Color(0xFFC2DC80), width: 2),
+                ),
+              ),
             ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: const BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFC2DC80), width: 2),
+                  right: BorderSide(color: Color(0xFFC2DC80), width: 2),
+                ),
+              ),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.eco_rounded,
+                  color: Color(0xFF4B6515),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Ulasan Anda Menghidupkan UMKM',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E3A1A),
+                      ),
+                    ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Ulasan jujur Anda sangat membantu menjaga kualitas fasilitas pasar dan mendukung 280+ pedagang lokal di Pasar Oro-Oro Dowo.',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF334155),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // Submit button
+  // --- SUBMIT BUTTON ---
   Widget _buildSubmitButton() {
-    return ElevatedButton(
-      onPressed: _sending ? null : _submit,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF4B6515),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
-        elevation: 4,
-        shadowColor: const Color(0x26000000),
-      ),
-      child: _sending
-          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-          : const Text('Kirim Ulasan', style: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
-    );
-  }
-
-  // Floating bottom navigation (placeholder)
-  Widget _buildFloatingBottomNav() {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: const [BoxShadow(color: Color(0x26000000), blurRadius: 10, offset: Offset(0, 4))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          IconButton(icon: const Icon(Icons.home), onPressed: () => goTo(context, '/home')),
-          IconButton(icon: const Icon(Icons.map), onPressed: () => goTo(context, '/market-map')),
-          IconButton(icon: const Icon(Icons.list), onPressed: () => goTo(context, '/store-list')),
-        ],
+    return InkWell(
+      onTap: _sending ? null : _submit,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFBBF24),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFF59E0B),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFFBBF24).withValues(alpha: 0.50),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: _sending
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text(
+                    'Kirim Ulasan Pasar',
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
       ),
     );
   }

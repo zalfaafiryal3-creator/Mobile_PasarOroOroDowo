@@ -205,9 +205,9 @@ class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
 
             // Bottom Navigation Bar
             Positioned(
-              left: 20,
-              right: 20,
-              bottom: 20,
+              left: 16,
+              right: 16,
+              bottom: 16,
               child: _buildFloatingBottomNav(),
             ),
           ],
@@ -1007,24 +1007,30 @@ class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
   // --- FLOATING BOTTOM NAV BAR ---
   Widget _buildFloatingBottomNav() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(9999),
         border: Border.all(
           color: const Color(0xFFC2DC80),
-          width: 1,
+          width: 1.2,
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14D56989),
-            blurRadius: 25,
-            offset: Offset(0, -4),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 1. Home
           _buildNavItem(

@@ -65,7 +65,7 @@ class MarketFacilitiesScreen extends StatelessWidget {
                 Positioned(
                   left: 16,
                   right: 16,
-                  bottom: 12,
+                  bottom: 16,
                   child: _buildFloatingBottomNav(context),
                 ),
               ],
@@ -749,171 +749,116 @@ class MarketFacilitiesScreen extends StatelessWidget {
 
   // --- Floating Bottom Navigation Bar ---
   Widget _buildFloatingBottomNav(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(9999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 11),
-          decoration: BoxDecoration(
-            color: Colors.white.withAlpha(242), // opacity 0.95
-            borderRadius: BorderRadius.circular(9999),
-            border: Border.all(color: const Color(0xFFC2DC80), width: 1),
-            boxShadow: const [
-              BoxShadow(
-                color: Color.fromRGBO(213, 105, 137, 0.08),
-                blurRadius: 25,
-                offset: Offset(0, -4),
-              ),
-            ],
+    return Container(
+      height: 68,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(
+          color: const Color(0xFFC2DC80),
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              // Home Tab (Active)
-              InkWell(
-                onTap: () => goTo(context, '/home'),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(194, 220, 128, 0.35),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Center(
-                        child: SvgPicture.string(
-                          '''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // 1. Home (Active)
+          _buildNavItem(
+            label: 'Home',
+            isActive: true,
+            iconSvg: '''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M10 14V8.66667C10 8.29872 9.70128 8 9.33333 8H6.66667C6.29872 8 6 8.29872 6 8.66667V14" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M2 6.66666C1.99991 6.27408 2.17283 5.90141 2.47267 5.64799L7.13933 1.64799C7.63626 1.22801 8.36374 1.22801 8.86067 1.64799L13.5273 5.64799C13.8272 5.90141 14.0001 6.27408 14 6.66666V12.6667C14 13.4025 13.4026 14 12.6667 14H3.33333C2.59745 14 2 13.4025 2 12.6667V6.66666" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 </svg>''',
-                          width: 16,
-                          height: 16,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Home',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF4B6515),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 53),
+            onTap: () {},
+          ),
 
-              // Toko Tab
-              InkWell(
-                onTap: () => goTo(context, '/toko'),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: Center(
-                        child: SvgPicture.string(
-                          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          // 2. Toko
+          _buildNavItem(
+            label: 'Toko',
+            isActive: false,
+            iconSvg: '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M12.5 17.5V13.3333C12.5 12.8731 12.1269 12.5 11.6667 12.5H8.33333C7.8731 12.5 7.5 12.8731 7.5 13.3333V17.5" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
-<path d="M14.8116 8.59169C14.4507 8.24618 13.8817 8.24618 13.5208 8.59169C12.7159 9.35941 11.4498 9.35941 10.6449 8.59169C10.2841 8.24671 9.71575 8.24671 9.35494 8.59169C8.54994 9.35994 7.28329 9.35994 6.47828 8.59169C6.11736 8.24618 5.54836 8.24618 5.18744 8.59169C4.41195 9.33172 3.20147 9.36249 2.38937 8.66284C1.57726 7.96318 1.42862 6.76146 2.04578 5.88502L4.45328 2.39835C4.76345 1.94067 5.28039 1.66659 5.83328 1.66669H14.1666C14.7178 1.66648 15.2335 1.93882 15.5441 2.39419L17.9566 5.88752C18.5739 6.7647 18.4243 7.96724 17.6109 8.66643C16.7975 9.36562 15.5861 9.33292 14.8116 8.59085" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
+<path d="M14.8116 8.59163C14.4507 8.24612 13.8817 8.24612 13.5208 8.59163C12.7159 9.35935 11.4498 9.35935 10.6449 8.59163C10.2841 8.24665 9.71575 8.24665 9.35494 8.59163C8.54994 9.35988 7.28329 9.35988 6.47828 8.59163C6.11736 8.24612 5.54836 8.24612 5.18744 8.59163C4.41195 9.33165 3.20147 9.36243 2.38937 8.66277C1.57726 7.96311 1.42862 6.7614 2.04578 5.88496L4.45328 2.39829C4.76345 1.94061 5.28039 1.66652 5.83328 1.66663H14.1666C14.7178 1.66641 15.2335 1.93876 15.5441 2.39413L17.9566 5.88746C18.5739 6.76463 18.4243 7.96718 17.6109 8.66637C16.7975 9.36556 15.5861 9.33286 14.8116 8.59079" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
 <path d="M3.33337 9.125V15.8333C3.33337 16.7538 4.07957 17.5 5.00004 17.5H15C15.9205 17.5 16.6667 16.7538 16.6667 15.8333V9.125" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
 </svg>''',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Toko',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 53),
+            onTap: () => goTo(context, '/toko'),
+          ),
 
-              // Promo Tab
-              InkWell(
-                onTap: () => goTo(context, '/promo'),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: Center(
-                        child: SvgPicture.string(
-                          '''<svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M16.9212 17.8795C13.9272 20.8735 9.07291 20.8735 6.07889 17.8795C4.58188 16.3825 3.83338 14.4204 3.83337 12.4583C3.83337 10.4963 4.58188 8.53418 6.07889 7.03717C6.07889 7.03717 6.70842 8.62496 8.62508 9.58329C8.62508 7.66662 9.10425 4.79162 11.4865 2.875C13.4167 4.79167 15.4207 5.53672 16.9212 7.03717C18.4182 8.53418 19.1667 10.4963 19.1667 12.4583C19.1667 14.4204 18.4182 16.3825 16.9212 17.8795ZM13.533 15.4496C12.4102 16.5723 10.5899 16.5723 9.46711 15.4496C8.90574 14.8882 8.62505 14.1524 8.62504 13.4167L10.5417 13.4166L11.514 10.5417C12.2451 10.5452 12.9751 10.8259 13.533 11.3837C14.0944 11.9451 14.375 12.6809 14.375 13.4167C14.375 14.1524 14.0943 14.8882 13.533 15.4496Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
+          // 3. Promo
+          _buildNavItem(
+            label: 'Promo',
+            isActive: false,
+            iconSvg: '''<svg width="22" height="22" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16.9211 17.8795C13.9271 20.8735 9.07285 20.8735 6.07883 17.8795C4.58182 16.3825 3.83332 14.4204 3.83331 12.4583C3.83331 10.4963 4.58181 8.53418 6.07883 7.03717C6.07883 7.03717 6.70836 8.62496 8.62502 9.58329C8.62502 7.66662 9.10419 4.79162 11.4865 2.875C13.4166 4.79167 15.4207 5.53672 16.9211 7.03717C18.4181 8.53418 19.1666 10.4963 19.1666 12.4583C19.1666 14.4204 18.4181 16.3825 16.9211 17.8795ZM13.5329 15.4496C12.4102 16.5723 10.5898 16.5723 9.46705 15.4496C8.90568 14.8882 8.62499 14.1524 8.62498 13.4167L10.5416 13.4166L11.5139 10.5417C12.2451 10.5452 12.9751 10.8259 13.5329 11.3837C14.0943 11.9451 14.375 12.6809 14.375 13.4167C14.375 14.1524 14.0943 14.8882 13.5329 15.4496Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#6B7280"/>
 </svg>''',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Promo',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 53),
+            onTap: () => goTo(context, '/promo'),
+          ),
 
-              // Review Pasar Tab
-              InkWell(
-                onTap: () => goTo(context, '/review-pasar'),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: Center(
-                        child: SvgPicture.string(
-                          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          // 4. Review Pasar
+          _buildNavItem(
+            label: 'Review Pasar',
+            isActive: false,
+            iconSvg: '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M5.96672 12H8.76255L13.3459 7.41667C13.4834 7.27917 13.5865 7.12257 13.6553 6.94688C13.724 6.77118 13.7584 6.59931 13.7584 6.43125C13.7584 6.26319 13.7202 6.09896 13.6438 5.93854C13.5674 5.77813 13.4681 5.62917 13.3459 5.49167L12.5209 4.62083C12.3834 4.48333 12.2306 4.38021 12.0625 4.31146C11.8945 4.24271 11.7188 4.20833 11.5355 4.20833C11.3674 4.20833 11.1955 4.24271 11.0198 4.31146C10.8441 4.38021 10.6875 4.48333 10.55 4.62083L5.96672 9.20417V12V12M12.3834 6.43125V6.43125L11.5355 5.58333V5.58333L12.3834 6.43125V6.43125M7.34172 10.625V9.75417L9.6563 7.43958L10.1146 7.85208L10.5271 8.31042L8.21255 10.625H7.34172V10.625M10.1146 7.85208L10.5271 8.31042V8.31042L9.6563 7.43958V7.43958L10.1146 7.85208V7.85208M10.7105 12H16.9667V10.1667H12.5438L10.7105 12V12M2.30005 19.3333V2.83333C2.30005 2.32917 2.47956 1.89757 2.83859 1.53854C3.19762 1.17951 3.62922 1 4.13338 1H18.8C19.3042 1 19.7358 1.17951 20.0948 1.53854C20.4539 1.89757 20.6334 2.32917 20.6334 2.83333V13.8333C20.6334 14.3375 20.4539 14.7691 20.0948 15.1281C19.7358 15.4872 19.3042 15.6667 18.8 15.6667H5.96672L2.30005 19.3333V19.3333M5.18755 13.8333H18.8V13.8333V13.8333V2.83333V2.83333V2.83333H4.13338V2.83333V2.83333V14.8646L5.18755 13.8333V13.8333M4.13338 13.8333V13.8333V2.83333V2.83333V2.83333V2.83333V2.83333V2.83333V13.8333V13.8333V13.8333V13.8333V13.8333" fill="#6B7280"/>
 </svg>''',
-                          width: 20,
-                          height: 20,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Review Pasar',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            onTap: () => goTo(context, '/review-pasar'),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required String label,
+    required bool isActive,
+    required String iconSvg,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                  : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: SvgPicture.string(iconSvg),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: isActive
+                  ? const Color(0xFF4B6515)
+                  : const Color(0xFF9CA3AF),
+              fontSize: label == 'Review Pasar' ? 9 : 10,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+            ),
+          ),
+        ],
       ),
     );
   }

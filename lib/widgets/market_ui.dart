@@ -226,7 +226,7 @@ class PageTitleBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: const BoxDecoration(
         color: Color(0xFFF0F6DF),
-        border: Border(bottom: BorderSide(color: Color(0x22D56989))),
+        border: Border(bottom: BorderSide(color: Color(0xFFC2DC80))),
       ),
       child: Row(
         children: [
@@ -307,49 +307,76 @@ class BottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       height: 68,
-      padding: const EdgeInsets.fromLTRB(8, 7, 8, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .97),
-        border: const Border(top: BorderSide(color: Color(0x22D56989))),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x11000000),
-            blurRadius: 8,
-            offset: Offset(0, -2),
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: items.map((item) {
           final selected = item.$1 == active;
-          return Expanded(
-            child: InkWell(
-              onTap: () => goTo(context, item.$2),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: MarketAsset(
-                      item.$3,
-                      color: selected ? MarketColors.pink : MarketColors.muted,
-                    ),
+          return InkWell(
+            onTap: () => goTo(context, item.$2),
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    item.$1,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                      color: selected ? MarketColors.pink : MarketColors.muted,
-                    ),
+                  child: MarketAsset(
+                    item.$3,
+                    width: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    height: item.$1 == 'Home'
+                        ? 16
+                        : item.$1 == 'Promo'
+                            ? 22
+                            : 20,
+                    color: selected
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF6B7280),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: selected
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           );
         }).toList(),
@@ -410,7 +437,7 @@ class StoreCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0x33EA9CAF)),
+        border: Border.all(color: const Color(0xFFC2DC80)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
