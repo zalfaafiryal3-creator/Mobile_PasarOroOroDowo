@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-String _hostFor(String port) {
+// Ganti jika memakai HP asli, mis. 'http://192.168.1.5:4000', atau URL hosting.
+String get _baseUrl {
   if (!kIsWeb && Platform.isAndroid) {
-    return '10.0.2.2:$port';
+    return 'http://10.0.2.2:4000';
   }
-  return 'localhost:$port';
+  return 'http://localhost:4000';
 }
 
 class StoreReview {
@@ -38,8 +39,7 @@ class StoreReview {
 }
 
 class StoreReviewApi {
-  static Uri _uri(String port) =>
-      Uri.parse('http://${_hostFor(port)}/api/store-reviews');
+  static Uri _uri([String? _]) => Uri.parse('$_baseUrl/api/store-reviews');
 
   static Future<List<StoreReview>> fetchDetailReviews() =>
       _fetchReviews('5000');
