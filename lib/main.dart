@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/discovery_screens.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/market_facilities/market_facilities_screen.dart';
+import 'screens/market_history/market_history_screen.dart';
 import 'screens/market_map/market_map_screen.dart';
 import 'screens/recommendations/recommendations_screen.dart' as recommendations;
 import 'screens/review_screens.dart' hide WriteMarketReviewScreen;
@@ -52,6 +53,9 @@ class PasarOroOroDowoApp extends StatelessWidget {
           page = const visit_planner.VisitPlannerScreen();
         case '/fasilitas-pasar':
           page = const MarketFacilitiesScreen();
+        case '/sejarah-pasar':
+        case '/sejarah':
+          page = const MarketHistoryScreen();
         case '/info-kunjungan':
           page = const VisitInfoScreen();
         case '/promo':

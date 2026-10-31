@@ -631,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 1.625,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => goTo(context, '/info-kunjungan'),
+                              ..onTap = () => goTo(context, '/sejarah-pasar'),
                           ),
                         ],
                       ),
