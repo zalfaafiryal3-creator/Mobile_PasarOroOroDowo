@@ -793,6 +793,11 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
                                   ),
                                 ),
                               ),
+                              const Icon(
+                                Icons.chevron_right_rounded,
+                                color: Color(0xFF374151),
+                                size: 22,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 5),
@@ -926,13 +931,13 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
                     width: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     height: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     color: active
                         ? const Color(0xFF4B6515)
                         : const Color(0xFF6B7280),
@@ -1625,11 +1630,6 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
                       ),
                     ),
                   ),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFF374151),
-                    size: 22,
-                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -1879,13 +1879,13 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
                     width: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     height: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     color: active
                         ? const Color(0xFF4B6515)
                         : const Color(0xFF6B7280),
@@ -2081,4 +2081,3 @@ class _TokoStoreCard extends StatelessWidget {
 
 // StoreDetailScreen has been moved to lib/screens/store_detail/store_detail_screen.dart
 // and is exported from there.
-

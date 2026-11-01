@@ -1,7 +1,24 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../widgets/market_ui.dart';
+
+class _MarketGalleryScrollBehavior extends MaterialScrollBehavior {
+  const _MarketGalleryScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    ...super.dragDevices,
+    PointerDeviceKind.mouse,
+  };
+}
+
+const _marketAtmospherePhotos = <String>[
+  'assets/market_history_atmosphere.png',
+  'assets/market_history_atmosphere_2.jpg',
+  'assets/market_history_atmosphere_3.jpg',
+];
 
 class MarketHistoryScreen extends StatelessWidget {
   const MarketHistoryScreen({super.key});
@@ -25,10 +42,7 @@ class MarketHistoryScreen extends StatelessWidget {
             stops: [0.0, 0.2, 0.5, 1.0],
           ),
           border: Border.symmetric(
-            vertical: BorderSide(
-              color: Color(0x33EA9CAF),
-              width: 1,
-            ),
+            vertical: BorderSide(color: Color(0x33EA9CAF), width: 1),
           ),
         ),
         child: SafeArea(
@@ -57,6 +71,9 @@ class MarketHistoryScreen extends StatelessWidget {
                     _buildUniquenessSection(),
                     const SizedBox(height: 28),
 
+                    _buildMarketAtmosphereImage(),
+                    const SizedBox(height: 28),
+
                     // 4. CTA Section: Ajakan Mengunjungi Pasar
                     _buildCtaSection(context),
                   ],
@@ -69,59 +86,126 @@ class MarketHistoryScreen extends StatelessWidget {
     );
   }
 
-  // --- HEADER ---
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _buildMarketAtmosphereImage() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Back Button (Circle 54x54 with shadow)
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => goBack(context),
-            borderRadius: BorderRadius.circular(27),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x29594045), // rgba(89, 64, 69, 0.16)
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: SvgPicture.string(
-                '''<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M19.7917 12.5H5.20837M12.5 5.20833L5.20837 12.5L12.5 19.7917" stroke-width="2.60417" stroke-linecap="round" stroke-linejoin="round" stroke="#111827"/>
-</svg>''',
-                width: 24,
-                height: 24,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 14),
+        _buildPillHeading('Suasana Pasar Oro-Oro Dowo'),
+        const SizedBox(height: 12),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              height: 110,
+              child: ScrollConfiguration(
+                behavior: const _MarketGalleryScrollBehavior(),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const ClampingScrollPhysics(),
+                  shrinkWrap: false,
+                  itemCount: _marketAtmospherePhotos.length,
+                  itemBuilder: (context, index) {
+                    final photo = _marketAtmospherePhotos[index];
 
-        // Title
-        const Expanded(
-          child: Text(
-            'Sejarah Pasar Oro-Oro Dowo',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF594045),
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.5,
-              height: 1.3,
-            ),
-          ),
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: SizedBox(
+                        width: 150,
+                        height: 110,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x26594045),
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: SizedBox.expand(
+                              child: Image.asset(
+                                photo,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
+    );
+  }
+
+  // --- HEADER ---
+  Widget _buildHeader(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => goBack(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.arrow_back,
+                    size: 19,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 44),
+              child: Center(
+                child: Text(
+                  'Sejarah Pasar Oro-Oro Dowo',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Color(0xFF2E2426),
+                    fontSize: 16.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -131,10 +215,7 @@ class MarketHistoryScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFF594045), width: 1),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -258,29 +339,25 @@ class MarketHistoryScreen extends StatelessWidget {
       {
         'year': '1920-an',
         'title': 'Awal Keberadaan Pasar',
-        'desc':
-            'Pemerintah Kota Malang menyebut Pasar Oro-Oro Dowo telah ada sejak sekitar tahun 1920. Pasar ini tumbuh sebagai tempat masyarakat memenuhi kebutuhan sehari-hari.',
+        'desc': 'Pemerintah Kota Malang menyebut Pasar Oro-Oro Dowo telah ada sejak sekitar tahun 1920. Pasar ini tumbuh sebagai tempat masyarakat memenuhi kebutuhan sehari-hari.',
         'bgColor': const Color(0xEBFFFEF8), // rgba(255, 254, 248, 0.88)
       },
       {
         'year': '1932–\n1934',
         'title': 'Pembangunan Pasar',
-        'desc':
-            'Sejumlah sumber mencatat pembangunan pasar pada dekade 1930-an. DetikNews menyebut tahun 1932, sedangkan catatan sejarah Kelurahan Oro-Oro Dowo menyebut tahun 1934.',
+        'desc': 'Sejumlah sumber mencatat pembangunan pasar pada dekade 1930-an. DetikNews menyebut tahun 1932, sedangkan catatan sejarah Kelurahan Oro-Oro Dowo menyebut tahun 1934.',
         'bgColor': const Color(0x4DFBBF24), // rgba(251, 191, 36, 0.30)
       },
       {
         'year': '1970',
         'title': 'Renovasi dan Penambahan Bangunan',
-        'desc':
-            'Pasar mengalami renovasi dan penambahan bangunan untuk menunjang kegiatan perdagangan. Bangunan utama yang memiliki karakter lama tetap dipertahankan.',
+        'desc': 'Pasar mengalami renovasi dan penambahan bangunan untuk menunjang kegiatan perdagangan. Bangunan utama yang memiliki karakter lama tetap dipertahankan.',
         'bgColor': const Color(0xEBFFFEF8), // rgba(255, 254, 248, 0.88)
       },
       {
         'year': '2015',
         'title': 'Revitalisasi Pasar',
-        'desc':
-            'Pasar direvitalisasi untuk meningkatkan kebersihan, penataan, dan kenyamanan. Upaya pembaruan dilakukan dengan tetap mempertahankan bagian bangunan lama yang menjadi ciri khas pasar.',
+        'desc': 'Pasar direvitalisasi untuk meningkatkan kebersihan, penataan, dan kenyamanan. Upaya pembaruan dilakukan dengan tetap mempertahankan bagian bangunan lama yang menjadi ciri khas pasar.',
         'bgColor': const Color(0x4DFBBF24), // rgba(251, 191, 36, 0.30)
       },
     ];
@@ -302,10 +379,7 @@ class MarketHistoryScreen extends StatelessWidget {
                 left: 11,
                 top: 24,
                 bottom: 24,
-                child: Container(
-                  width: 2,
-                  color: const Color(0xFF9BB65B),
-                ),
+                child: Container(width: 2, color: const Color(0xFF9BB65B)),
               ),
 
               // Timeline Item List
@@ -355,7 +429,9 @@ class MarketHistoryScreen extends StatelessWidget {
                               ),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color(0x2E594045), // #594045 shadow per Figma
+                                  color: Color(
+                                    0x2E594045,
+                                  ), // #594045 shadow per Figma
                                   blurRadius: 9,
                                   offset: Offset(0, 3),
                                 ),
@@ -467,10 +543,7 @@ class MarketHistoryScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFFFFEF8),
             borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: const Color(0xFF594045),
-              width: 1,
-            ),
+            border: Border.all(color: const Color(0xFF594045), width: 1),
             boxShadow: const [
               BoxShadow(
                 color: Color(0x33594045), // #594045 shadow per Figma
@@ -571,18 +644,12 @@ class MarketHistoryScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(27),
         border: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFFBBF24),
-            width: 7,
-          ),
+          bottom: BorderSide(color: Color(0xFFFBBF24), width: 7),
         ),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFD9E9A4),
-            Color(0xFFF3EDB7),
-          ],
+          colors: [Color(0xFFD9E9A4), Color(0xFFF3EDB7)],
         ),
         boxShadow: const [
           BoxShadow(

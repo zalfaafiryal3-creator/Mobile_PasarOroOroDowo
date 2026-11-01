@@ -39,15 +39,25 @@ class _StoreListScreenState extends State<StoreListScreen> {
     if (cat.contains('makanan') && !cat.contains('minuman')) {
       return combined.contains('makanan') || combined.contains('kuliner');
     } else if (cat.contains('sayur') || cat.contains('buah')) {
-      return combined.contains('sayur') || combined.contains('buah') || combined.contains('organic');
+      return combined.contains('sayur') ||
+          combined.contains('buah') ||
+          combined.contains('organic');
     } else if (cat.contains('kuliner') || cat.contains('legend')) {
-      return combined.contains('kuliner') || combined.contains('legend') || sCat.contains('kuliner');
+      return combined.contains('kuliner') ||
+          combined.contains('legend') ||
+          sCat.contains('kuliner');
     } else if (cat.contains('daging') || cat.contains('ikan')) {
-      return combined.contains('daging') || combined.contains('ikan') || store.id == 'norriture';
+      return combined.contains('daging') ||
+          combined.contains('ikan') ||
+          store.id == 'norriture';
     } else if (cat.contains('sembako') || cat.contains('perabotan')) {
-      return combined.contains('sembako') || combined.contains('perabotan') || combined.contains('peralatan');
+      return combined.contains('sembako') ||
+          combined.contains('perabotan') ||
+          combined.contains('peralatan');
     } else if (cat.contains('mainan') || cat.contains('baju')) {
-      return combined.contains('mainan') || combined.contains('baju') || combined.contains('pakaian');
+      return combined.contains('mainan') ||
+          combined.contains('baju') ||
+          combined.contains('pakaian');
     }
     return combined.contains(cat);
   }
@@ -56,9 +66,10 @@ class _StoreListScreenState extends State<StoreListScreen> {
   Widget build(BuildContext context) {
     final search = _searchController.text.trim().toLowerCase();
     final stores = marketStores.where((store) {
-      final matchesCat = _activeCategory == null ||
-          _matchesCategory(store, _activeCategory!);
-      final matchesSearch = search.isEmpty ||
+      final matchesCat =
+          _activeCategory == null || _matchesCategory(store, _activeCategory!);
+      final matchesSearch =
+          search.isEmpty ||
           '${store.name} ${store.displayCategory} ${store.badge} ${store.category}'
               .toLowerCase()
               .contains(search);
@@ -80,10 +91,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
             ],
           ),
           border: Border.symmetric(
-            vertical: BorderSide(
-              color: Color(0x33EA9CAF),
-              width: 1,
-            ),
+            vertical: BorderSide(color: Color(0x33EA9CAF), width: 1),
           ),
         ),
         child: Stack(
@@ -180,10 +188,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
             child: Image.asset(
               'assets/logo_oro_atap.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => Image.asset(
-                'assets/logo oro hijau.png',
-                fit: BoxFit.contain,
-              ),
+              errorBuilder: (_, _, _) =>
+                  Image.asset('assets/logo oro hijau.png', fit: BoxFit.contain),
             ),
           ),
         ),
@@ -235,10 +241,17 @@ class _StoreListScreenState extends State<StoreListScreen> {
               height: 16,
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 16),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 16,
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, size: 16, color: Color(0xFF9CA3AF)),
+                  icon: const Icon(
+                    Icons.clear,
+                    size: 16,
+                    color: Color(0xFF9CA3AF),
+                  ),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {});
@@ -270,13 +283,6 @@ class _StoreListScreenState extends State<StoreListScreen> {
             fontWeight: FontWeight.w700,
             letterSpacing: -0.4,
           ),
-        ),
-        SvgPicture.string(
-          '''<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M5.25 10.5L8.75 7L5.25 3.5" stroke-width="1.16667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
-</svg>''',
-          width: 14,
-          height: 14,
         ),
       ],
     );
@@ -381,7 +387,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
           final bg = cat.$3;
           final activeShadowColor = cat.$4;
           final svgIcon = cat.$5;
-          final isSelected = _activeCategory != null &&
+          final isSelected =
+              _activeCategory != null &&
               (_activeCategory!.toLowerCase() == value.toLowerCase() ||
                   value.toLowerCase().contains(_activeCategory!.toLowerCase()));
 
@@ -438,7 +445,9 @@ class _StoreListScreenState extends State<StoreListScreen> {
                           : const Color(0xFF374151),
                       fontFamily: 'Inter',
                       fontSize: 9,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                      fontWeight: isSelected
+                          ? FontWeight.w800
+                          : FontWeight.w700,
                       height: 1.2,
                     ),
                   ),
@@ -485,7 +494,11 @@ class _StoreListScreenState extends State<StoreListScreen> {
         child: Center(
           child: Column(
             children: [
-              const Icon(Icons.storefront_outlined, size: 48, color: Color(0xFF9CA3AF)),
+              const Icon(
+                Icons.storefront_outlined,
+                size: 48,
+                color: Color(0xFF9CA3AF),
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Tidak ada toko yang cocok dengan pencarian.',
@@ -502,9 +515,14 @@ class _StoreListScreenState extends State<StoreListScreen> {
                   backgroundColor: const Color(0xFFFBBF24),
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
                 ),
-                child: const Text('Reset Filter', style: TextStyle(fontWeight: FontWeight.w700)),
+                child: const Text(
+                  'Reset Filter',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -534,10 +552,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFC2DC80),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -713,10 +728,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(9999),
-        border: Border.all(
-          color: const Color(0xFFC2DC80),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
             color: Color(0x20C2DC80),
