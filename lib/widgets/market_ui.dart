@@ -144,12 +144,14 @@ class BrandHeader extends StatelessWidget {
               ),
             ],
           ),
-          child: SvgPicture.string(
-            '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9.99996 1.66667C8.15901 1.66667 6.66663 3.15905 6.66663 5C6.66754 5.56269 6.81088 6.11598 7.08329 6.60833C6.40046 6.4046 5.67032 6.42504 4.99996 6.66667C3.15901 6.66667 1.66663 8.15905 1.66663 10C1.66663 11.841 3.15901 13.3333 4.99996 13.3333C5.75656 13.3351 6.49125 13.0794 7.08329 12.6083C7.4676 13.9319 8.6268 14.8824 9.99996 15C11.3731 14.8824 12.5323 13.9319 12.9166 12.6083C13.5087 13.0794 14.2434 13.3351 15 13.3333C16.8409 13.3333 18.3333 11.841 18.3333 10C18.3272 8.64721 17.504 7.43229 16.25 6.925C16.0743 6.15559 15.6314 5.47346 15 5C15 3.15905 13.5076 1.66667 11.6666 1.66667L9.99996 1.66667" fill="white"/>
-</svg>''',
-            width: 20,
-            height: 20,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Image.asset(
+              'assets/logo_oro_atap.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) =>
+                  Image.asset('assets/logo oro hijau.png', fit: BoxFit.contain),
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -307,9 +309,14 @@ class PageTitleBar extends StatelessWidget {
 }
 
 class BottomNavigation extends StatelessWidget {
-  const BottomNavigation({required this.active, super.key});
+  const BottomNavigation({
+    required this.active,
+    this.includeVisitInfo = false,
+    super.key,
+  });
 
   final String active;
+  final bool includeVisitInfo;
 
   static const items = <(String, String, String)>[
     ('Home', '/home', 'dfd0c.svg'),
@@ -320,6 +327,10 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navItems = includeVisitInfo
+        ? [...items.take(3), ('Info Kunjungan', '/info-kunjungan', '')]
+        : items;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       height: 68,
@@ -343,10 +354,10 @@ class BottomNavigation extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: items.map((item) {
+        children: navItems.map((item) {
           final selected = item.$1 == active;
           return InkWell(
-            onTap: () => goTo(context, item.$2),
+            onTap: selected ? () {} : () => goTo(context, item.$2),
             borderRadius: BorderRadius.circular(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -362,22 +373,28 @@ class BottomNavigation extends StatelessWidget {
                         : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                  child: MarketAsset(
-                    item.$3,
-                    width: item.$1 == 'Home'
-                        ? 16
-                        : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
-                    height: item.$1 == 'Home'
-                        ? 16
-                        : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
-                    color: selected
-                        ? const Color(0xFF4B6515)
-                        : const Color(0xFF6B7280),
-                  ),
+                  child: item.$3.isEmpty
+                      ? const Icon(
+                          Icons.event_note_rounded,
+                          size: 20,
+                          color: Color(0xFF4B6515),
+                        )
+                      : MarketAsset(
+                          item.$3,
+                          width: item.$1 == 'Home'
+                              ? 16
+                              : item.$1 == 'Promo'
+                              ? 22
+                              : 20,
+                          height: item.$1 == 'Home'
+                              ? 16
+                              : item.$1 == 'Promo'
+                              ? 22
+                              : 20,
+                          color: selected
+                              ? const Color(0xFF4B6515)
+                              : const Color(0xFF6B7280),
+                        ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -386,7 +403,10 @@ class BottomNavigation extends StatelessWidget {
                     color: selected
                         ? const Color(0xFF4B6515)
                         : const Color(0xFF9CA3AF),
-                    fontSize: item.$1 == 'Review Pasar' ? 9 : 10,
+                    fontSize:
+                        item.$1 == 'Review Pasar' || item.$1 == 'Info Kunjungan'
+                        ? 9
+                        : 10,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                   ),
                 ),

@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/market_data.dart';
@@ -388,33 +389,15 @@ class VisitInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MarketPage(
-      background: Colors.white,
+      background: MarketColors.background,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0x40C2DC80), // rgba(194, 220, 128, 0.25)
-              Color(0x20C2DC80),
-              Colors.white,
-            ],
-            stops: [0.0, 0.25, 0.8],
-          ),
-          border: Border.symmetric(
-            vertical: BorderSide(
-              color: Color(0x33EA9CAF),
-              width: 1,
-            ),
-          ),
-        ),
+        color: MarketColors.background,
         child: Stack(
           children: [
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                   child: _buildTopHeader(context),
                 ),
                 Expanded(
@@ -423,19 +406,19 @@ class VisitInfoScreen extends StatelessWidget {
                     children: [
                       // 1. Card 1: Header Gradient Card (Pasar Tradisional & Wisata Cagar Budaya)
                       _buildHeroCard(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // 2. Card 2: Jam Operasional
                       _buildOperatingHoursCard(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // 3. Card 3: Hari Pasaran & Kepadatan
                       _buildCrowdCard(),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // 4. Card 4: Akses & Pilihan Transportasi
                       _buildTransportationCard(context),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
                       // 5. Card 5: Waktu Terbaik Berkunjung
                       _buildBestTimesCard(),
@@ -447,10 +430,10 @@ class VisitInfoScreen extends StatelessWidget {
 
             // Bottom Floating Navigation
             Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
-              child: _marketBottomNavigation(context),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: BottomNavigation(active: 'Home'),
             ),
           ],
         ),
@@ -459,249 +442,396 @@ class VisitInfoScreen extends StatelessWidget {
   }
 
   Widget _buildTopHeader(BuildContext context) {
-    return Row(
-      children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => goBack(context),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF594045), width: 1),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x28594045),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
+    return SizedBox(
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => goBack(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Icon(
-                Icons.arrow_back,
-                size: 20,
-                color: Color(0xFF111C2D),
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.arrow_back,
+                    size: 19,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Info Kunjungan',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                color: Color(0xFF594045),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-            SizedBox(height: 2),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.location_on, size: 12, color: Color(0xFF526B31)),
-                SizedBox(width: 3),
-                Text(
-                  'Pasar Oro-Oro Dowo, Malang',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Color(0xFF526B31),
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
-                  ),
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Info Kunjungan',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: Color(0xFF2E2426),
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
                 ),
-              ],
-            ),
-          ],
-        ),
-      ],
+              ),
+              SizedBox(height: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on, size: 12, color: Color(0xFF4B6515)),
+                  SizedBox(width: 3),
+                  Text(
+                    'Pasar Oro-Oro Dowo, Malang',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: Color(0xFF4B6515),
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildHeroCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFBBF24),
-            Color(0xFFC2DC80),
-            Color(0xFFFBBF24),
-          ],
-          stops: [0.0, 0.5, 1.0],
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x28594045),
-            blurRadius: 20,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = constraints.maxWidth;
+        // Scale relative to standard 350px mobile card width inside 380-402px screen
+        final scale = (cardWidth / 350.0).clamp(0.85, 1.25);
+
+        final badgeFontSize = (12.0 * scale).clamp(10.5, 14.0);
+        final titleFontSize = (19.0 * scale).clamp(16.5, 23.0);
+        final addressFontSize = (11.5 * scale).clamp(10.0, 13.5);
+        final pillLabelSize = (10.0 * scale).clamp(8.5, 11.5);
+        final pillValueSize = (13.5 * scale).clamp(11.5, 15.5);
+
+        return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 18.0 * scale,
+            vertical: 18.0 * scale,
           ),
-          BoxShadow(
-            color: Color(0x18594045),
-            blurRadius: 6,
-            spreadRadius: -1,
-            offset: Offset(0, 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(38.0),
+            border: Border.all(color: const Color(0xFF594045), width: 2.0),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFF7BF2E), // amber-gold top-left glow
+                Color(0xFFC7DE7E), // soft pastel lime green
+                Color(0xFFC3DD81), // pastel green center
+                Color(0xFFDFD052), // warm yellow
+                Color(0xFFF9BD36), // warm orange bottom-right
+              ],
+              stops: [0.0, 0.28, 0.55, 0.80, 1.0],
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x18000000),
+                blurRadius: 16,
+                spreadRadius: 0,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top badges row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFF594045),
-                    width: 1,
+              // 1. Top Badges Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Left Badge: "Buka Sekarang"
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 11.0 * scale,
+                      vertical: 6.0 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x353E6510),
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: const Color(0xFFD6E252),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8.0 * scale,
+                          height: 8.0 * scale,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF386616),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        SizedBox(width: 6.0 * scale),
+                        Text(
+                          'Buka Sekarang',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: badgeFontSize,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF2C5610),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.stars_rounded, size: 14, color: Color(0xFF4B6515)),
-                    SizedBox(width: 4),
-                    Text(
+
+                  // Right Badge: "Cagar Budaya SNI"
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.0 * scale,
+                      vertical: 6.0 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: const Color(0xFF594045),
+                        width: 1.6,
+                      ),
+                    ),
+                    child: Text(
                       'Cagar Budaya SNI',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF4B6515),
-                        fontSize: 11,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: badgeFontSize,
                         fontWeight: FontWeight.w700,
+                        color: const Color(0xFF264612),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF594045),
-                    width: 1,
+
+              SizedBox(height: 14.0 * scale),
+
+              // 2. Title (Exact two-line break matching reference)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Pasar Tradisional & Wisata Cagar\nBudaya',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: titleFontSize,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF111827),
+                    height: 1.15,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.verified, size: 13, color: Color(0xFF3B82F6)),
-                    SizedBox(width: 4),
-                    Text(
-                      'Pasar Resmi',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF1E3A8A),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
+              ),
+
+              SizedBox(height: 7.0 * scale),
+
+              // 3. Address Row (Location pin aligned with first line of address)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 2.0 * scale),
+                    child: Icon(
+                      Icons.location_on,
+                      size: 14.0 * scale,
+                      color: const Color(0xFF3F5A13),
+                    ),
+                  ),
+                  SizedBox(width: 4.0 * scale),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Jl. Guntur No. 20, Oro-oro Dowo, Kec. Klojen, Kota\nMalang, Jawa Timur 65119',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: addressFontSize,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF486315),
+                          height: 1.35,
+                        ),
                       ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 13.0 * scale),
+
+              // 4. Thin white horizontal divider line
+              Container(
+                height: 1.0,
+                color: Colors.white.withValues(alpha: 0.55),
+              ),
+
+              SizedBox(height: 12.0 * scale),
+
+              // 5. Three stat cards (Equal width, equal height, rounded cream pills)
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildHeroStatPill(
+                      label: 'JAM BUKA',
+                      value: '06.00 – 17.00',
+                      labelSize: pillLabelSize,
+                      valueSize: pillValueSize,
+                      scale: scale,
+                    ),
+                    SizedBox(width: 8.0 * scale),
+                    _buildHeroStatPill(
+                      label: 'PEDAGANG',
+                      value: '± 251 Kios',
+                      labelSize: pillLabelSize,
+                      valueSize: pillValueSize,
+                      scale: scale,
+                    ),
+                    SizedBox(width: 8.0 * scale),
+                    _buildHeroStatPill(
+                      label: 'EST. BERDIRI',
+                      value: 'Tahun 1932',
+                      labelSize: pillLabelSize,
+                      valueSize: pillValueSize,
+                      scale: scale,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+        );
+      },
+    );
+  }
 
-          // Title
-          const Text(
-            'Pasar Tradisional & Wisata Cagar Budaya',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF1E293B),
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              height: 1.25,
+  Widget _buildHeroStatPill({
+    required String label,
+    required String value,
+    required double labelSize,
+    required double valueSize,
+    required double scale,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          vertical: 11.0 * scale,
+          horizontal: 5.0 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F6E8),
+          borderRadius: BorderRadius.circular(18.0 * scale),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: labelSize,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF70847D),
+                letterSpacing: 0.3,
+                height: 1.2,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Jl. Cirebon No.1, Klojen, Kota Malang • Cagar Budaya Sejak 1932',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF475569),
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
+            SizedBox(height: 4.0 * scale),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: valueSize,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF142E1F),
+                  height: 1.2,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-
-          // Quick metrics row
-          Row(
-            children: [
-              _buildHeroStatPill(Icons.access_time_filled, '06.00 - 17.00'),
-              const SizedBox(width: 8),
-              _buildHeroStatPill(Icons.storefront, '± 251 Kios'),
-              const SizedBox(width: 8),
-              _buildHeroStatPill(Icons.history_edu, 'Tahun 1932'),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeroStatPill(IconData icon, String text) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 4),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.92),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: const Color(0xFF594045),
-            width: 1,
+  Widget _buildSectionHeader({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+    Color iconColor = const Color(0xFF4B6515),
+    Color iconBackgroundColor = const Color(0xFFE0EDBF),
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: iconBackgroundColor,
+            borderRadius: BorderRadius.circular(8),
           ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x10594045),
-              blurRadius: 4,
-              offset: Offset(0, 1),
-            ),
-          ],
+          alignment: Alignment.center,
+          child: Icon(icon, size: 16, color: iconColor),
         ),
-        child: Column(
-          children: [
-            Icon(icon, size: 14, color: const Color(0xFF4B6515)),
-            const SizedBox(height: 3),
-            Text(
-              text,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontFamily: 'Inter',
-                color: Color(0xFF1F2937),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+        const SizedBox(width: 9),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF111827),
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 1),
+              Text(
+                subtitle,
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF64748B),
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w400,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+        ?trailing,
+      ],
     );
   }
 
@@ -710,123 +840,209 @@ class VisitInfoScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF594045), width: 0.8),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x28594045),
+            color: const Color(0xFF594045).withValues(alpha: 0.3),
             blurRadius: 20,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Color(0x18594045),
-            blurRadius: 6,
-            spreadRadius: -1,
-            offset: Offset(0, 2),
+            spreadRadius: 1.5,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Header row with status pill
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.schedule_rounded, size: 20, color: Color(0xFF4B6515)),
-                  SizedBox(width: 8),
-                  Text(
-                    'Jam Operasional',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: Color(0xFF1E293B),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+          // Header
+          _buildSectionHeader(
+            icon: Icons.schedule_rounded,
+            title: 'Jam Operasional',
+            subtitle: 'Jadwal transaksi harian pasar',
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4.5,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFF594045),
-                    width: 1,
-                  ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(radius: 3.5, backgroundColor: Color(0xFF2E7D32)),
-                    SizedBox(width: 5),
-                    Text(
-                      'Buka Hari Ini',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF2E7D32),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0EDBF),
+                borderRadius: BorderRadius.circular(16),
               ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
-          // Weekday item
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
+              child: Text(
+                'Tutup 17.00 WIB',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF3F5A13),
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-            child: const Row(
+          ),
+          const SizedBox(height: 13),
+
+          // Row 1: Senin – Jumat
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF6F3),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'Senin - Jumat (Hari Kerja)',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF1E293B),
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF59E0B),
+                        shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(width: 8),
                     Text(
-                      'Aktivitas pasar tradisional harian',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF64748B),
-                        fontSize: 11,
+                      'Senin – Jumat',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: const Color(0xFF1E293B),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
                 Text(
-                  '06.00 - 17.00 WIB',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Color(0xFF1E293B),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                  '06.00 – 17.00 WIB',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF1E293B),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Row 2: Sabtu – Minggu (Weekend)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEE9B3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF8A7B78).withValues(alpha: 0.5),
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF4B6515),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Sabtu – Minggu (Weekend)',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF1E293B),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Buka lebih lama untuk wisata kuliner',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF7A6B62),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Text(
+                  '05.00 – 17.00 WIB',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF1E293B),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Row 3: Jajanan Sore & Kuliner Luar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF6F3),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEA580C),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Jajanan Sore & Kuliner Luar',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF1E293B),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Kios terluar & foodcourt tertentu',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF64748B),
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Text(
+                  '06.00 – 17.00 WIB',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF1E293B),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -834,76 +1050,32 @@ class VisitInfoScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
 
-          // Weekend item (highlighted)
+          // Bottom Info Box: SNI Pasar Rakyat
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0x59FBBF24), // rgba(251, 191, 36, 0.35)
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
-              ),
+              color: const Color(0xFFFFFDF2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFDE68A), width: 1.0),
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Sabtu - Minggu (Akhir Pekan)',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF594045),
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                      ),
+                const Icon(Icons.verified, size: 15, color: Color(0xFFEA580C)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Pasar terakreditasi SNI Pasar Rakyat dengan kebersihan lorong & sirkulasi udara optimal.',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: const Color(0xFF9A3412),
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.35,
                     ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Buka lebih lama untuk wisata kuliner',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF594045),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '05.00 - 17.00 WIB',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Color(0xFF594045),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-
-          // Evening note
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.info_outline, size: 15, color: Color(0xFF64748B)),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Sebagian gerai kuliner dan jajanan pasar di area teras depan buka hingga malam hari.',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Colors.grey.shade700,
-                    fontSize: 11,
-                    height: 1.35,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -915,76 +1087,55 @@ class VisitInfoScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF594045), width: 0.8),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x28594045),
+            color: const Color(0xFF594045).withValues(alpha: 0.3),
             blurRadius: 20,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Color(0x18594045),
-            blurRadius: 6,
-            spreadRadius: -1,
-            offset: Offset(0, 2),
+            spreadRadius: 1.5,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.people_alt_rounded, size: 20, color: Color(0xFF4B6515)),
-              SizedBox(width: 8),
-              Text(
-                'Hari Pasaran & Kepadatan',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1E293B),
-                  fontSize: 15,
+          // Header
+          _buildSectionHeader(
+            icon: Icons.bar_chart_rounded,
+            title: 'Hari Pasaran & Kepadatan',
+            subtitle: 'Estimasi kepadatan pengunjung pasar',
+            iconColor: const Color(0xFFD97706),
+            iconBackgroundColor: const Color(0xFFFEF3C7),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4.5,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0EDBF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                'Live Tren',
+                style: GoogleFonts.plusJakartaSans(
+                  color: const Color(0xFF3F5A13),
+                  fontSize: 10.0,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 13),
 
-          _buildCrowdRow(
-            title: 'Senin - Kamis',
-            status: 'Rendah - Nyaman',
-            statusColor: const Color(0xFF16A34A),
-            statusBg: const Color(0xFFDCFCE7),
-            description:
-                'Sangat kondusif belanja sayuran segar harian, rempah-rempah, dan daging tanpa antrean.',
-          ),
-          const SizedBox(height: 10),
-
-          _buildCrowdRow(
-            title: 'Jumat',
-            status: 'Sedang',
-            statusColor: const Color(0xFFCA8A04),
-            statusBg: const Color(0xFFFEF9C3),
-            description:
-                'Ramai di pagi hari (06.30 - 09.30 WIB) menjelang persiapan ibadah salat Jumat.',
-          ),
-          const SizedBox(height: 10),
-
-          // Weekend row with soft background
+          // Baris 1: Senin – Kamis
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: const Color(0x99FFF1F2), // rgba(255, 241, 242, 0.60)
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
-              ),
+              color: const Color(0xFFFAF6F3),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -992,44 +1143,188 @@ class VisitInfoScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Sabtu & Minggu',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF1E293B),
-                        fontSize: 13,
+                    Text(
+                      'Senin – Kamis',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: const Color(0xFF111827),
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFEE2E2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFF594045),
-                          width: 1,
-                        ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
                       ),
-                      child: const Text(
-                        'Ramai Wisatawan',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Color(0xFFDC2626),
-                          fontSize: 10.5,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0EDBF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Rendah – Nyaman',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF3B5812),
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Penuh pemburu jajanan legendaris seperti Serabi Solo & Kue Lumpur 27. Disarankan datang lebih pagi!',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Color(0xFF64748B),
-                    fontSize: 11,
+                const SizedBox(height: 6),
+                _buildProgressBar(0.35, const Color(0xFFB5D960)),
+                const SizedBox(height: 5),
+                Text(
+                  'Sangat kondusif belanja sayuran segar harian, rempah-rempah, dan daging tanpa antrean.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF64748B),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w400,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Baris 2: Jumat
+          Container(
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF6F3),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Jumat',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: const Color(0xFF111827),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF3C7),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Sedang',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFFD97706),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                _buildProgressBar(0.58, const Color(0xFFF59E0B)),
+                const SizedBox(height: 5),
+                Text(
+                  'Ramai di pagi hari (06.30 – 09.30 WIB) menjelang persiapan ibadah salat Jumat.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF64748B),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w400,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Baris 3: Sabtu & Minggu
+          Container(
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFDF5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFD8E2AC), width: 1.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Sabtu & Minggu',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF111827),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4B6515),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'PUNCAK',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF4B6515),
+                          width: 1.2,
+                        ),
+                      ),
+                      child: Text(
+                        'Ramai Wisatawan',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF4B6515),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                _buildProgressBar(0.92, const Color(0xFF4B6515)),
+                const SizedBox(height: 5),
+                Text(
+                  'Penuh pemburu jajanan legendaris seperti Serabi Solo & Kue Lumpur 27.',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF64748B),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w400,
                     height: 1.35,
                   ),
                 ),
@@ -1041,71 +1336,23 @@ class VisitInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCrowdRow({
-    required String title,
-    required String status,
-    required Color statusColor,
-    required Color statusBg,
-    required String description,
-  }) {
+  Widget _buildProgressBar(double factor, Color color) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      height: 6,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
+        color: const Color(0xFFE5E7EB),
+        borderRadius: BorderRadius.circular(4),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1E293B),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFF594045),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: statusColor,
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
+      alignment: Alignment.centerLeft,
+      child: FractionallySizedBox(
+        widthFactor: factor.clamp(0.0, 1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
           ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF64748B),
-              fontSize: 11,
-              height: 1.35,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1115,182 +1362,199 @@ class VisitInfoScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF594045), width: 0.8),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x28594045),
+            color: const Color(0xFF594045).withValues(alpha: 0.3),
             blurRadius: 20,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Color(0x18594045),
-            blurRadius: 6,
-            spreadRadius: -1,
-            offset: Offset(0, 2),
+            spreadRadius: 1.5,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.directions_bus_rounded, size: 20, color: Color(0xFF4B6515)),
-              SizedBox(width: 8),
-              Text(
-                'Akses & Pilihan Transportasi',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1E293B),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          _buildSectionHeader(
+            icon: Icons.near_me_rounded,
+            title: 'Akses & Pilihan Transportasi',
+            subtitle: 'Rute mudah menuju Pasar Oro-Oro Dowo',
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 13),
 
-          // Map preview box
-          Container(
-            height: 100,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE2E8F0),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
-              ),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.asset(
-                    'assets/images/pasar_depan.png',
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFFCBD5E1),
-                        child: const Center(
-                          child: Icon(Icons.map, size: 36, color: Color(0xFF64748B)),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFF594045),
-                      width: 1,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x33594045),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.location_on, size: 14, color: Color(0xFFDC2626)),
-                      SizedBox(width: 4),
-                      Text(
-                        'Pasar Oro-Oro Dowo',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Color(0xFF1E293B),
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          _buildTransportItem(
-            icon: Icons.two_wheeler_rounded,
-            title: 'Kendaraan Pribadi',
-            desc:
-                'Tersedia area parkir resmi motor di depan pasar dan mobil di sepanjang sisi jalan Cirebon.',
-          ),
-          const SizedBox(height: 10),
-
-          _buildTransportItem(
-            icon: Icons.directions_bus_filled_rounded,
-            title: 'Angkutan Kota (Mikrolet)',
-            desc:
-                'Rute Mikrolet AG (Arjosari - Gadang) atau GL melintas dekat kawasan Klojen/Guntur.',
-          ),
-          const SizedBox(height: 10),
-
-          _buildTransportItem(
-            icon: Icons.local_taxi_rounded,
-            title: 'Ojek Online / Taksi',
-            desc:
-                'Pilih titik penjemputan/penurunan tepat di "Pintu Utama Pasar Oro-Oro Dowo".',
-          ),
-          const SizedBox(height: 14),
-
-          // Google Maps CTA Button
+          // Stylized Map preview box
           Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _openMap(context),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                height: 105,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEBF3F2),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFD4E2D0)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned(
+                        left: -24,
+                        right: -24,
+                        top: 47,
+                        child: Transform.rotate(
+                          angle: -0.09,
+                          child: Container(
+                            height: 13,
+                            color: const Color(0xFFFFF4CF),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: -28,
+                        right: -28,
+                        top: 19,
+                        child: Transform.rotate(
+                          angle: 0.36,
+                          child: Container(
+                            height: 11,
+                            color: Colors.white.withValues(alpha: 0.78),
+                          ),
+                        ),
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -7),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFFD8E4D5),
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x12000000),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.storefront_rounded,
+                                    size: 12,
+                                    color: Color(0xFF4B6515),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    'Pasar Oro-Oro Dowo',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: const Color(0xFF4B6515),
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF4B6515),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(
+                                Icons.location_on,
+                                size: 11,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // 1. Kendaraan Pribadi
+          _buildTransportItem(
+            icon: Icons.directions_car_rounded,
+            title: 'Kendaraan Pribadi',
+            desc: 'Akses nyaman dari arah Jl. Ijen melalui Jl. Guntur atau Jl. Buring. Lahan parkir mobil tersedia di sisi utara & selatan.',
+          ),
+          const SizedBox(height: 8),
+
+          // 2. Angkutan Kota (Mikrolet)
+          _buildTransportItem(
+            icon: Icons.directions_bus_rounded,
+            title: 'Angkutan Kota (Mikrolet)',
+            desc: 'Jalur angkot kode AL (Arjosari – Landungsari), ABG, dan MM melintasi dekat persimpangan Jl. Guntur.',
+          ),
+          const SizedBox(height: 8),
+
+          // 3. Ojek & Taksi Online (Grab / Gojek)
+          _buildTransportItem(
+            icon: Icons.local_taxi_rounded,
+            title: 'Ojek & Taksi Online (Grab / Gojek)',
+            desc: 'Pilihan penjemputan yang nyaman melalui titik lokasi Pasar Oro-Oro Dowo agar mudah dijangkau pengemudi.',
+          ),
+          const SizedBox(height: 12),
+
+          // 4. CTA Button: Buka di Google Maps
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _openMap(context),
+              borderRadius: BorderRadius.circular(14),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 11),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFBBF24),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF594045),
-                    width: 1,
-                  ),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x33594045),
+                      color: Color(0x33F59E0B),
                       blurRadius: 8,
                       offset: Offset(0, 3),
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.directions, size: 18, color: Color(0xFF1E293B)),
-                    SizedBox(width: 8),
+                    const Icon(
+                      Icons.navigation_rounded,
+                      size: 15,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 7),
                     Text(
                       'Buka di Google Maps',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF1E293B),
-                        fontSize: 13,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 12.0,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1309,51 +1573,48 @@ class VisitInfoScreen extends StatelessWidget {
     required String title,
     required String desc,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: const Color(0xFF594045),
-              width: 1,
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAF6F3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1.5),
+            child: Icon(icon, size: 15, color: const Color(0xFF475569)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF1E293B),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  desc,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF64748B),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w400,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
           ),
-          alignment: Alignment.center,
-          child: Icon(icon, size: 18, color: const Color(0xFF4B6515)),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1E293B),
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                desc,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF64748B),
-                  fontSize: 11,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1362,104 +1623,118 @@ class VisitInfoScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFF594045), width: 0.8),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x28594045),
+            color: const Color(0xFF594045).withValues(alpha: 0.3),
             blurRadius: 20,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Color(0x18594045),
-            blurRadius: 6,
-            spreadRadius: -1,
-            offset: Offset(0, 2),
+            spreadRadius: 1.5,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.recommend_rounded, size: 20, color: Color(0xFF4B6515)),
-              SizedBox(width: 8),
-              Text(
-                'Waktu Terbaik Berkunjung',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF1E293B),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
+          _buildSectionHeader(
+            icon: Icons.alarm_on_rounded,
+            title: 'Waktu Terbaik Berkunjung',
+            subtitle: 'Sesuaikan waktu dengan kebutuhan Anda',
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 13),
 
           // Slot 1: Belanja Dapur Segar Petani
           _buildTimeSlotItem(
-            timeRange: '06.00 - 08.30 WIB',
-            title: 'Belanja Dapur Segar Petani',
-            description:
-                'Waktu terbaik mendapatkan sayuran hijau renyah, daging segar baru potong, dan bumbu dapur langsung dari petani Batu/Malang.',
+            timeRange: '06.00 – 08.30 WIB',
+            timeColor: const Color(0xFF4B6515),
+            badgeText: 'Bahan Pokok Segar',
+            badgeBgColor: const Color(0xFFC2DC80),
+            badgeTextColor: const Color(0xFF2E4010),
             accentColor: const Color(0xFF4B6515),
-            gradientColors: const [Color(0xFFFAF5F8), Colors.white],
+            cardBgColor: const Color(0xFFFAF6F3),
+            title: 'Belanja Dapur Segar Petani',
+            description: 'Waktu terbaik mendapatkan sayuran hijau, daging segar baru potong, dan bumbu dapur langsung dari petani Batu/Malang.',
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Slot 2: Jajanan Tradisional & Santai
           _buildTimeSlotItem(
-            timeRange: '08.30 - 11.00 WIB',
-            title: 'Jajanan Tradisional & Santai',
-            description:
-                'Nikmati jajanan legendaris seperti kue lumpur hangat, onde-onde, dan serabi kuah kental sambil menikmati kopi santai.',
+            timeRange: '08.30 – 11.00 WIB',
+            timeColor: const Color(0xFFD97706),
+            badgeText: 'Wisata Kuliner',
+            badgeBgColor: const Color(0xFFFEF3C7),
+            badgeTextColor: const Color(0xFF92400E),
             accentColor: const Color(0xFFFBBF24),
-            gradientColors: const [Color(0x80FFFBEB), Colors.white],
+            cardBgColor: const Color(0xFFFAF6F3),
+            title: 'Jajanan Tradisional & Santai',
+            description: 'Nikmati jajanan legendaris seperti kue lumpur hangat, onde-onde, dan serabi ubi ketan sambil menikmati kopi santai.',
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Slot 3: Belanja Praktis & Tenang
           _buildTimeSlotItem(
-            timeRange: '14.00 - 16.00 WIB',
+            timeRange: '14.00 – 16.00 WIB',
+            timeColor: const Color(0xFF3B5812),
+            badgeText: 'Lengang & Cepat',
+            badgeBgColor: const Color(0xFFCFE39D),
+            badgeTextColor: const Color(0xFF166534),
+            accentColor: const Color(0xFF84CC16),
+            cardBgColor: const Color(0xFFF0F6DF),
             title: 'Belanja Praktis & Tenang',
-            description:
-                'Lorong pasar jauh lebih sepi. Cocok untuk Anda yang ingin belanja kilat tanpa antre di kasir atau lapak.',
-            accentColor: const Color(0xFFC2DC80),
-            gradientColors: const [Color(0x80C2DC80), Color(0x33C2DC80)],
+            description: 'Lorong pasar sudah lebih sepi. Cocok untuk Anda yang ingin belanja kilat tanpa antre di kasir atau lapak.',
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
-          // Local Tip Card
+          // Tips Ramah Lingkungan
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: const Color(0x59FBBF24), // rgba(251, 191, 36, 0.35)
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
-              ),
+              color: const Color(0xFFFEE9B3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFC8AD8C)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.eco_rounded, size: 22, color: Color(0xFF4B6515)),
-                SizedBox(width: 10),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFC2DC80),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.eco_rounded,
+                    color: Color(0xFF4B6515),
+                    size: 17,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    'Tips Ramah Lingkungan: Bawa kantong belanja kain (totebag) sendiri untuk mendukung program pasar bersih bebas sampah plastik!',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: Color(0xFF594045),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Tips Ramah Lingkungan',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF1E293B),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Bawa kantong belanja kain (totebag) sendiri untuk mendukung program pasar bersih bebas sampah plastik!',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF594045),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -1472,156 +1747,86 @@ class VisitInfoScreen extends StatelessWidget {
 
   Widget _buildTimeSlotItem({
     required String timeRange,
+    required Color timeColor,
+    required String badgeText,
+    required Color badgeBgColor,
+    required Color badgeTextColor,
+    required Color accentColor,
+    required Color cardBgColor,
     required String title,
     required String description,
-    required Color accentColor,
-    required List<Color> gradientColors,
   }) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border(
-          top: BorderSide(color: accentColor, width: 1),
-          right: BorderSide(color: accentColor, width: 1),
-          bottom: BorderSide(color: accentColor, width: 1),
-          left: BorderSide(color: accentColor, width: 4),
-        ),
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: const Color(0xFF594045),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              timeRange,
-              style: TextStyle(
-                fontFamily: 'Inter',
-                color: accentColor == const Color(0xFFFBBF24)
-                    ? const Color(0xFF854D0E)
-                    : const Color(0xFF1E293B),
-                fontSize: 10.5,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF1E293B),
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            description,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              color: Color(0xFF64748B),
-              fontSize: 11,
-              height: 1.35,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _marketBottomNavigation(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x28594045),
-            blurRadius: 18,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _bottomNavItem(
-            icon: Icons.home_filled,
-            label: 'Home',
-            isActive: false,
-            onTap: () => goTo(context, '/home'),
-          ),
-          _bottomNavItem(
-            icon: Icons.storefront_rounded,
-            label: 'Toko',
-            isActive: false,
-            onTap: () => goTo(context, '/toko'),
-          ),
-          _bottomNavItem(
-            icon: Icons.local_fire_department_rounded,
-            label: 'Promo',
-            isActive: false,
-            onTap: () => goTo(context, '/promo'),
-          ),
-          _bottomNavItem(
-            icon: Icons.rate_review_rounded,
-            label: 'Review',
-            isActive: false,
-            onTap: () => goTo(context, '/ulasan'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _bottomNavItem({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isActive ? const Color(0xFF4B6515) : const Color(0xFF94A3B8),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                label,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 10,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                  color: isActive ? const Color(0xFF4B6515) : const Color(0xFF94A3B8),
+              Container(width: 3.5, color: accentColor),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 9),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            timeRange,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: timeColor,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: badgeBgColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              badgeText,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: badgeTextColor,
+                                fontSize: 9.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF1E293B),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        description,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF64748B),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1631,7 +1836,6 @@ class VisitInfoScreen extends StatelessWidget {
     );
   }
 }
-
 
 class PromoScreen extends StatefulWidget {
   const PromoScreen({super.key});
@@ -2031,13 +2235,13 @@ class _PromoScreenState extends State<PromoScreen> {
                     width: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     height: item.$1 == 'Home'
                         ? 16
                         : item.$1 == 'Promo'
-                            ? 22
-                            : 20,
+                        ? 22
+                        : 20,
                     color: active
                         ? const Color(0xFF4B6515)
                         : const Color(0xFF6B7280),
@@ -2093,9 +2297,7 @@ class _PromoScreenState extends State<PromoScreen> {
             child: SizedBox(
               width: 72,
               height: 72,
-              child: CustomPaint(
-                painter: _TrianglePatternPainter(),
-              ),
+              child: CustomPaint(painter: _TrianglePatternPainter()),
             ),
           ),
           // Main content column

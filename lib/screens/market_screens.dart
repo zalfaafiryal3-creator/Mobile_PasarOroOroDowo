@@ -111,10 +111,16 @@ class _LegacyHomeScreenState extends State<LegacyHomeScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.cloud_rounded,
-                      color: Colors.white,
-                      size: 24,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Image.asset(
+                        'assets/logo_oro_atap.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Image.asset(
+                          'assets/logo oro hijau.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1544,10 +1550,16 @@ class _LegacyStoreListScreenState extends State<LegacyStoreListScreen> {
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.cloud,
-                      color: Colors.white,
-                      size: 24,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: Image.asset(
+                        'assets/logo_oro_atap.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Image.asset(
+                          'assets/logo oro hijau.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
