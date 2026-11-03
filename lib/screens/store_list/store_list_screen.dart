@@ -47,9 +47,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
           combined.contains('legend') ||
           sCat.contains('kuliner');
     } else if (cat.contains('daging') || cat.contains('ikan')) {
-      return combined.contains('daging') ||
-          combined.contains('ikan') ||
-          store.id == 'norriture';
+      return combined.contains('daging') || combined.contains('ikan');
     } else if (cat.contains('sembako') || cat.contains('perabotan')) {
       return combined.contains('sembako') ||
           combined.contains('perabotan') ||
