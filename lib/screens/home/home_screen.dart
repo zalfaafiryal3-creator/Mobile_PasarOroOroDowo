@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (cat == 'sembako') {
       return target.contains('sembako');
     } else if (cat == 'makanan') {
-      return target.contains('makanan') || target.contains('kuliner');
+      return store.category.toLowerCase() == 'makanan';
     } else if (cat == 'perabotan') {
       return target.contains('perabotan') || target.contains('peralatan');
     } else if (cat == 'lainnya') {
@@ -1291,30 +1291,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   else
                     MarketAsset(store.image, fit: BoxFit.cover),
-                  Positioned(
-                    left: 6,
-                    top: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4B6515),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Text(
-                        store.badge.isNotEmpty ? store.badge : 'Makanan',
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          height: 1.5,
+                  if (store.badge.isNotEmpty)
+                    Positioned(
+                      left: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4B6515),
+                          borderRadius: BorderRadius.circular(9999),
+                        ),
+                        child: Text(
+                          store.badge,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -1345,20 +1346,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 1.33,
                         ),
                       ),
-                      const SizedBox(height: 1),
-                      Text(
-                        store.displayCategory,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
+                      if (store.displayCategory.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          store.displayCategory,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            height: 1.5,
+                          ),
                         ),
-                      ),
+                      ],
                       const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

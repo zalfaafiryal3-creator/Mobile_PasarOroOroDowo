@@ -1,10 +1,125 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/data/market_data.dart';
 import 'package:frontend_flutter/screens/store_list/store_list_screen.dart';
 
+Future<void> scrollUntilStoreVisible(WidgetTester tester, String name) async {
+  await tester.dragUntilVisible(
+    find.text(name),
+    find.byType(CustomScrollView),
+    const Offset(0, -500),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> scrollToTop(WidgetTester tester) async {
+  await tester.drag(find.byType(CustomScrollView), const Offset(0, 3000));
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('Food cards show store names without category labels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(home: StoreListScreen(initialCategory: 'Makanan')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('17 Toko'), findsOneWidget);
+    await scrollUntilStoreVisible(tester, 'Warung Lalapan Bu Win');
+    expect(find.text('Warung Lalapan Bu Win'), findsOneWidget);
+    expect(find.text('★ 4.8'), findsWidgets);
+    expect(
+      find.descendant(
+        of: find.byType(SliverGrid).last,
+        matching: find.text('Makanan'),
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('Store grid builds cards as they scroll into view', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(home: StoreListScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mama Hong Pulsa'), findsNothing);
+    await tester.dragUntilVisible(
+      find.text('Mama Hong Pulsa'),
+      find.byType(CustomScrollView),
+      const Offset(0, -500),
+    );
+    expect(find.text('Mama Hong Pulsa'), findsOneWidget);
+  });
+
+  test(
+    'Makanan and Kuliner Legendaris stores use their supplied photos',
+    () async {
+      const foodImages = {
+        'Bedak 16 Kue dan Snack': 'makanan/bedak 19 kue dan snack.png',
+        'Fresh Green': 'makanan/makanan _ fresh green.jpeg',
+        'Gorengan Bu Sulbiah': 'makanan/makanan _ gorengan bu sulbiah .jpeg',
+        'Warung Lalapan Bu Win': 'makanan/warung lalapan mbak win.png',
+        'Lumpur Labu': 'makanan/makanan _ lumpur labu .jpeg',
+        'Pastel Premium': 'makanan/pastel premium.png',
+        'Sego Liwet Bakar Kemangi': 'makanan/sego liwet bakar kemangi.png',
+        'Soto Rawon Bu Ninik': 'makanan/makanan _ soto rawon bu ninik .jpeg',
+        'Tahu Sukun Bu Suliani': 'makanan/makanan _ TAHU SUKUN BU SULIANI.jpeg',
+        'Tempe dan Keripik Misdi':
+            'makanan/makanan _ tempe dan kripik misdi .jpeg',
+        'Cak Abu Gado-Gado': 'makanan/maknan _ cak abu gado gado .jpeg',
+        'Norriture': 'makanan/Norriture.jpeg',
+        'Oma Panda': 'makanan/Oma Panda.jpeg',
+      };
+      const legendaryCuisineImages = {
+        'Bagoplek Bakso Goreng': 'kuliner legend/BAGOPLEK bakso Goreng.jpeg',
+        'Jemblem Mentega': 'kuliner legend/JEMBLEM MENTEGA.jpeg',
+        'Lumpia Semarang 83': 'kuliner legend/Lumpia Semarang 83.jpg',
+        'Om Rizal Aneka Kuliner': 'kuliner legend/OM RIZAL ANEKA KULINER.jpeg',
+        'Ote Ote Fam': 'kuliner legend/OTE OTE FAM.jpeg',
+        'Warung Nologaten': 'kuliner legend/Warung Nologaten.png',
+      };
+
+      for (final entry in {
+        ...foodImages.entries,
+        ...legendaryCuisineImages.entries,
+      }) {
+        final store = marketStores.singleWhere(
+          (store) => store.name == entry.key,
+        );
+        expect(store.image, entry.value);
+        expect(store.badge, isEmpty);
+        expect(store.displayCategory, isEmpty);
+
+        final data = await rootBundle.load('assets/${store.image}');
+        final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+        codec.dispose();
+      }
+
+      expect(
+        marketStores.where((store) => store.category == 'Makanan'),
+        hasLength(foodImages.length + 4),
+      );
+      expect(
+        marketStores.where((store) => store.category == 'Kuliner Legendaris'),
+        hasLength(legendaryCuisineImages.length),
+      );
+    },
+  );
+
   testWidgets(
     'Daging & Ikan shows the eight supplied stores and search filters',
     (tester) async {
@@ -113,9 +228,11 @@ void main() {
     expect(find.text('9 Toko'), findsOneWidget);
     expect(find.text('FresGreen Organic'), findsNothing);
     for (final name in suppliedStoreImages.keys) {
+      await scrollUntilStoreVisible(tester, name);
       expect(find.text(name), findsOneWidget);
     }
 
+    await scrollToTop(tester);
     await tester.enterText(find.byType(TextField), 'subai');
     await tester.pumpAndSettle();
 
@@ -169,9 +286,11 @@ void main() {
 
       expect(find.text('5 Toko'), findsOneWidget);
       for (final name in suppliedStoreImages.keys) {
+        await scrollUntilStoreVisible(tester, name);
         expect(find.text(name), findsOneWidget);
       }
 
+      await scrollToTop(tester);
       await tester.enterText(find.byType(TextField), 'sabari');
       await tester.pumpAndSettle();
 
@@ -181,26 +300,26 @@ void main() {
     },
   );
 
-  testWidgets('Toko Mainan & Pakaian shows the supplied toy shop photos', (
+  testWidgets('Toko Mainan & Pakaian shows supplied shop photos', (
     tester,
   ) async {
     const toyShops = {
       'Toko Pojok Bedak 1': 'mainan/toko pojok bedak 1 .jpeg',
       'Mama Hong Pulsa': 'mainan/mama hong.jpeg',
-      'Kios Mainan & Baju Ceria': '2312e.png',
+      'Toko Pakaian Bu Anas': 'pakaian/Toko Pakaian Bu Anas.jpg',
+      'Toko Pecah Belah Bu Yanti': 'pakaian/Toko Pecah Belah Bu Yanti.jpg',
     };
     final stores = marketStores
         .where((store) => store.category == 'Toko Mainan & Pakaian')
         .toList();
 
-    expect(stores, hasLength(3));
+    expect(stores, hasLength(4));
     for (final entry in toyShops.entries) {
       final store = stores.singleWhere((store) => store.name == entry.key);
       expect(store.image, entry.value);
       final data = await rootBundle.load('assets/${store.image}');
-      expect(data.lengthInBytes, greaterThan(0));
-      expect(data.getUint8(0), 0xFF);
-      expect(data.getUint8(1), 0xD8);
+      final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+      codec.dispose();
     }
 
     await tester.pumpWidget(
@@ -214,8 +333,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Toko\nMainan &\nPakaian'), findsOneWidget);
-    expect(find.text('3 Toko'), findsOneWidget);
+    expect(find.text('4 Toko'), findsOneWidget);
+    expect(find.text('Kios Mainan & Baju Ceria'), findsNothing);
     for (final name in toyShops.keys) {
+      await scrollUntilStoreVisible(tester, name);
       expect(find.text(name), findsOneWidget);
     }
   });

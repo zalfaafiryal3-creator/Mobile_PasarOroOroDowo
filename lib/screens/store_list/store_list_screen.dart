@@ -37,7 +37,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
     final combined = '$sCat $sBadge $sDisplay';
 
     if (cat.contains('makanan') && !cat.contains('minuman')) {
-      return combined.contains('makanan') || combined.contains('kuliner');
+      return sCat == 'makanan';
     } else if (cat.contains('sayur') || cat.contains('buah')) {
       return combined.contains('sayur') ||
           combined.contains('buah') ||
@@ -117,26 +117,40 @@ class _StoreListScreenState extends State<StoreListScreen> {
 
                   // Main Content
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
-                        // Section Title Bar: Kategori Belanja
                         _buildCategorySectionHeader(),
                         const SizedBox(height: 12),
-
-                        // Feature Grid (6 Kategori)
                         _buildCategoryGridCard(),
                         const SizedBox(height: 20),
-
-                        // Daftar Toko Section Header
                         _buildStoreListHeader(stores.length),
                         const SizedBox(height: 14),
-
-                        // Store Cards Grid (2 Kolom)
-                        _buildStoreGrid(stores),
                       ]),
                     ),
                   ),
+                  if (stores.isEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                      sliver: SliverToBoxAdapter(child: _buildEmptyState()),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                      sliver: SliverGrid.builder(
+                        itemCount: stores.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 14,
+                              mainAxisExtent: 260,
+                            ),
+                        itemBuilder: (context, index) {
+                          return _buildStoreCard(context, stores[index]);
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -489,66 +503,52 @@ class _StoreListScreenState extends State<StoreListScreen> {
   }
 
   // --- STORE GRID (2 KOLOM) ---
-  Widget _buildStoreGrid(List<StoreData> stores) {
-    if (stores.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
-        child: Center(
-          child: Column(
-            children: [
-              const Icon(
-                Icons.storefront_outlined,
-                size: 48,
-                color: Color(0xFF9CA3AF),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Tidak ada toko yang cocok dengan pencarian.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() => _activeCategory = null);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFBBF24),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-                child: const Text(
-                  'Reset Filter',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(
+              Icons.storefront_outlined,
+              size: 48,
+              color: Color(0xFF9CA3AF),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Tidak ada toko yang cocok dengan pencarian.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                _searchController.clear();
+                setState(() => _activeCategory = null);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFBBF24),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
-            ],
-          ),
+              child: const Text(
+                'Reset Filter',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
         ),
-      );
-    }
-
-    return GridView.builder(
-      itemCount: stores.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 14,
-        mainAxisExtent: 260,
       ),
-      itemBuilder: (context, index) {
-        return _buildStoreCard(context, stores[index]);
-      },
     );
   }
 
   Widget _buildStoreCard(BuildContext context, StoreData store) {
+    final imageCacheWidth = (MediaQuery.devicePixelRatioOf(context) * 200)
+        .round();
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -568,30 +568,39 @@ class _StoreListScreenState extends State<StoreListScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  MarketAsset(store.image, fit: BoxFit.cover),
-                  Positioned(
-                    left: 5,
-                    top: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF4B6515),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: Text(
-                        store.badge.isNotEmpty ? store.badge : 'Makanan',
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                  Image.asset(
+                    assetPath(store.image),
+                    fit: BoxFit.cover,
+                    cacheWidth: imageCacheWidth,
+                    errorBuilder: (_, _, _) => const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: MarketColors.muted,
+                    ),
+                  ),
+                  if (store.badge.isNotEmpty)
+                    Positioned(
+                      left: 5,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4B6515),
+                          borderRadius: BorderRadius.circular(9999),
+                        ),
+                        child: Text(
+                          store.badge,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -622,20 +631,22 @@ class _StoreListScreenState extends State<StoreListScreen> {
                           height: 1.33,
                         ),
                       ),
-                      const SizedBox(height: 1),
-                      Text(
-                        store.displayCategory,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          color: Color(0xFF9CA3AF),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
+                      if (store.displayCategory.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          store.displayCategory,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            height: 1.5,
+                          ),
                         ),
-                      ),
+                      ],
                       const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
