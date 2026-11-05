@@ -180,4 +180,43 @@ void main() {
       expect(find.text('Bu Yuli'), findsNothing);
     },
   );
+
+  testWidgets('Toko Mainan & Pakaian shows the supplied toy shop photos', (
+    tester,
+  ) async {
+    const toyShops = {
+      'Toko Pojok Bedak 1': 'mainan/toko pojok bedak 1 .jpeg',
+      'Mama Hong Pulsa': 'mainan/mama hong.jpeg',
+      'Kios Mainan & Baju Ceria': '2312e.png',
+    };
+    final stores = marketStores
+        .where((store) => store.category == 'Toko Mainan & Pakaian')
+        .toList();
+
+    expect(stores, hasLength(3));
+    for (final entry in toyShops.entries) {
+      final store = stores.singleWhere((store) => store.name == entry.key);
+      expect(store.image, entry.value);
+      final data = await rootBundle.load('assets/${store.image}');
+      expect(data.lengthInBytes, greaterThan(0));
+      expect(data.getUint8(0), 0xFF);
+      expect(data.getUint8(1), 0xD8);
+    }
+
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(
+          home: StoreListScreen(initialCategory: 'Toko Mainan & Pakaian'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Toko\nMainan &\nPakaian'), findsOneWidget);
+    expect(find.text('3 Toko'), findsOneWidget);
+    for (final name in toyShops.keys) {
+      expect(find.text(name), findsOneWidget);
+    }
+  });
 }

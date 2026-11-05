@@ -52,6 +52,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
       return combined.contains('sembako') ||
           combined.contains('perabotan') ||
           combined.contains('peralatan');
+    } else if (cat.contains('mainan') && !cat.contains('baju')) {
+      return combined.contains('mainan') || combined.contains('kids toys');
     } else if (cat.contains('mainan') || cat.contains('baju')) {
       return combined.contains('mainan') ||
           combined.contains('baju') ||
@@ -350,8 +352,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
 </svg>''',
       ),
       (
-        'Mainan\n& Baju',
-        'Mainan & Baju',
+        'Toko\nMainan &\nPakaian',
+        'Toko Mainan & Pakaian',
         const Color(0x40C2DC80),
         const Color(0x59FFC107), // rgba(255, 193, 7, 0.35) - kuning keemasan
         '''<svg width="19" height="16" viewBox="0 0 19 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -402,8 +404,9 @@ class _StoreListScreenState extends State<StoreListScreen> {
             },
             child: SizedBox(
               width: 52,
+              height: 82,
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: 40,
@@ -436,7 +439,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
                   Text(
                     label,
                     textAlign: TextAlign.center,
-                    maxLines: 2,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: isSelected
                           ? const Color(0xFF4B6515)
@@ -636,28 +640,30 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            '★ ${store.rating}',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFFF59E0B),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              height: 1.5,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Text(
-                              '|',
-                              style: TextStyle(
+                          if (store.rating.isNotEmpty) ...[
+                            Text(
+                              '★ ${store.rating}',
+                              style: const TextStyle(
                                 fontFamily: 'Inter',
-                                color: Color(0xFFD1D5DB),
+                                color: Color(0xFFF59E0B),
                                 fontSize: 10,
+                                fontWeight: FontWeight.w700,
                                 height: 1.5,
                               ),
                             ),
-                          ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Text(
+                                '|',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFFD1D5DB),
+                                  fontSize: 10,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                          ],
                           Text(
                             store.products,
                             style: const TextStyle(

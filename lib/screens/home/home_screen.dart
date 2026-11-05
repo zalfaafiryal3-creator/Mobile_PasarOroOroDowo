@@ -25,13 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _matchesCategory(StoreData store, String category) {
     final cat = category.toLowerCase();
-    final target =
-        '${store.category} ${store.displayCategory} ${store.badge}'
-            .toLowerCase();
+    final target = '${store.category} ${store.displayCategory} ${store.badge}'
+        .toLowerCase();
     if (cat == 'pakaian') {
-      return target.contains('pakaian') ||
-          target.contains('baju') ||
-          target.contains('mainan & baju');
+      return target.contains('pakaian') || target.contains('baju');
+    } else if (cat.contains('mainan')) {
+      return target.contains('mainan') || target.contains('kids toys');
     } else if (cat == 'sembako') {
       return target.contains('sembako');
     } else if (cat == 'makanan') {
@@ -41,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (cat == 'lainnya') {
       return !target.contains('baju') &&
           !target.contains('pakaian') &&
+          !target.contains('mainan') &&
           !target.contains('sembako') &&
           !target.contains('makanan') &&
           !target.contains('kuliner');
@@ -61,21 +61,11 @@ class _HomeScreenState extends State<HomeScreen> {
       height: height,
       fit: fit,
       errorBuilder: (context, error, stackTrace) {
-        return MarketAsset(
-          assetName,
-          width: width,
-          height: height,
-          fit: fit,
-        );
+        return MarketAsset(assetName, width: width, height: height, fit: fit);
       },
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
-        return MarketAsset(
-          assetName,
-          width: width,
-          height: height,
-          fit: fit,
-        );
+        return MarketAsset(assetName, width: width, height: height, fit: fit);
       },
     );
   }
@@ -123,17 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0x40C2DC80),
-              Color(0x20C2DC80),
-              Colors.white,
-            ],
+            colors: [Color(0x40C2DC80), Color(0x20C2DC80), Colors.white],
           ),
           border: Border.symmetric(
-            vertical: BorderSide(
-              color: Color(0x33EA9CAF),
-              width: 1,
-            ),
+            vertical: BorderSide(color: Color(0x33EA9CAF), width: 1),
           ),
         ),
         child: Stack(
@@ -234,10 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Image.asset(
               'assets/logo_oro_atap.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) => Image.asset(
-                'assets/logo oro hijau.png',
-                fit: BoxFit.contain,
-              ),
+              errorBuilder: (_, _, _) =>
+                  Image.asset('assets/logo oro hijau.png', fit: BoxFit.contain),
             ),
           ),
         ),
@@ -288,10 +269,17 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 16,
             ),
           ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 41, minHeight: 16),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 41,
+            minHeight: 16,
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, size: 16, color: Color(0xFF9CA3AF)),
+                  icon: const Icon(
+                    Icons.clear,
+                    size: 16,
+                    color: Color(0xFF9CA3AF),
+                  ),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {});
@@ -410,7 +398,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Temukan berbagai toko menarik\ndi PasarKu',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            color: Color(0xF2FFFFFF), // rgba(255, 255, 255, 0.95)
+                            color: Color(
+                              0xF2FFFFFF,
+                            ), // rgba(255, 255, 255, 0.95)
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                             height: 1.625,
@@ -507,10 +497,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFF594045),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFF594045), width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0xB3351903), // 3px 6px 6px 0 rgba(53, 25, 3, 0.70)
@@ -543,8 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   child: _buildNetworkOrAssetImage(
-                    networkUrl:
-                        'https://api.builder.io/api/v1/image/assets/TEMP/8c7f14c72ec963e2a06640867a91ad0b7f072074?width=264',
+                    networkUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/8c7f14c72ec963e2a06640867a91ad0b7f072074?width=264',
                     assetName: '204f2.png',
                     width: 132,
                     height: 95.5,
@@ -609,8 +595,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       text: TextSpan(
                         children: [
                           const TextSpan(
-                            text:
-                                'Pasar yang sudah berdiri sejak lama dan menjadi ikon belanja masyarakat dengan beragam produk, harga.',
+                            text: 'Pasar yang sudah berdiri sejak lama dan menjadi ikon belanja masyarakat dengan beragam produk, harga.',
                             style: TextStyle(
                               fontFamily: 'Inter',
                               color: Color(0xFF6B7280),
@@ -620,12 +605,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           TextSpan(
-                            text: ' \nLihat Selengkapnya!',
+                            text: ' \nKlik untuk Lihat Selengkapnya!',
                             style: const TextStyle(
                               fontFamily: 'Inter',
                               color: Color(0xFFF59E0B),
                               fontSize: 10,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w700,
                               height: 1.625,
                             ),
                             recognizer: TapGestureRecognizer()
@@ -715,11 +700,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // Vertical Divider
-                Container(
-                  width: 1,
-                  height: 38,
-                  color: const Color(0xFFF3F4F6),
-                ),
+                Container(width: 1, height: 38, color: const Color(0xFFF3F4F6)),
 
                 // Item 2: Jumlah Pedagang
                 Expanded(
@@ -732,7 +713,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 24,
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
-                            color: Color(0x40C2DC80), // rgba(194, 220, 128, 0.25)
+                            color: Color(
+                              0x40C2DC80,
+                            ), // rgba(194, 220, 128, 0.25)
                             shape: BoxShape.circle,
                           ),
                           child: SvgPicture.string(
@@ -787,11 +770,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // Vertical Divider
-                Container(
-                  width: 1,
-                  height: 38,
-                  color: const Color(0xFFF3F4F6),
-                ),
+                Container(width: 1, height: 38, color: const Color(0xFFF3F4F6)),
 
                 // Item 3: Lokasi
                 Expanded(
@@ -804,7 +783,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 24,
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
-                            color: Color(0x66C2DC80), // rgba(194, 220, 128, 0.40)
+                            color: Color(
+                              0x66C2DC80,
+                            ), // rgba(194, 220, 128, 0.40)
                             shape: BoxShape.circle,
                           ),
                           child: SvgPicture.string(
@@ -981,11 +962,27 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- CATEGORY SECTION ---
   Widget _buildCategorySection(BuildContext context) {
     const categories = [
-      {'name': 'Pakaian', 'color': Color(0x80FBBF24)}, // rgba(251, 191, 36, 0.50)
-      {'name': 'Sembako', 'color': Color(0x4DC2DC80)}, // rgba(194, 220, 128, 0.30)
-      {'name': 'Makanan', 'color': Color(0x80FBBF24)}, // rgba(251, 191, 36, 0.50)
-      {'name': 'Perabotan', 'color': Color(0x4DC2DC80)}, // rgba(194, 220, 128, 0.30)
-      {'name': 'Lainnya', 'color': Color(0x80FBBF24)}, // rgba(251, 191, 36, 0.50)
+      {
+        'name': 'Pakaian',
+        'color': Color(0x80FBBF24),
+      }, // rgba(251, 191, 36, 0.50)
+      {'name': 'Toko Mainan & Pakaian', 'color': Color(0x4DC2DC80)},
+      {
+        'name': 'Sembako',
+        'color': Color(0x4DC2DC80),
+      }, // rgba(194, 220, 128, 0.30)
+      {
+        'name': 'Makanan',
+        'color': Color(0x80FBBF24),
+      }, // rgba(251, 191, 36, 0.50)
+      {
+        'name': 'Perabotan',
+        'color': Color(0x4DC2DC80),
+      }, // rgba(194, 220, 128, 0.30)
+      {
+        'name': 'Lainnya',
+        'color': Color(0x80FBBF24),
+      }, // rgba(251, 191, 36, 0.50)
     ];
 
     return Column(
@@ -1038,68 +1035,70 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 10),
 
         // Horizontal Categories Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: categories.map((cat) {
-            final isSelected = _selectedCategory == cat['name'];
-            final name = cat['name'] as String;
-            final overlayColor = cat['color'] as Color;
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: categories.map((cat) {
+              final isSelected = _selectedCategory == cat['name'];
+              final name = cat['name'] as String;
+              final overlayColor = cat['color'] as Color;
 
-            return Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (_selectedCategory == name) {
-                      _selectedCategory = null;
-                    } else {
-                      _selectedCategory = name;
-                    }
-                  });
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFF0F7DF) : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFF594045),
-                      width: 1,
+              return SizedBox(
+                width: 84,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedCategory = isSelected ? null : name;
+                    });
+                  },
+                  child: Container(
+                    height: 92,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? const Color(0xFFF0F7DF)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF594045),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: overlayColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: _getCategoryIcon(name),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Color(0xFF374151),
+                            fontSize: name == 'Toko Mainan & Pakaian' ? 9 : 11,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: overlayColor,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: _getCategoryIcon(name),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          color: Color(0xFF374151),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -1107,6 +1106,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _getCategoryIcon(String category) {
     switch (category) {
+      case 'Toko Mainan & Pakaian':
+        return const Icon(
+          Icons.toys_outlined,
+          size: 20,
+          color: Color(0xFF4B6515),
+        );
       case 'Pakaian':
         return SvgPicture.string(
           '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1264,10 +1269,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFC2DC80),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1361,28 +1363,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            '★ ${store.rating}',
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFFF59E0B),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              height: 1.5,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Text(
-                              '|',
-                              style: TextStyle(
+                          if (store.rating.isNotEmpty) ...[
+                            Text(
+                              '★ ${store.rating}',
+                              style: const TextStyle(
                                 fontFamily: 'Inter',
-                                color: Color(0xFFD1D5DB),
+                                color: Color(0xFFF59E0B),
                                 fontSize: 10,
+                                fontWeight: FontWeight.w700,
                                 height: 1.5,
                               ),
                             ),
-                          ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Text(
+                                '|',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFFD1D5DB),
+                                  fontSize: 10,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                          ],
                           Text(
                             store.products,
                             style: const TextStyle(
@@ -1473,7 +1477,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 24,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0x80C2DC80), // rgba(194, 220, 128, 0.50)
+                        color: const Color(
+                          0x80C2DC80,
+                        ), // rgba(194, 220, 128, 0.50)
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: SvgPicture.string(
@@ -1692,8 +1698,8 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isActive
                   ? const Color(0xFF4B6515)
                   : (label == 'Review Pasar'
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF9CA3AF)),
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF9CA3AF)),
               fontSize: 10,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
               height: 1.5,

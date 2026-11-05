@@ -302,9 +302,29 @@ const marketStores = <StoreData>[
     image: 'store-sabari.jpg',
   ),
   StoreData(
+    id: 'toko-pojok-bedak-1',
+    name: 'Toko Pojok Bedak 1',
+    category: 'Toko Mainan & Pakaian',
+    displayCategory: 'Mainan, kosmetik & snack',
+    badge: 'Toko Mainan',
+    rating: '',
+    products: 'Produk',
+    image: 'mainan/toko pojok bedak 1 .jpeg',
+  ),
+  StoreData(
+    id: 'mama-hong-pulsa',
+    name: 'Mama Hong Pulsa',
+    category: 'Toko Mainan & Pakaian',
+    displayCategory: 'Kids Toys',
+    badge: 'Toko Mainan',
+    rating: '',
+    products: 'Produk',
+    image: 'mainan/mama hong.jpeg',
+  ),
+  StoreData(
     id: 'kios-mainan-baju',
     name: 'Kios Mainan & Baju Ceria',
-    category: 'Mainan & Baju',
+    category: 'Toko Mainan & Pakaian',
     displayCategory: 'Mainan & Baju',
     badge: 'Mainan & Baju',
     rating: '4.7',
@@ -319,7 +339,7 @@ const storeCategories = <String>[
   'Kuliner Legendaris',
   'Daging & Ikan',
   'Sembako & Perabotan',
-  'Mainan & Baju',
+  'Toko Mainan & Pakaian',
 ];
 
 class MarketProduct {
