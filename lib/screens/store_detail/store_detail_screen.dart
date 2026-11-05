@@ -6,10 +6,7 @@ import '../../data/market_data.dart';
 import '../../widgets/market_ui.dart';
 
 class StoreDetailScreen extends StatefulWidget {
-  const StoreDetailScreen({
-    this.storeId = 'lumpur-kentang-27',
-    super.key,
-  });
+  const StoreDetailScreen({this.storeId = 'lumpur-kentang-27', super.key});
 
   final String storeId;
 
@@ -19,9 +16,11 @@ class StoreDetailScreen extends StatefulWidget {
 
 class _StoreDetailScreenState extends State<StoreDetailScreen> {
   StoreData get _store => marketStores.firstWhere(
-        (store) => store.id == widget.storeId,
-        orElse: () => marketStores.first,
-      );
+    (store) => store.id == widget.storeId,
+    orElse: () => marketStores.first,
+  );
+
+  bool get _hasExistingDetail => _store.id == 'lumpur-kentang-27';
 
   // Gallery items for store showcase
   final List<String> _galleryImages = [
@@ -60,21 +59,25 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 6),
-                          // Hero Store Showcase Banner & Profile Overlay
-                          _buildStoreHeroCard(),
-                          const SizedBox(height: 16),
-                          // Store Heritage & Guarantee Story Card
-                          _buildStoryCard(),
-                          const SizedBox(height: 16),
-                          // Store Atmosphere & Display Gallery
-                          _buildAtmosphereGallery(),
-                          const SizedBox(height: 16),
-                          // Product Catalog Header & Grid
-                          _buildProductCatalog(),
-                          const SizedBox(height: 16),
-                          // Trust & Buyer Guarantee Banner (Reviews)
-                          _buildReviewsSection(),
+                          if (_hasExistingDetail) ...[
+                            const SizedBox(height: 6),
+                            _buildStoreHeroCard(),
+                            const SizedBox(height: 16),
+                            _buildStoryCard(),
+                            const SizedBox(height: 16),
+                            _buildAtmosphereGallery(),
+                            const SizedBox(height: 16),
+                            _buildProductCatalog(),
+                            const SizedBox(height: 16),
+                            _buildReviewsSection(),
+                          ] else ...[
+                            const SizedBox(height: 6),
+                            _buildStoreHeroCard(),
+                            const SizedBox(height: 16),
+                            _buildStoryCard(),
+                            const SizedBox(height: 16),
+                            _buildBasicStoreReviewsSection(),
+                          ],
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -105,19 +108,119 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     );
   }
 
+  String get _storeDescription {
+    final offerings = switch (_store.category) {
+      'Makanan' => 'makanan dan camilan',
+      'Kuliner Legendaris' => 'kuliner khas pasar',
+      'Sayur & Buah' => 'sayur dan buah',
+      'Daging & Ikan' => 'daging dan ikan',
+      'Sembako & Perabotan' => 'kebutuhan harian dan perlengkapan rumah',
+      'Toko Mainan & Pakaian' => 'mainan, pakaian, dan kebutuhan keluarga',
+      _ => 'berbagai pilihan kebutuhan',
+    };
+
+    return '${_store.name} menyediakan $offerings di Pasar Oro-Oro Dowo. '
+        'Silakan kunjungi toko untuk melihat pilihan yang tersedia dan '
+        'bertanya langsung kepada penjual.';
+  }
+
+  Widget _storeImageFallback() {
+    return Container(
+      color: const Color(0xFFD8E3FB),
+      child: const Center(
+        child: Icon(Icons.store, size: 64, color: Color(0xFF4B6515)),
+      ),
+    );
+  }
+
+  Widget _storeAvatarFallback() {
+    return Container(
+      color: const Color(0xFFFBBF24),
+      child: const Icon(Icons.storefront, color: Colors.white),
+    );
+  }
+
+  Widget _buildBasicStoreReviewsSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color.fromRGBO(224, 190, 196, 0.30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ulasan Toko & Pembeli',
+            style: TextStyle(
+              color: Color(0xFF111C2D),
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              ...List.generate(
+                5,
+                (_) => const Icon(
+                  Icons.star_rounded,
+                  size: 18,
+                  color: Color(0xFFF59E0B),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                _store.rating,
+                style: const TextStyle(
+                  color: Color(0xFF111C2D),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Text(
+                ' / 5.0',
+                style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Belum ada ulasan tertulis untuk ${_store.name}. '
+            'Jadilah yang pertama membagikan pengalaman Anda.',
+            style: const TextStyle(
+              color: Color(0xFF594045),
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => goTo(context, '/tulis-ulasan-toko'),
+            icon: const Icon(Icons.rate_review_outlined, size: 18),
+            label: const Text('Tulis Ulasan'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF4B6515),
+              side: const BorderSide(color: Color(0xFFC2DC80)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // --- Top Navigation Header ---
   Widget _buildHeader(BuildContext context) {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
-        color: Color(0xFFEBF5D7), // Soft pastel green background as shown in image
-        border: Border(
-          bottom: BorderSide(
-            color: Color(0x33C2DC80),
-            width: 1,
-          ),
-        ),
+        color: Color(
+          0xFFEBF5D7,
+        ), // Soft pastel green background as shown in image
+        border: Border(bottom: BorderSide(color: Color(0x33C2DC80), width: 1)),
       ),
       child: Row(
         children: [
@@ -171,15 +274,17 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFB5D36B),
-                        shape: BoxShape.circle,
+                    if (_hasExistingDetail) ...[
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFB5D36B),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
+                      const SizedBox(width: 6),
+                    ],
                     const Text(
                       'BUKA • KIOS A-12',
                       style: TextStyle(
@@ -228,16 +333,18 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://api.builder.io/api/v1/image/assets/TEMP/3f84626ba8ebbd8d7723599ac4859ed33ef84946?width=716',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: const Color(0xFFD8E3FB),
-                      child: const Center(
-                        child: Icon(Icons.store, size: 64, color: Color(0xFF4B6515)),
-                      ),
+                  if (_hasExistingDetail)
+                    Image.network(
+                      'https://api.builder.io/api/v1/image/assets/TEMP/3f84626ba8ebbd8d7723599ac4859ed33ef84946?width=716',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => _storeImageFallback(),
+                    )
+                  else
+                    Image.asset(
+                      assetPath(_store.image),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => _storeImageFallback(),
                     ),
-                  ),
                   // Dark bottom gradient overlay
                   Container(
                     decoration: const BoxDecoration(
@@ -256,7 +363,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                     left: 12,
                     top: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color.fromRGBO(251, 191, 36, 0.70),
                         borderRadius: BorderRadius.circular(9999),
@@ -326,14 +436,19 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          'https://api.builder.io/api/v1/image/assets/TEMP/425379cfc6cc9d4055ada9eb00aa5d46dcdd209e?width=112',
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Container(
-                            color: const Color(0xFFFBBF24),
-                            child: const Icon(Icons.bakery_dining, color: Colors.white),
-                          ),
-                        ),
+                        child: _hasExistingDetail
+                            ? Image.network(
+                                'https://api.builder.io/api/v1/image/assets/TEMP/425379cfc6cc9d4055ada9eb00aa5d46dcdd209e?width=112',
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) =>
+                                    _storeAvatarFallback(),
+                              )
+                            : Image.asset(
+                                assetPath(_store.image),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) =>
+                                    _storeAvatarFallback(),
+                              ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -371,7 +486,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
 
                 // Quick Stats & Ratings
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color.fromRGBO(194, 220, 128, 0.80),
                     borderRadius: BorderRadius.circular(12),
@@ -397,8 +515,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                                   height: 13,
                                 ),
                                 const SizedBox(width: 4),
-                                const Text(
-                                  '4.9',
+                                Text(
+                                  _store.rating,
                                   style: TextStyle(
                                     fontFamily: 'Plus Jakarta Sans',
                                     fontSize: 14,
@@ -409,8 +527,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                               ],
                             ),
                             const SizedBox(height: 2),
-                            const Text(
-                              '180+ Ulasan',
+                            Text(
+                              _hasExistingDetail ? '180+ Ulasan' : 'Ulasan',
                               style: TextStyle(
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 10,
@@ -543,9 +661,15 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 // Quick Action Button: Hubungi Penjual
                 InkWell(
                   onTap: () async {
-                    final uri = Uri.parse('https://wa.me/6281234567890?text=Halo%20Lumpur%20Kentang%2027,%20saya%20ingin%20tanya%20produk');
+                    final uri = Uri.https('wa.me', '/6281234567890', {
+                      'text':
+                          'Halo ${_store.name}, saya ingin bertanya tentang toko Anda.',
+                    });
                     if (await canLaunchUrl(uri)) {
-                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
                     }
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -616,30 +740,34 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Row(
-                children: [
-                  SvgPicture.string(
-                    '''<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              Expanded(
+                child: Row(
+                  children: [
+                    SvgPicture.string(
+                      '''<svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M0.833333 1.66667V0H14.1667V1.66667H0.833333V1.66667M0.833333 13.3333V8.33333H0V6.66667L0.833333 2.5H14.1667L15 6.66667V8.33333H14.1667V13.3333H12.5V8.33333H9.16667V13.3333H0.833333V13.3333M2.5 11.6667H7.5V8.33333H2.5V11.6667V11.6667M1.70833 6.66667V6.66667H13.2917V6.66667H1.70833V6.66667M1.70833 6.66667H13.2917L12.7917 4.16667H2.20833L1.70833 6.66667V6.66667" fill="#F59E0B"/>
 </svg>''',
-                    width: 15,
-                    height: 14,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Tentang Kios Kami',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111C2D),
+                      width: 15,
+                      height: 14,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Tentang Kios Kami',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111C2D),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
@@ -660,8 +788,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Lumpur Kentang Wolak Walik 27 adalah lapak kuliner legendaris dan viral di Pasar Rakyat Oro-oro Dowo, Kota Malang, yang menyajikan kue lumpur tradisional berbahan dasar kentang dengan tekstur sangat lembut dan wangi khas.',
+          Text(
+            _hasExistingDetail
+                ? 'Lumpur Kentang Wolak Walik 27 adalah lapak kuliner legendaris dan viral di Pasar Rakyat Oro-oro Dowo, Kota Malang, yang menyajikan kue lumpur tradisional berbahan dasar kentang dengan tekstur sangat lembut dan wangi khas.'
+                : _storeDescription,
             style: TextStyle(
               fontFamily: 'Plus Jakarta Sans',
               fontSize: 14,
@@ -746,7 +876,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   child: Image.network(
                     'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[0]}?width=228',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(color: const Color(0xFFD8E3FB)),
+                    errorBuilder: (_, _, _) =>
+                        Container(color: const Color(0xFFD8E3FB)),
                   ),
                 ),
               ),
@@ -760,7 +891,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   child: Image.network(
                     'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[1]}?width=228',
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(color: const Color(0xFFD8E3FB)),
+                    errorBuilder: (_, _, _) =>
+                        Container(color: const Color(0xFFD8E3FB)),
                   ),
                 ),
               ),
@@ -777,7 +909,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       Image.network(
                         'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[2]}?width=228',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(color: const Color(0xFFD8E3FB)),
+                        errorBuilder: (_, _, _) =>
+                            Container(color: const Color(0xFFD8E3FB)),
                       ),
                       Container(
                         color: const Color.fromRGBO(0, 0, 0, 0.40),
@@ -951,7 +1084,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                               item.imgUrl,
                               fit: BoxFit.cover,
                               errorBuilder: (_, _, _) => const Center(
-                                child: Icon(Icons.fastfood, color: Color(0xFFFBBF24)),
+                                child: Icon(
+                                  Icons.fastfood,
+                                  color: Color(0xFFFBBF24),
+                                ),
                               ),
                             ),
                           ),
@@ -961,7 +1097,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             left: 8,
                             top: 8,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFC2DC80),
                                 borderRadius: BorderRadius.circular(9999),
@@ -1152,7 +1291,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 onTap: () => goTo(context, '/tulis-ulasan-toko'),
                 borderRadius: BorderRadius.circular(9999),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFBBF24),
                     borderRadius: BorderRadius.circular(9999),
@@ -1204,7 +1346,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
@@ -1429,10 +1574,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(9999),
-        border: Border.all(
-          color: const Color(0xFFC2DC80),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
         boxShadow: const [
           BoxShadow(
             color: Color(0x20C2DC80),
