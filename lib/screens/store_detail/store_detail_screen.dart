@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/market_data.dart';
+import '../../data/store_api.dart';
 import '../../widgets/market_ui.dart';
 
 class StoreDetailScreen extends StatefulWidget {
@@ -15,22 +16,60 @@ class StoreDetailScreen extends StatefulWidget {
 }
 
 class _StoreDetailScreenState extends State<StoreDetailScreen> {
-  StoreData get _store => marketStores.firstWhere(
-    (store) => store.id == widget.storeId,
-    orElse: () => marketStores.first,
-  );
+  StoreData? _loadedStore;
+  String? _loadError;
+  bool _isLoading = true;
 
-  bool get _hasExistingDetail => _store.id == 'lumpur-kentang-27';
+  StoreData get _store => _loadedStore!;
+  String get _statusText => switch (_store.status) {
+    'buka' => 'BUKA',
+    'tutup' => 'TUTUP',
+    '' => 'Status belum ditentukan',
+    final status => status.toUpperCase(),
+  };
+  String get _operatingHours {
+    final openTime = _store.openTime;
+    final closeTime = _store.closeTime;
+    if (openTime == null || closeTime == null) return 'Belum ditentukan';
+    return '${openTime.replaceAll(':', '.')} - '
+        '${closeTime.replaceAll(':', '.')}';
+  }
 
-  // Gallery items for store showcase
-  final List<String> _galleryImages = [
-    '57ebc6396a9c9a99fe9c1886f78f832596a309a6',
-    'edee362cc941df058b8f2d89986b262499c4eae1',
-    '42901b3e368b616d59728cb167cbca51301cc557',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadStore();
+  }
+
+  Future<void> _loadStore() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final store = await StoreApi.fetchStore(widget.storeId);
+      if (!mounted) return;
+      setState(() {
+        _loadedStore = store;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || _loadedStore == null) {
+      return _buildLoadState(
+        _isLoading ? const CircularProgressIndicator() : _errorContent(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3EEF1),
       body: SafeArea(
@@ -59,25 +98,22 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (_hasExistingDetail) ...[
-                            const SizedBox(height: 6),
-                            _buildStoreHeroCard(),
-                            const SizedBox(height: 16),
-                            _buildStoryCard(),
+                          const SizedBox(height: 6),
+                          if (_store.isLocalFallback) ...[
+                            _buildLocalCatalogNotice(),
+                            const SizedBox(height: 12),
+                          ],
+                          _buildStoreHeroCard(),
+                          const SizedBox(height: 16),
+                          _buildStoryCard(),
+                          if (_store.image.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             _buildAtmosphereGallery(),
-                            const SizedBox(height: 16),
-                            _buildProductCatalog(),
-                            const SizedBox(height: 16),
-                            _buildReviewsSection(),
-                          ] else ...[
-                            const SizedBox(height: 6),
-                            _buildStoreHeroCard(),
-                            const SizedBox(height: 16),
-                            _buildStoryCard(),
-                            const SizedBox(height: 16),
-                            _buildBasicStoreReviewsSection(),
                           ],
+                          const SizedBox(height: 16),
+                          _buildProductCatalog(),
+                          const SizedBox(height: 16),
+                          _buildReviewsSection(),
                           const SizedBox(height: 20),
                         ],
                       ),
@@ -108,20 +144,49 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     );
   }
 
-  String get _storeDescription {
-    final offerings = switch (_store.category) {
-      'Makanan' => 'makanan dan camilan',
-      'Kuliner Legendaris' => 'kuliner khas pasar',
-      'Sayur & Buah' => 'sayur dan buah',
-      'Daging & Ikan' => 'daging dan ikan',
-      'Sembako & Perabotan' => 'kebutuhan harian dan perlengkapan rumah',
-      'Toko Mainan & Pakaian' => 'mainan, pakaian, dan kebutuhan keluarga',
-      _ => 'berbagai pilihan kebutuhan',
-    };
+  Widget _buildLoadState(Widget content) {
+    return MarketPage(
+      background: Colors.white,
+      child: Center(
+        child: Padding(padding: const EdgeInsets.all(24), child: content),
+      ),
+    );
+  }
 
-    return '${_store.name} menyediakan $offerings di Pasar Oro-Oro Dowo. '
-        'Silakan kunjungi toko untuk melihat pilihan yang tersedia dan '
-        'bertanya langsung kepada penjual.';
+  Widget _errorContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _loadError ?? 'Detail toko tidak tersedia.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Color(0xFF6B7280)),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(onPressed: _loadStore, child: const Text('Coba Lagi')),
+      ],
+    );
+  }
+
+  Widget _buildLocalCatalogNotice() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Text(
+        'Data ini berasal dari katalog Mobile. Status dan jam dari Backend belum tersedia untuk toko yang cocok.',
+        style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+      ),
+    );
+  }
+
+  String get _storeDescription {
+    return _store.description.isNotEmpty
+        ? _store.description
+        : 'Deskripsi toko belum tersedia.';
   }
 
   Widget _storeImageFallback() {
@@ -137,77 +202,6 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     return Container(
       color: const Color(0xFFFBBF24),
       child: const Icon(Icons.storefront, color: Colors.white),
-    );
-  }
-
-  Widget _buildBasicStoreReviewsSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color.fromRGBO(224, 190, 196, 0.30)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Ulasan Toko & Pembeli',
-            style: TextStyle(
-              color: Color(0xFF111C2D),
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              ...List.generate(
-                5,
-                (_) => const Icon(
-                  Icons.star_rounded,
-                  size: 18,
-                  color: Color(0xFFF59E0B),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                _store.rating,
-                style: const TextStyle(
-                  color: Color(0xFF111C2D),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Text(
-                ' / 5.0',
-                style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Belum ada ulasan tertulis untuk ${_store.name}. '
-            'Jadilah yang pertama membagikan pengalaman Anda.',
-            style: const TextStyle(
-              color: Color(0xFF594045),
-              fontSize: 13,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () => goTo(context, '/tulis-ulasan-toko'),
-            icon: const Icon(Icons.rate_review_outlined, size: 18),
-            label: const Text('Tulis Ulasan'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF4B6515),
-              side: const BorderSide(color: Color(0xFFC2DC80)),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -274,20 +268,12 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (_hasExistingDetail) ...[
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFB5D36B),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                    const Text(
-                      'BUKA • KIOS A-12',
-                      style: TextStyle(
+                    Text(
+                      [
+                        _statusText,
+                        if (_store.zone.isNotEmpty) _store.zone,
+                      ].join(' • '),
+                      style: const TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -333,18 +319,11 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (_hasExistingDetail)
-                    Image.network(
-                      'https://api.builder.io/api/v1/image/assets/TEMP/3f84626ba8ebbd8d7723599ac4859ed33ef84946?width=716',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _storeImageFallback(),
-                    )
-                  else
-                    Image.asset(
-                      assetPath(_store.image),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _storeImageFallback(),
-                    ),
+                  Image.asset(
+                    assetPath(_store.image),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _storeImageFallback(),
+                  ),
                   // Dark bottom gradient overlay
                   Container(
                     decoration: const BoxDecoration(
@@ -436,19 +415,11 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: _hasExistingDetail
-                            ? Image.network(
-                                'https://api.builder.io/api/v1/image/assets/TEMP/425379cfc6cc9d4055ada9eb00aa5d46dcdd209e?width=112',
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
-                                    _storeAvatarFallback(),
-                              )
-                            : Image.asset(
-                                assetPath(_store.image),
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
-                                    _storeAvatarFallback(),
-                              ),
+                        child: Image.asset(
+                          assetPath(_store.image),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _storeAvatarFallback(),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -507,17 +478,18 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.string(
-                                  '''<svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.55 12.6667L3.63333 7.98333L0 4.83333L4.8 4.41667L6.66667 0L8.53333 4.41667L13.3333 4.83333L9.7 7.98333L10.7833 12.6667L6.66667 10.1833L2.55 12.6667V12.6667" fill="#F59E0B"/>
-</svg>''',
-                                  width: 14,
-                                  height: 13,
-                                ),
+                                if (_store.rating.isNotEmpty)
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    size: 14,
+                                    color: Color(0xFFF59E0B),
+                                  ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  _store.rating,
-                                  style: TextStyle(
+                                  _store.rating.isNotEmpty
+                                      ? _store.rating
+                                      : '—',
+                                  style: const TextStyle(
                                     fontFamily: 'Plus Jakarta Sans',
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -528,8 +500,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              _hasExistingDetail ? '180+ Ulasan' : 'Ulasan',
-                              style: TextStyle(
+                              '${_store.reviewCount} Ulasan',
+                              style: const TextStyle(
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -555,26 +527,21 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                                   height: 14,
                                 ),
                                 const SizedBox(width: 4),
-                                const Text(
-                                  '06.00',
-                                  style: TextStyle(
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF111C2D),
+                                Expanded(
+                                  child: Text(
+                                    _operatingHours,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF111C2D),
+                                    ),
                                   ),
                                 ),
                               ],
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'Tutup 17.00',
-                              style: TextStyle(
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF594045),
-                              ),
                             ),
                           ],
                         ),
@@ -584,31 +551,18 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       Expanded(
                         child: Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SvgPicture.string(
-                                  '''<svg width="11" height="14" viewBox="0 0 11 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4.63333 9.03333L8.4 5.26667L7.45 4.31667L4.63333 7.13333L3.23333 5.73333L2.28333 6.68333L4.63333 9.03333V9.03333M5.33333 13.3333C3.78889 12.9444 2.51389 12.0583 1.50833 10.675C0.502778 9.29167 0 7.75556 0 6.06667V2L5.33333 0L10.6667 2V6.06667C10.6667 7.75556 10.1639 9.29167 9.15833 10.675C8.15278 12.0583 6.87778 12.9444 5.33333 13.3333V13.3333M5.33333 11.9333C6.48889 11.5667 7.44444 10.8333 8.2 9.73333C8.95555 8.63333 9.33333 7.41111 9.33333 6.06667V2.91667L5.33333 1.41667L1.33333 2.91667V6.06667C1.33333 7.41111 1.71111 8.63333 2.46667 9.73333C3.22222 10.8333 4.17778 11.5667 5.33333 11.9333V11.9333M5.33333 6.66667V6.66667V6.66667V6.66667V6.66667V6.66667V6.66667V6.66667V6.66667V6.66667" fill="#FBBF24"/>
-</svg>''',
-                                  width: 11,
-                                  height: 14,
-                                ),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  '100%',
-                                  style: TextStyle(
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF111C2D),
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              '${_store.productCount}',
+                              style: const TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111C2D),
+                              ),
                             ),
                             const SizedBox(height: 2),
                             const Text(
-                              'Produk Asli',
+                              'Produk',
                               style: TextStyle(
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 10,
@@ -641,10 +595,12 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                         height: 15,
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Pasar Oro-Oro Dowo, Blok A No. 12, Klojen, Kota Malang',
-                          style: TextStyle(
+                          _store.zone.isNotEmpty
+                              ? _store.zone
+                              : 'Zona toko belum ditentukan.',
+                          style: const TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
@@ -660,18 +616,17 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
 
                 // Quick Action Button: Hubungi Penjual
                 InkWell(
-                  onTap: () async {
-                    final uri = Uri.https('wa.me', '/6281234567890', {
-                      'text':
-                          'Halo ${_store.name}, saya ingin bertanya tentang toko Anda.',
-                    });
-                    if (await canLaunchUrl(uri)) {
-                      await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
+                  onTap: _store.phone.isEmpty
+                      ? null
+                      : () async {
+                          final uri = Uri(scheme: 'tel', path: _store.phone);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     width: double.infinity,
@@ -698,14 +653,21 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                           height: 15,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Hubungi Penjual',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.24,
-                            color: Colors.white,
+                        Expanded(
+                          child: Text(
+                            _store.phone.isEmpty
+                                ? 'Nomor telepon belum tersedia'
+                                : 'Hubungi Penjual',
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.24,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -752,7 +714,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       height: 14,
                     ),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Tentang Kios Kami',
                         overflow: TextOverflow.ellipsis,
@@ -767,31 +729,25 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFBBF24),
-                  borderRadius: BorderRadius.circular(9999),
-                ),
-                child: const Text(
-                  'Sejak 2012',
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                    color: Colors.white,
+              if (_store.owner.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    _store.owner,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF594045),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            _hasExistingDetail
-                ? 'Lumpur Kentang Wolak Walik 27 adalah lapak kuliner legendaris dan viral di Pasar Rakyat Oro-oro Dowo, Kota Malang, yang menyajikan kue lumpur tradisional berbahan dasar kentang dengan tekstur sangat lembut dan wangi khas.'
-                : _storeDescription,
+            _storeDescription,
             style: TextStyle(
               fontFamily: 'Plus Jakarta Sans',
               fontSize: 14,
@@ -819,7 +775,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Suasana Kios & Etalase',
+                    'Foto Toko',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 18,
@@ -829,7 +785,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   ),
                   SizedBox(height: 2),
                   Text(
-                    'Langsung dari lorong Blok A Pasar Oro-Oro Dowo',
+                    'Foto lokal yang cocok dengan data toko.',
                     style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 12,
@@ -840,32 +796,12 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 ],
               ),
             ),
-            Row(
-              children: [
-                const Text(
-                  'Lihat Semua',
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF594045),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                SvgPicture.string(
-                  '''<svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M3.06667 4L0 0.933333L0.933333 0L4.93333 4L0.933333 8L0 7.06667L3.06667 4V4" fill="#594045"/>
-</svg>''',
-                  width: 5,
-                  height: 8,
-                ),
-              ],
-            ),
+            Row(children: []),
           ],
         ),
         const SizedBox(height: 10),
 
-        // Gallery Grid (3 items row with +6 Foto overlay on 3rd)
+        // Foto lokal yang sama dipakai sebagai gambar toko.
         Row(
           children: [
             Expanded(
@@ -873,8 +809,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 aspectRatio: 1,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[0]}?width=228',
+                  child: Image.asset(
+                    assetPath(_store.image),
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) =>
                         Container(color: const Color(0xFFD8E3FB)),
@@ -888,8 +824,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 aspectRatio: 1,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[1]}?width=228',
+                  child: Image.asset(
+                    assetPath(_store.image),
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) =>
                         Container(color: const Color(0xFFD8E3FB)),
@@ -906,8 +842,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        'https://api.builder.io/api/v1/image/assets/TEMP/${_galleryImages[2]}?width=228',
+                      Image.asset(
+                        assetPath(_store.image),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
                             Container(color: const Color(0xFFD8E3FB)),
@@ -916,7 +852,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                         color: const Color.fromRGBO(0, 0, 0, 0.40),
                         child: const Center(
                           child: Text(
-                            '+6 Foto',
+                            'Foto toko',
                             style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 12,
@@ -940,54 +876,16 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
 
   // --- 4. Product Catalog Header & 2-Column Grid ---
   Widget _buildProductCatalog() {
-    // 5 products from Figma design
-    final products = [
-      (
-        name: 'Kismis',
-        desc: 'Rasanya Enak',
-        price: 'Rp 7.000',
-        rating: '4.9',
-        reviews: '(92)',
-        isBestSeller: false,
-        imgUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/21b4c2ec08c13f5b8d044fe28f748385fda57c9f?width=294',
-      ),
-      (
-        name: 'keju',
-        desc: 'Rasanya Enak',
-        price: 'Rp 7.000',
-        rating: '5.0',
-        reviews: '(45)',
-        isBestSeller: true,
-        imgUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/360cecd29a4db8b153e24126ea1b3790b28fe2c8?width=294',
-      ),
-      (
-        name: 'kelapa',
-        desc: 'Rasanya Enak',
-        price: 'Rp 7.000',
-        rating: '4.8',
-        reviews: '(31)',
-        isBestSeller: false,
-        imgUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/5d35cd7ab75926c8c87e84cb2d4e6f66d7a2ce13?width=294',
-      ),
-      (
-        name: 'Bikang Suji',
-        desc: 'Rasanya Enak',
-        price: 'Rp 4.000',
-        rating: '4.9',
-        reviews: '(19)',
-        isBestSeller: false,
-        imgUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/10471f540d1e6ace767beefb3d34cd99a98a0c89?width=294',
-      ),
-      (
-        name: 'Lemper Ayam',
-        desc: 'Rasanya Enak',
-        price: 'Rp 7.000',
-        rating: '4.9',
-        reviews: '(92)',
-        isBestSeller: false,
-        imgUrl: 'https://api.builder.io/api/v1/image/assets/TEMP/94c69679b89de043e1cf782342cf4a13b4bea560?width=294',
-      ),
-    ];
+    final products = _store.catalogProducts;
+    if (products.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          'Produk belum tersedia.',
+          style: TextStyle(color: Color(0xFF6B7280), fontSize: 13),
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -996,26 +894,30 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                SvgPicture.string(
-                  '''<svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            Flexible(
+              child: Row(
+                children: [
+                  SvgPicture.string(
+                    '''<svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3.20833 8.25L8.25 0L13.2917 8.25H3.20833V8.25M13.2917 18.3333C12.1458 18.3333 11.1719 17.9323 10.3698 17.1302C9.56771 16.3281 9.16667 15.3542 9.16667 14.2083C9.16667 13.0625 9.56771 12.0885 10.3698 11.2865C11.1719 10.4844 12.1458 10.0833 13.2917 10.0833C14.4375 10.0833 15.4115 10.4844 16.2135 11.2865C17.0156 12.0885 17.4167 13.0625 17.4167 14.2083C17.4167 15.3542 17.0156 16.3281 16.2135 17.1302C15.4115 17.9323 14.4375 18.3333 13.2917 18.3333V18.3333M0 17.875V10.5417H7.33333V17.875H0V17.875M13.2917 16.5C13.9333 16.5 14.4757 16.2785 14.9187 15.8354C15.3618 15.3924 15.5833 14.85 15.5833 14.2083C15.5833 13.5667 15.3618 13.0243 14.9187 12.5813C14.4757 12.1382 13.9333 11.9167 13.2917 11.9167C12.65 11.9167 12.1076 12.1382 11.6646 12.5813C11.2215 13.0243 11 13.5667 11 14.2083C11 14.85 11.2215 15.3924 11.6646 15.8354C12.1076 16.2785 12.65 16.5 13.2917 16.5V16.5M1.83333 16.0417H5.5V12.375H1.83333V16.0417V16.0417M6.4625 6.41667H10.0375L8.25 3.52917L6.4625 6.41667V6.41667M8.25 6.41667V6.41667V6.41667V6.41667V6.41667M5.5 12.375V12.375V12.375V12.375V12.375V12.375M13.2917 14.2083V14.2083V14.2083V14.2083V14.2083V14.2083V14.2083V14.2083V14.2083V14.2083" fill="#F59E0B"/>
 </svg>''',
-                  width: 18,
-                  height: 19,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Katalog Produk Kios',
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF111C2D),
+                    width: 18,
+                    height: 19,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Katalog Produk Kios',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111C2D),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -1023,8 +925,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 color: const Color(0xFFFBBF24),
                 borderRadius: BorderRadius.circular(9999),
               ),
-              child: const Text(
-                '5 Pilihan',
+              child: Text(
+                '${products.length} Produk',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 10,
@@ -1080,87 +982,29 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              item.imgUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => const Center(
-                                child: Icon(
-                                  Icons.fastfood,
-                                  color: Color(0xFFFBBF24),
-                                ),
-                              ),
-                            ),
+                            child: item.photoUrl == null
+                                ? const Center(
+                                    child: Icon(
+                                      Icons.inventory_2_outlined,
+                                      color: Color(0xFFFBBF24),
+                                    ),
+                                  )
+                                : Image.network(
+                                    item.photoUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => const Center(
+                                      child: Icon(
+                                        Icons.inventory_2_outlined,
+                                        color: Color(0xFFFBBF24),
+                                      ),
+                                    ),
+                                  ),
                           ),
                         ),
-                        if (item.isBestSeller)
-                          Positioned(
-                            left: 8,
-                            top: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFC2DC80),
-                                borderRadius: BorderRadius.circular(9999),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.05),
-                                    blurRadius: 2,
-                                    offset: Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                              child: const Text(
-                                'Terlaris',
-                                style: TextStyle(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF283700),
-                                ),
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 8),
-
-                  // Rating row
-                  Row(
-                    children: [
-                      SvgPicture.string(
-                        '''<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.23125 11.0833L3.17917 6.98542L0 4.22917L4.2 3.86458L5.83333 0L7.46667 3.86458L11.6667 4.22917L8.4875 6.98542L9.43542 11.0833L5.83333 8.91042L2.23125 11.0833V11.0833" fill="#D56989"/>
-</svg>''',
-                        width: 12,
-                        height: 12,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item.rating,
-                        style: const TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111C2D),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        item.reviews,
-                        style: const TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF594045),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
 
                   // Product Title
                   Text(
@@ -1177,7 +1021,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
 
                   // Product Short Desc
                   Text(
-                    item.desc,
+                    item.description.isNotEmpty
+                        ? item.description
+                        : 'Deskripsi belum tersedia.',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -1204,26 +1050,13 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          item.price,
+                          'Rp ${item.price}',
                           style: const TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFFF59E0B),
                             height: 1.25,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            '/pcs',
-                            style: TextStyle(
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF594045),
-                            ),
                           ),
                         ),
                       ],
@@ -1265,27 +1098,33 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  SvgPicture.string(
-                    '''<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              Flexible(
+                child: Row(
+                  children: [
+                    SvgPicture.string(
+                      '''<svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3.66667 11H6.4625L11.0458 6.41667C11.1833 6.27917 11.2865 6.12257 11.3552 5.94688C11.424 5.77118 11.4583 5.59931 11.4583 5.43125C11.4583 5.26319 11.4201 5.09896 11.3438 4.93854C11.2674 4.77813 11.1681 4.62917 11.0458 4.49167L10.2208 3.62083C10.0833 3.48333 9.93056 3.38021 9.7625 3.31146C9.59444 3.24271 9.41875 3.20833 9.23542 3.20833C9.06736 3.20833 8.89549 3.24271 8.71979 3.31146C8.5441 3.38021 8.3875 3.48333 8.25 3.62083L3.66667 8.20417V11V11M10.0833 5.43125V5.43125L9.23542 4.58333V4.58333L10.0833 5.43125V5.43125M5.04167 9.625V8.75417L7.35625 6.43958L7.81458 6.85208L8.22708 7.31042L5.9125 9.625H5.04167V9.625M7.81458 6.85208L8.22708 7.31042V7.31042L7.35625 6.43958V6.43958L7.81458 6.85208V6.85208M8.41042 11H14.6667V9.16667H10.2437L8.41042 11V11M0 18.3333V1.83333C0 1.32917 0.179514 0.897569 0.538542 0.538542C0.897569 0.179514 1.32917 0 1.83333 0H16.5C17.0042 0 17.4358 0.179514 17.7948 0.538542C18.1538 0.897569 18.3333 1.32917 18.3333 1.83333V12.8333C18.3333 13.3375 18.1538 13.7691 17.7948 14.1281C17.4358 14.4872 17.0042 14.6667 16.5 14.6667H3.66667L0 18.3333V18.3333M2.8875 12.8333H16.5V12.8333V12.8333V1.83333V1.83333V1.83333H1.83333V1.83333V1.83333V13.8646L2.8875 12.8333V12.8333M1.83333 12.8333V12.8333V1.83333V1.83333V1.83333V1.83333V1.83333V1.83333V12.8333V12.8333V12.8333V12.8333V12.8333" fill="#4B6515"/>
 </svg>''',
-                    width: 19,
-                    height: 19,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Ulasan Toko &\nPembeli',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111C2D),
-                      height: 1.25,
+                      width: 19,
+                      height: 19,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Ulasan Toko & Pembeli',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111C2D),
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               InkWell(
                 onTap: () => goTo(context, '/tulis-ulasan-toko'),
@@ -1363,16 +1202,17 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       ),
                       child: Row(
                         children: [
-                          SvgPicture.string(
-                            '''<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          if (_store.rating.isNotEmpty)
+                            SvgPicture.string(
+                              '''<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2.86875 14.25L4.0875 8.98125L0 5.4375L5.4 4.96875L7.5 0L9.6 4.96875L15 5.4375L10.9125 8.98125L12.1313 14.25L7.5 11.4563L2.86875 14.25V14.25" fill="#F59E0B"/>
 </svg>''',
-                            width: 15,
-                            height: 15,
-                          ),
+                              width: 15,
+                              height: 15,
+                            ),
                           const SizedBox(width: 4),
-                          const Text(
-                            '4.9',
+                          Text(
+                            _store.rating.isNotEmpty ? _store.rating : '—',
                             style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 18,
@@ -1380,24 +1220,25 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                               color: Color(0xFF111C2D),
                             ),
                           ),
-                          const Text(
-                            '/5.0',
-                            style: TextStyle(
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF594045),
+                          if (_store.rating.isNotEmpty)
+                            const Text(
+                              '/5.0',
+                              style: TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF594045),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '180+ Ulasan Pembeli',
+                          '${_store.reviewCount} Ulasan Pembeli',
                           style: TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 12,
@@ -1405,8 +1246,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             color: Color(0xFF111C2D),
                           ),
                         ),
-                        Text(
-                          '98% Pembeli Puas',
+                        const Text(
+                          'Data dari Backend',
                           style: TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 11,
@@ -1421,7 +1262,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 // 5 stars
                 Row(
                   children: List.generate(
-                    5,
+                    _store.rating.isNotEmpty ? 5 : 0,
                     (_) => Padding(
                       padding: const EdgeInsets.only(left: 2),
                       child: SvgPicture.string(
@@ -1439,19 +1280,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Review 1: Ibu Maya Lestari
           _buildReviewItem(
-            name: 'Ibu Maya Lestari',
-            time: '2 hari lalu • Pembeli Terverifikasi',
-            text: '“Bahan katun adem banget, jahitan rapi! Pengiriman lewat kurir pasar cepat sampai dalam 25 menit. Bu Serli juga ramah sekali pas ditanya ukuran via chat.”',
-          ),
-          const SizedBox(height: 10),
-
-          // Review 2: Dimas Priyambodo
-          _buildReviewItem(
-            name: 'Dimas Priyambodo',
-            time: '1 minggu lalu • Pembeli Terverifikasi',
-            text: '“Kemeja linen santai kualitasnya jempolan, warna sesuai foto etalase. Pilihan belanja terpercaya di Pasar Oro-Oro Dowo.”',
+            name: '',
+            time: '',
+            text: 'Ulasan tertulis belum tersedia.',
           ),
           const SizedBox(height: 12),
 
@@ -1462,7 +1294,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Lihat Semua 180+ Ulasan Toko',
+                  'Lihat Ulasan Pasar',
                   style: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 12,
@@ -1507,49 +1339,50 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111C2D),
+          if (name.isNotEmpty || time.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111C2D),
+                      ),
                     ),
-                  ),
-                  Text(
-                    time,
-                    style: const TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 10,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF594045),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF594045),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: List.generate(
-                  5,
-                  (_) => Padding(
-                    padding: const EdgeInsets.only(left: 1.5),
-                    child: SvgPicture.string(
-                      '''<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  ],
+                ),
+                Row(
+                  children: List.generate(
+                    5,
+                    (_) => Padding(
+                      padding: const EdgeInsets.only(left: 1.5),
+                      child: SvgPicture.string(
+                        '''<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2.07188 10.2917L2.95208 6.48646L0 3.92708L3.9 3.58854L5.41667 0L6.93333 3.58854L10.8333 3.92708L7.88125 6.48646L8.76146 10.2917L5.41667 8.27396L2.07188 10.2917V10.2917" fill="#F59E0B"/>
 </svg>''',
-                      width: 11,
-                      height: 11,
+                        width: 11,
+                        height: 11,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 6),
           Text(
             text,

@@ -1,16 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-// Ganti jika memakai HP asli, mis. 'http://192.168.1.5:4000', atau URL hosting.
-String get _baseUrl {
-  if (!kIsWeb && Platform.isAndroid) {
-    return 'http://10.0.2.2:4000';
-  }
-  return 'http://localhost:4000';
-}
+import 'api_config.dart';
 
 class StoreReview {
   const StoreReview({
@@ -39,20 +31,22 @@ class StoreReview {
 }
 
 class StoreReviewApi {
-  static Uri _uri([String? _]) => Uri.parse('$_baseUrl/api/store-reviews');
+  static Uri _uri([String? _]) =>
+      Uri.parse('${ApiConfig.baseUrl}/api/store-reviews');
 
   static Future<List<StoreReview>> fetchDetailReviews() =>
       _fetchReviews('5000');
 
-  static Future<List<StoreReview>> fetchFormReviews() =>
-      _fetchReviews('4000');
+  static Future<List<StoreReview>> fetchFormReviews() => _fetchReviews('4000');
 
   static Future<List<StoreReview>> _fetchReviews(String port) async {
-    final response = await http.get(_uri(port)).timeout(
-          const Duration(seconds: 12),
-        );
+    final response = await http
+        .get(_uri(port))
+        .timeout(const Duration(seconds: 12));
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('Gagal mengambil data ulasan toko (${response.statusCode}).');
+      throw Exception(
+        'Gagal mengambil data ulasan toko (${response.statusCode}).',
+      );
     }
     final body = jsonDecode(response.body);
     if (body is! List) {

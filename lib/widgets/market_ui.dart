@@ -155,13 +155,17 @@ class BrandHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        const Text(
-          'Pasar Oro-Oro Dowo',
-          style: TextStyle(
-            color: Color(0xFF594045),
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.6,
+        const Expanded(
+          child: Text(
+            'Pasar Oro-Oro Dowo',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Color(0xFF594045),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.6,
+            ),
           ),
         ),
       ],
@@ -334,7 +338,10 @@ class BottomNavigation extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       height: 68,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 350 ? 16 : 24,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(9999),

@@ -13,8 +13,16 @@ flutter analyze
 flutter test
 ```
 
-The Android application is configured to reach local development services
-through `10.0.2.2` on an Android emulator and `localhost` on other platforms.
+Android emulator memakai `10.0.2.2:4000` secara default; platform lain memakai
+`localhost:4000`. Untuk perangkat fisik, berikan alamat komputer Backend saat
+menjalankan aplikasi:
+
+```sh
+flutter run --dart-define=API_BASE_URL=http://ALAMAT-LAN-KOMPUTER:4000
+```
+
+Ganti `ALAMAT-LAN-KOMPUTER` dengan alamat yang dapat dijangkau perangkat.
+Konfigurasi hanya berlaku saat aplikasi dijalankan dan tidak disimpan di kode.
 
 ## Screens
 
@@ -24,12 +32,14 @@ through `10.0.2.2` on an Android emulator and `localhost` on other platforms.
 - Promotions, recommendations, and AI visit planner
 - Market reviews and market/store review forms
 
-## Backend availability
+## Data toko
 
-The source tree provided for conversion contains no backend project. Store
-review screens retain the source endpoints (`/api/store-reviews` on ports 4000
-and 5000) and surface connection or response errors; they do not report a
-successful submission when a service is unavailable. The market review and
-AI-planner clients imported by React from `backend/src/clients` are missing, so
-their server-backed data and submissions cannot be restored without those
-client definitions and a reachable backend.
+Beranda, daftar toko, dan detail toko membaca data dari Backend melalui
+`GET /api/stores` dan `GET /api/stores/:slug`. Endpoint publik hanya
+menampilkan toko berstatus `buka` atau `tutup`; toko yang menunggu verifikasi
+baru terlihat di Mobile setelah diverifikasi Admin. Jika data belum tersedia,
+aplikasi menampilkan status kosong atau pesan gagal dan menyediakan tombol
+untuk mencoba kembali. Foto Mobile hanya dipakai jika slug dan nama toko cocok
+dengan data Backend; foto tidak diunggah saat sinkronisasi.
+
+Ulasan toko tetap memakai endpoint yang sudah ada, dengan URL dasar yang sama.

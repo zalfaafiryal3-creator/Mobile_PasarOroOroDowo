@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../data/market_data.dart';
+import '../../data/store_api.dart';
 import '../../widgets/market_ui.dart';
 
 class StoreListScreen extends StatefulWidget {
@@ -16,17 +17,44 @@ class StoreListScreen extends StatefulWidget {
 class _StoreListScreenState extends State<StoreListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String? _activeCategory;
+  List<StoreData> _stores = const [];
+  String? _loadError;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _activeCategory = widget.initialCategory;
+    _loadStores();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadStores() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final stores = await StoreApi.fetchStores();
+      if (!mounted) return;
+      setState(() {
+        _stores = stores;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      debugPrint('Gagal memuat daftar toko dari Backend: $error');
+      setState(() {
+        _stores = marketStores;
+        _loadError = 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
+        _isLoading = false;
+      });
+    }
   }
 
   bool _matchesCategory(StoreData store, String category) {
@@ -65,7 +93,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
   @override
   Widget build(BuildContext context) {
     final search = _searchController.text.trim().toLowerCase();
-    final stores = marketStores.where((store) {
+    final stores = _stores.where((store) {
       final matchesCat =
           _activeCategory == null || _matchesCategory(store, _activeCategory!);
       final matchesSearch =
@@ -129,12 +157,56 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       ]),
                     ),
                   ),
-                  if (stores.isEmpty)
+                  if (_isLoading)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 48),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    )
+                  else if (_loadError != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _loadError!,
+                                style: const TextStyle(
+                                  color: Color(0xFF6B7280),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: _loadStores,
+                              child: const Text('Coba Lagi'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (!_isLoading &&
+                      _stores.any((store) => store.isLocalFallback))
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Text(
+                          'Katalog Mobile tetap ditampilkan. Status Backend hanya digunakan untuk toko dengan nama dan slug yang cocok.',
+                          style: TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (!_isLoading && stores.isEmpty)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                       sliver: SliverToBoxAdapter(child: _buildEmptyState()),
                     )
-                  else
+                  else if (!_isLoading)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                       sliver: SliverGrid.builder(

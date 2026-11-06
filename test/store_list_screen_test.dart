@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/data/market_data.dart';
 import 'package:frontend_flutter/screens/store_list/store_list_screen.dart';
 
+import 'store_api_test_helper.dart';
+
 Future<void> scrollUntilStoreVisible(WidgetTester tester, String name) async {
   await tester.dragUntilVisible(
     find.text(name),
@@ -21,6 +23,9 @@ Future<void> scrollToTop(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(installStoreApiMock);
+  tearDown(clearStoreApiMock);
+
   testWidgets('Food cards show store names without category labels', (
     tester,
   ) async {
@@ -56,12 +61,37 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('49 Toko'), findsOneWidget);
     expect(find.text('Mama Hong Pulsa'), findsNothing);
     await tester.dragUntilVisible(
       find.text('Mama Hong Pulsa'),
       find.byType(CustomScrollView),
       const Offset(0, -500),
     );
+    expect(find.text('Mama Hong Pulsa'), findsOneWidget);
+  });
+
+  testWidgets('displays the 49-store catalog when Backend returns a subset', (
+    tester,
+  ) async {
+    installStoreApiMock(backendStores: marketStores.take(11).toList());
+
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(home: StoreListScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('49 Toko'), findsOneWidget);
+    expect(
+      find.text(
+        'Katalog Mobile tetap ditampilkan. Status Backend hanya digunakan untuk toko dengan nama dan slug yang cocok.',
+      ),
+      findsOneWidget,
+    );
+    await scrollUntilStoreVisible(tester, 'Mama Hong Pulsa');
     expect(find.text('Mama Hong Pulsa'), findsOneWidget);
   });
 

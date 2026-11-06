@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../data/market_data.dart';
+import '../../data/store_api.dart';
 import '../../widgets/market_ui.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,11 +17,65 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String? _selectedCategory;
   bool _isFavorite = false;
+  List<StoreData> _stores = const [];
+  String? _loadError;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStores();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadStores() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final stores = await StoreApi.fetchStores();
+      if (!mounted) return;
+      setState(() {
+        _stores = stores;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      debugPrint('Gagal memuat daftar toko dari Backend: $error');
+      setState(() {
+        _stores = marketStores;
+        _loadError = 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _buildNetworkOrAssetImage({
+    required String networkUrl,
+    required String assetName,
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+  }) {
+    return Image.network(
+      networkUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (context, error, stackTrace) {
+        return MarketAsset(assetName, width: width, height: height, fit: fit);
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return MarketAsset(assetName, width: width, height: height, fit: fit);
+      },
+    );
   }
 
   bool _matchesCategory(StoreData store, String category) {
@@ -48,28 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return target.contains(cat);
   }
 
-  Widget _buildNetworkOrAssetImage({
-    required String networkUrl,
-    required String assetName,
-    double? width,
-    double? height,
-    BoxFit fit = BoxFit.cover,
-  }) {
-    return Image.network(
-      networkUrl,
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (context, error, stackTrace) {
-        return MarketAsset(assetName, width: width, height: height, fit: fit);
-      },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return MarketAsset(assetName, width: width, height: height, fit: fit);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final query = _searchController.text.trim().toLowerCase();
@@ -83,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final List<StoreData> displayedStores;
     if (query.isNotEmpty || _selectedCategory != null) {
-      displayedStores = marketStores.where((store) {
+      displayedStores = _stores.where((store) {
         final matchesCat =
             _selectedCategory == null ||
             _matchesCategory(store, _selectedCategory!);
@@ -95,13 +128,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return matchesCat && matchesSearch;
       }).toList();
     } else {
-      displayedStores = defaultStoreIds
-          .map(
-            (id) => marketStores.firstWhere(
-              (s) => s.id == id,
-              orElse: () => marketStores.first,
-            ),
-          )
+      displayedStores = _stores
+          .where((store) => defaultStoreIds.contains(store.id))
           .toList();
     }
 
@@ -153,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 15),
                         _buildCategorySection(context),
                         const SizedBox(height: 16),
-                        _buildStoreListSection(context, displayedStores),
+                        _buildStoreContent(context, displayedStores),
                         const SizedBox(height: 15),
                         _buildPlanVisitCallout(context),
                       ]),
@@ -223,15 +251,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        const Text(
-          'Pasar Oro-Oro Dowo',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            color: Color(0xFF594045),
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            height: 1.6,
-            letterSpacing: -0.6,
+        const Expanded(
+          child: Text(
+            'Pasar Oro-Oro Dowo',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: Color(0xFF594045),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              height: 1.6,
+              letterSpacing: -0.6,
+            ),
           ),
         ),
       ],
@@ -434,14 +466,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  'Jelajahi Sekarang',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    color: Color(0xFFFBBF24),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.33,
+                                const Flexible(
+                                  child: Text(
+                                    'Jelajahi Sekarang',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: Color(0xFFFBBF24),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      height: 1.33,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 6),
@@ -661,39 +697,41 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Jam Buka',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w400,
-                              height: 1.25,
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Jam Buka',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w400,
+                                height: 1.25,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '06.00 -\n17.00',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF594045),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              height: 1.25,
+                            Text(
+                              '06.00 -\n17.00',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Color(0xFF594045),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Setiap Hari',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 8.5,
-                              fontWeight: FontWeight.w400,
+                            Text(
+                              'Setiap Hari',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -730,39 +768,41 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Jumlah\nPedagang',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w400,
-                                height: 1.25,
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Jumlah\nPedagang',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFF9CA3AF),
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.25,
+                                ),
                               ),
-                            ),
-                            Text(
-                              '± 251',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Color(0xFF594045),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                height: 1.25,
+                              Text(
+                                '± 251',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFF594045),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.25,
+                                ),
                               ),
-                            ),
-                            Text(
-                              'Pedagang',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w400,
+                              Text(
+                                'Pedagang',
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Color(0xFF9CA3AF),
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -993,15 +1033,19 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Kategori Belanja',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Color(0xFF594045),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  height: 1.5,
-                  letterSpacing: -0.4,
+              const Expanded(
+                child: Text(
+                  'Kategori Belanja',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Color(0xFF594045),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.5,
+                    letterSpacing: -0.4,
+                  ),
                 ),
               ),
               InkWell(
@@ -1168,6 +1212,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // --- STORE LIST SECTION ---
+  Widget _buildStoreContent(BuildContext context, List<StoreData> stores) {
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 30),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return Column(
+      children: [
+        if (_loadError != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              children: [
+                Text(
+                  _loadError!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: _loadStores,
+                  child: const Text('Coba Lagi'),
+                ),
+              ],
+            ),
+          ),
+        _buildStoreListSection(context, stores),
+      ],
+    );
+  }
+
   Widget _buildStoreListSection(BuildContext context, List<StoreData> stores) {
     return Column(
       children: [
@@ -1217,6 +1296,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 10),
+        if (stores.any((store) => store.isLocalFallback)) ...[
+          const Text(
+            'Katalog Mobile tetap ditampilkan. Status Backend hanya digunakan untuk toko dengan nama dan slug yang cocok.',
+            style: TextStyle(color: Color(0xFF6B7280), fontSize: 11),
+          ),
+          const SizedBox(height: 10),
+        ],
 
         // Store Cards Grid (2 columns)
         if (stores.isEmpty)
@@ -1246,24 +1332,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String _getStoreNetworkImageUrl(String storeId) {
-    switch (storeId) {
-      case 'lumpur-kentang-27':
-        return 'https://api.builder.io/api/v1/image/assets/TEMP/89c6991b72128ddfe98e84b0fe33f403851486db?width=326';
-      case 'bakso-goreng-bangkit':
-        return 'https://api.builder.io/api/v1/image/assets/TEMP/2d4aa8703bacd228a49b131bd9b7740520917333?width=326';
-      case 'klepon-ku':
-        return 'https://api.builder.io/api/v1/image/assets/TEMP/30fdac2434a9e34ede03ca23df2414a4e6890390?width=326';
-      case 'wiwit-sayur':
-        return 'https://api.builder.io/api/v1/image/assets/TEMP/d3e5864643a64e652fed2abe920b64475b269855?width=326';
-      default:
-        return '';
-    }
-  }
-
   Widget _buildStoreCard(BuildContext context, StoreData store) {
-    final networkUrl = _getStoreNetworkImageUrl(store.id);
-
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -1283,14 +1352,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (networkUrl.isNotEmpty)
-                    _buildNetworkOrAssetImage(
-                      networkUrl: networkUrl,
-                      assetName: store.image,
-                      fit: BoxFit.cover,
-                    )
-                  else
-                    MarketAsset(store.image, fit: BoxFit.cover),
+                  MarketAsset(store.image, fit: BoxFit.cover),
                   if (store.badge.isNotEmpty)
                     Positioned(
                       left: 6,
@@ -1497,14 +1559,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Text(
-                      'Rencanakan Kunjunganmu',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Color(0xFF111827),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        height: 1.25,
+                    const Expanded(
+                      child: Text(
+                        'Rencanakan Kunjunganmu',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Color(0xFF111827),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          height: 1.25,
+                        ),
                       ),
                     ),
                   ],

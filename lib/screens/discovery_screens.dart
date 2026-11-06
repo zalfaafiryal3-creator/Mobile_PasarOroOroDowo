@@ -497,13 +497,17 @@ class VisitInfoScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.location_on, size: 12, color: Color(0xFF4B6515)),
                   SizedBox(width: 3),
-                  Text(
-                    'Pasar Oro-Oro Dowo, Malang',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: Color(0xFF4B6515),
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
+                  Flexible(
+                    child: Text(
+                      'Pasar Oro-Oro Dowo, Malang',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Color(0xFF4B6515),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -562,9 +566,10 @@ class VisitInfoScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // 1. Top Badges Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 6,
                 children: [
                   // Left Badge: "Buka Sekarang"
                   Container(
@@ -888,8 +893,9 @@ class VisitInfoScreen extends StatelessWidget {
               color: const Color(0xFFFAF6F3),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 4,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -937,8 +943,9 @@ class VisitInfoScreen extends StatelessWidget {
                 width: 1.0,
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 4,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -952,28 +959,30 @@ class VisitInfoScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Sabtu – Minggu (Weekend)',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF1E293B),
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Sabtu – Minggu (Weekend)',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFF1E293B),
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Buka lebih lama untuk wisata kuliner',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF7A6B62),
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(height: 2),
+                          Text(
+                            'Buka lebih lama untuk wisata kuliner',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFF7A6B62),
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -997,8 +1006,9 @@ class VisitInfoScreen extends StatelessWidget {
               color: const Color(0xFFFAF6F3),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 4,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1012,28 +1022,30 @@ class VisitInfoScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Jajanan Sore & Kuliner Luar',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF1E293B),
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Jajanan Sore & Kuliner Luar',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFF1E293B),
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Kios terluar & foodcourt tertentu',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: const Color(0xFF64748B),
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w500,
+                          const SizedBox(height: 2),
+                          Text(
+                            'Kios terluar & foodcourt tertentu',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFF64748B),
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -1140,8 +1152,9 @@ class VisitInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  runSpacing: 4,
                   children: [
                     Text(
                       'Senin – Kamis',
@@ -1198,8 +1211,9 @@ class VisitInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  runSpacing: 4,
                   children: [
                     Text(
                       'Jumat',
@@ -1257,11 +1271,13 @@ class VisitInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  runSpacing: 4,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
                       children: [
                         Text(
                           'Sabtu & Minggu',
@@ -1271,7 +1287,6 @@ class VisitInfoScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 5,
@@ -1541,15 +1556,16 @@ class VisitInfoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 7,
                   children: [
                     const Icon(
                       Icons.navigation_rounded,
                       size: 15,
                       color: Colors.white,
                     ),
-                    const SizedBox(width: 7),
                     Text(
                       'Buka di Google Maps',
                       style: GoogleFonts.plusJakartaSans(
@@ -1775,8 +1791,9 @@ class VisitInfoScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        runSpacing: 4,
                         children: [
                           Text(
                             timeRange,

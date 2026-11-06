@@ -8,6 +8,17 @@ class StoreData {
     required this.rating,
     required this.products,
     required this.image,
+    this.owner = '',
+    this.zone = '',
+    this.status = '',
+    this.openTime,
+    this.closeTime,
+    this.phone = '',
+    this.description = '',
+    this.productCount = 0,
+    this.reviewCount = 0,
+    this.catalogProducts = const [],
+    this.isLocalFallback = true,
   });
 
   final String id;
@@ -18,6 +29,31 @@ class StoreData {
   final String rating;
   final String products;
   final String image;
+  final String owner;
+  final String zone;
+  final String status;
+  final String? openTime;
+  final String? closeTime;
+  final String phone;
+  final String description;
+  final int productCount;
+  final int reviewCount;
+  final List<StoreProductData> catalogProducts;
+  final bool isLocalFallback;
+}
+
+class StoreProductData {
+  const StoreProductData({
+    required this.name,
+    required this.price,
+    required this.description,
+    this.photoUrl,
+  });
+
+  final String name;
+  final int price;
+  final String description;
+  final String? photoUrl;
 }
 
 const marketStores = <StoreData>[

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/main.dart';
+import 'package:frontend_flutter/screens/discovery_screens.dart';
+
+import 'store_api_test_helper.dart';
 
 void main() {
+  setUp(installStoreApiMock);
+  tearDown(clearStoreApiMock);
+
   testWidgets('Splash proceeds to landing and home', (tester) async {
     tester.view.physicalSize = const Size(389, 841);
     tester.view.devicePixelRatio = 1;
@@ -30,26 +36,35 @@ void main() {
 
     await tester.dragUntilVisible(
       find.text('Rencanakan Kunjunganmu'),
-      find.byType(ListView).first,
+      find.byType(CustomScrollView).first,
       const Offset(0, -500),
     );
     expect(find.text('Rencanakan Kunjunganmu'), findsOneWidget);
     expect(find.text('Lihat Info Kunjungan'), findsOneWidget);
-    await tester.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, 3000),
+    );
     await tester.pumpAndSettle();
 
     await tester.dragUntilVisible(
       find.text('Wiwit Sayur'),
-      find.byType(ListView).first,
+      find.byType(CustomScrollView).first,
       const Offset(0, -450),
     );
     expect(find.text('Kategori Belanja'), findsOneWidget);
-    await tester.drag(find.byType(ListView).first, const Offset(0, 1600));
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, 1600),
+    );
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, 'klepon');
     await tester.pump();
-    await tester.drag(find.byType(ListView).first, const Offset(0, -900));
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, -900),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Klepon-ku'), findsOneWidget);
@@ -118,11 +133,8 @@ void main() {
     await tester.tap(find.text('Selanjutnya'));
     await tester.pumpAndSettle();
 
-    await tester.dragUntilVisible(
-      find.text('Info\nKunjungan'),
-      find.byType(ListView).first,
-      const Offset(0, -200),
-    );
+    await tester.ensureVisible(find.text('Info\nKunjungan'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Info\nKunjungan'));
     await tester.pumpAndSettle();
 
@@ -155,8 +167,38 @@ void main() {
     expect(find.text('Tips Ramah Lingkungan'), findsOneWidget);
 
     // Tap back button
-    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    expect(find.text('Pilih\nToko Favoritmu'), findsOneWidget);
+    expect(find.byType(VisitInfoScreen), findsNothing);
+  });
+
+  testWidgets('Visit info layout fits small and large screens', (tester) async {
+    for (final size in [
+      const Size(320, 640),
+      const Size(389, 841),
+      const Size(768, 1024),
+    ]) {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+
+      await tester.pumpWidget(const MaterialApp(home: VisitInfoScreen()));
+      await tester.pumpAndSettle();
+      final finalSection = find.text('Waktu Terbaik Berkunjung');
+      for (
+        var attempt = 0;
+        attempt < 10 && finalSection.evaluate().isEmpty;
+        attempt++
+      ) {
+        await tester.drag(find.byType(ListView), const Offset(0, -500));
+        await tester.pumpAndSettle();
+      }
+      expect(finalSection, findsOneWidget);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull, reason: 'Ukuran layar $size');
+    }
+
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
   });
 }
