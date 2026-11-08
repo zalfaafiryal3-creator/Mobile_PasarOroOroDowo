@@ -626,9 +626,20 @@ class _StoreListScreenState extends State<StoreListScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (store.image.isEmpty)
+                  if (store.image.trim().isEmpty)
                     const Center(
                       child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: MarketColors.muted,
+                      ),
+                    )
+                  else if (store.image.startsWith('http://') ||
+                      store.image.startsWith('https://'))
+                    Image.network(
+                      store.image,
+                      fit: BoxFit.cover,
+                      cacheWidth: imageCacheWidth,
+                      errorBuilder: (_, _, _) => const Icon(
                         Icons.image_not_supported_outlined,
                         color: MarketColors.muted,
                       ),

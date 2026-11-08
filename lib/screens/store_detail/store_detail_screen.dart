@@ -214,9 +214,17 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   }
 
   Widget _storeImage({required BoxFit fit, required Widget fallback}) {
-    if (_store.image.isEmpty) return fallback;
+    final image = _store.image.trim();
+    if (image.isEmpty) return fallback;
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return Image.network(
+        image,
+        fit: fit,
+        errorBuilder: (_, _, _) => fallback,
+      );
+    }
     return Image.asset(
-      assetPath(_store.image),
+      assetPath(image),
       fit: fit,
       errorBuilder: (_, _, _) => fallback,
     );

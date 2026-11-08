@@ -65,6 +65,8 @@ Map<String, Object?> _toJson(StoreData store) {
     'closeTime': '17:00',
     'phone': store.phone,
     'description': store.description,
+    'bannerUrl': store.image.isNotEmpty ? store.image : null,
+    'logoUrl': null,
     'rating': double.tryParse(store.rating) ?? 0,
     'reviewCount': store.reviewCount,
     'productCount': productCount,

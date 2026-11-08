@@ -29,7 +29,11 @@ void goBack(BuildContext context, {String fallback = '/home'}) {
   }
 }
 
-String assetPath(String file) => 'assets/$file';
+String assetPath(String file) {
+  final clean = file.trim().replaceAll('\\', '/');
+  if (clean.startsWith('assets/')) return clean;
+  return 'assets/$clean';
+}
 
 class MarketPage extends StatelessWidget {
   const MarketPage({
@@ -87,8 +91,27 @@ class MarketAsset extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final path = assetPath(file);
-    if (file.toLowerCase().endsWith('.svg')) {
+    final clean = file.trim();
+    if (clean.isEmpty) {
+      return const Icon(
+        Icons.image_not_supported_outlined,
+        color: MarketColors.muted,
+      );
+    }
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return Image.network(
+        clean,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.image_not_supported_outlined,
+          color: MarketColors.muted,
+        ),
+      );
+    }
+    final path = assetPath(clean);
+    if (clean.toLowerCase().endsWith('.svg')) {
       return SvgPicture.asset(
         path,
         width: width,

@@ -129,7 +129,7 @@ void main() {
       badge: '',
       rating: '',
       products: '0 Produk',
-      image: '',
+      image: 'makanan/makanan _ fresh green.jpeg',
       status: 'tutup',
       isLocalFallback: false,
     );

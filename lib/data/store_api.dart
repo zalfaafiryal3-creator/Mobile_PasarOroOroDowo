@@ -26,6 +26,49 @@ class StoreApi {
 
   static http.Client get _client => _testClient ?? _defaultClient;
 
+  static const Map<String, String> _backendToCanonical = {
+    'fresgreen-organic': 'fresh-green',
+  };
+
+  static const Map<String, String> _canonicalToBackend = {
+    'fresh-green': 'fresgreen-organic',
+  };
+
+  static String _canonicalSlug(String slug) =>
+      _backendToCanonical[slug] ?? slug;
+
+  static String _backendSlug(String slug) =>
+      _canonicalToBackend[slug] ?? slug;
+
+  static bool _isDuplicateAlias(String a, String b) {
+    if (a == b) return false;
+    return _backendToCanonical[a] == b ||
+        _backendToCanonical[b] == a ||
+        _canonicalToBackend[a] == b ||
+        _canonicalToBackend[b] == a;
+  }
+
+  static bool hasValidImage(StoreData store) {
+    final image = store.image.trim();
+    if (image.isEmpty) return false;
+    final lower = image.toLowerCase();
+    if (lower == 'null' || lower == 'none' || lower == 'undefined') {
+      return false;
+    }
+    return true;
+  }
+
+  static bool isPublicStatus(String status) =>
+      status == 'buka' || status == 'tutup';
+
+  static bool _isPublicStatus(String status) => isPublicStatus(status);
+
+  static bool _isDisplayable(StoreData store) {
+    if (!hasValidImage(store)) return false;
+    if (store.status.isNotEmpty && !_isPublicStatus(store.status)) return false;
+    return true;
+  }
+
   static Future<List<StoreData>> fetchStores() async {
     final response = await _client
         .get(Uri.parse('${ApiConfig.baseUrl}/api/stores'))
@@ -49,11 +92,13 @@ class StoreApi {
 
     final storesBySlug = <String, StoreData>{};
     for (final store in backendStores) {
-      final existing = storesBySlug[store.id];
+      final canonical = _canonicalSlug(store.id);
+      final existing = storesBySlug[canonical];
       if (existing == null ||
           (!_isPublicStatus(existing.status) &&
-              _isPublicStatus(store.status))) {
-        storesBySlug[store.id] = store;
+              _isPublicStatus(store.status)) ||
+          (!hasValidImage(existing) && hasValidImage(store))) {
+        storesBySlug[canonical] = store;
       }
     }
 
@@ -62,7 +107,8 @@ class StoreApi {
       final backendStore = storesBySlug[localStore.id];
       if (backendStore == null) {
         mergedStores.putIfAbsent(localStore.id, () => localStore);
-      } else if (backendStore.name == localStore.name) {
+      } else if (backendStore.name == localStore.name ||
+          _isDuplicateAlias(backendStore.id, localStore.id)) {
         if (_isPublicStatus(backendStore.status)) {
           mergedStores[localStore.id] = _mergeStores(localStore, backendStore);
         }
@@ -71,40 +117,49 @@ class StoreApi {
       }
     }
 
-    for (final backendStore in storesBySlug.values) {
+    for (final backendStore in backendStores) {
+      final canonical = _canonicalSlug(backendStore.id);
       if (!_isPublicStatus(backendStore.status) ||
+          mergedStores.containsKey(canonical) ||
           mergedStores.containsKey(backendStore.id)) {
         continue;
       }
       final localStore = marketStores
-          .where((store) => store.id == backendStore.id)
+          .where((store) =>
+              store.id == backendStore.id || store.id == canonical)
           .firstOrNull;
-      if (localStore == null) {
+      if (localStore == null && hasValidImage(backendStore)) {
         mergedStores[backendStore.id] = backendStore;
       }
     }
 
-    return mergedStores.values.toList();
+    return mergedStores.values.where(_isDisplayable).toList();
   }
 
   static Future<StoreData> fetchStore(
     String slug, {
     String? expectedName,
   }) async {
+    final canonicalSlug = _canonicalSlug(slug);
     final mobileStore = marketStores
-        .where((store) => store.id == slug)
+        .where((store) => store.id == slug || store.id == canonicalSlug)
         .firstOrNull;
     final requestedName = expectedName ?? mobileStore?.name;
     final fallbackStore =
         mobileStore != null &&
-            (requestedName == null || mobileStore.name == requestedName)
+            (requestedName == null ||
+                mobileStore.name == requestedName ||
+                _isDuplicateAlias(slug, mobileStore.id))
         ? mobileStore
         : null;
+
+    final querySlug = _backendSlug(slug);
+
     try {
       final response = await _client
           .get(
             Uri.parse(
-              '${ApiConfig.baseUrl}/api/stores/${Uri.encodeComponent(slug)}',
+              '${ApiConfig.baseUrl}/api/stores/${Uri.encodeComponent(querySlug)}',
             ),
           )
           .timeout(const Duration(seconds: 12));
@@ -122,8 +177,11 @@ class StoreApi {
         );
       }
       final backendStore = _parseStore(body);
-      if (backendStore.id != slug ||
-          (requestedName != null && backendStore.name != requestedName)) {
+      if ((backendStore.id != querySlug &&
+              _canonicalSlug(backendStore.id) != canonicalSlug) ||
+          (requestedName != null &&
+              backendStore.name != requestedName &&
+              !_isDuplicateAlias(backendStore.id, slug))) {
         if (fallbackStore != null) return fallbackStore;
         throw const FormatException(
           'Detail toko dari server tidak sesuai dengan toko yang dipilih.',
@@ -134,9 +192,11 @@ class StoreApi {
         throw const StoreApiException('Toko belum tersedia untuk publik.');
       }
       final matchingLocalStore =
-          mobileStore != null && mobileStore.name == backendStore.name
-          ? mobileStore
-          : null;
+          mobileStore != null &&
+                  (mobileStore.name == backendStore.name ||
+                      _isDuplicateAlias(backendStore.id, mobileStore.id))
+              ? mobileStore
+              : null;
       return matchingLocalStore == null
           ? backendStore
           : _mergeStores(matchingLocalStore, backendStore);
@@ -149,23 +209,20 @@ class StoreApi {
     }
   }
 
-  static bool _isPublicStatus(String status) =>
-      status == 'buka' || status == 'tutup';
-
   static StoreData _mergeStores(StoreData local, StoreData backend) =>
       StoreData(
-        id: backend.id,
-        name: backend.name,
-        category: backend.category.isNotEmpty
-            ? backend.category
-            : local.category,
-        displayCategory: backend.displayCategory.isNotEmpty
-            ? backend.displayCategory
-            : local.displayCategory,
-        badge: backend.badge.isNotEmpty ? backend.badge : local.badge,
+        id: local.id,
+        name: local.name,
+        category: local.category.isNotEmpty
+            ? local.category
+            : backend.category,
+        displayCategory: local.displayCategory.isNotEmpty
+            ? local.displayCategory
+            : backend.displayCategory,
+        badge: local.badge.isNotEmpty ? local.badge : backend.badge,
         rating: backend.rating.isNotEmpty ? backend.rating : local.rating,
         products: backend.productCount > 0 ? backend.products : local.products,
-        image: backend.image.isNotEmpty ? backend.image : local.image,
+        image: local.image.trim().isNotEmpty ? local.image : backend.image,
         owner: backend.owner.isNotEmpty ? backend.owner : local.owner,
         zone: backend.zone.isNotEmpty ? backend.zone : local.zone,
         status: backend.status,
@@ -191,10 +248,13 @@ class StoreApi {
     final slug = _requiredString(json, 'slug');
     final name = _requiredString(json, 'name');
     final category = _requiredString(json, 'category');
+    final canonical = _canonicalSlug(slug);
     final localStore = marketStores
-        .where((store) => store.id == slug)
+        .where((store) => store.id == slug || store.id == canonical)
         .firstOrNull;
-    final matchingLocalStore = localStore != null && localStore.name == name
+    final isAlias = _isDuplicateAlias(slug, localStore?.id ?? '');
+    final matchingLocalStore = localStore != null &&
+            (localStore.name == name || isAlias)
         ? localStore
         : null;
     final ratingValue = _number(json['rating']);
@@ -202,10 +262,32 @@ class StoreApi {
     final rawProducts = json['products'];
     final catalogProducts = rawProducts is List
         ? rawProducts
-              .whereType<Map<String, dynamic>>()
-              .map(_parseProduct)
-              .toList()
+            .whereType<Map<String, dynamic>>()
+            .map(_parseProduct)
+            .toList()
         : const <StoreProductData>[];
+
+    final rawBackendImage = _nullableString(json['bannerUrl']) ??
+        _nullableString(json['logoUrl']) ??
+        _nullableString(json['image']) ??
+        _nullableString(json['photoUrl']);
+
+    String normalizedBackendImage = '';
+    if (rawBackendImage != null && rawBackendImage.isNotEmpty) {
+      if (rawBackendImage.startsWith('http://') ||
+          rawBackendImage.startsWith('https://')) {
+        normalizedBackendImage = rawBackendImage;
+      } else if (rawBackendImage.startsWith('/')) {
+        normalizedBackendImage = '${ApiConfig.baseUrl}$rawBackendImage';
+      } else {
+        normalizedBackendImage = rawBackendImage;
+      }
+    }
+
+    final storeImage = (matchingLocalStore != null &&
+            matchingLocalStore.image.trim().isNotEmpty)
+        ? matchingLocalStore.image
+        : normalizedBackendImage;
 
     return StoreData(
       id: slug,
@@ -215,7 +297,7 @@ class StoreApi {
       badge: matchingLocalStore?.badge ?? '',
       rating: ratingValue > 0 ? ratingValue.toString() : '',
       products: '$productCount Produk',
-      image: matchingLocalStore?.image ?? '',
+      image: storeImage,
       owner: _string(json['owner']),
       zone: _string(json['zone']),
       status: _string(json['status']),
