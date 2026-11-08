@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:frontend_flutter/data/market_data.dart';
 import 'package:frontend_flutter/screens/store_detail/store_detail_screen.dart';
 
 import 'store_api_test_helper.dart';
@@ -34,7 +35,7 @@ void main() {
       expect(find.text('Nomor telepon belum tersedia'), findsOneWidget);
       expect(find.text('Deskripsi toko belum tersedia.'), findsOneWidget);
       expect(find.text('Produk belum tersedia.'), findsOneWidget);
-      expect(find.text('—'), findsNWidgets(2));
+      expect(find.text('4.9'), findsNWidgets(2));
       expect(find.text('Ulasan Toko & Pembeli'), findsOneWidget);
       expect(find.text('+ Tulis Ulasan'), findsOneWidget);
       expect(find.text('Katalog Produk Kios'), findsNothing);
@@ -52,4 +53,39 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('Backend-only store uses placeholders instead of empty assets', (
+    tester,
+  ) async {
+    installStoreApiMock(
+      backendStores: [
+        StoreData(
+          id: 'toko-baru-admin',
+          name: 'Toko Baru Admin',
+          category: 'Makanan',
+          displayCategory: '',
+          badge: '',
+          rating: '',
+          products: '0 Produk',
+          image: '',
+          status: 'buka',
+          isLocalFallback: false,
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: StoreDetailScreen(
+          storeId: 'toko-baru-admin',
+          expectedStoreName: 'Toko Baru Admin',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Toko Baru Admin'), findsWidgets);
+    expect(find.byIcon(Icons.store), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

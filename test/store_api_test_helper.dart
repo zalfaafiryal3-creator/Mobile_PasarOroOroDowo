@@ -60,7 +60,7 @@ Map<String, Object?> _toJson(StoreData store) {
     'owner': store.owner,
     'category': store.category,
     'zone': store.zone,
-    'status': 'buka',
+    'status': store.status.isEmpty ? 'buka' : store.status,
     'openTime': '06:00',
     'closeTime': '17:00',
     'phone': store.phone,

@@ -12,7 +12,8 @@ import 'screens/store_list/store_list_screen.dart';
 import 'screens/visit_planner/visit_planner_screen.dart' as visit_planner;
 import 'screens/welcome_screens.dart';
 import 'screens/write_store_review/write_store_review_screen.dart';
-import 'screens/write_market_review/write_market_review_screen.dart' as market_review;
+import 'screens/write_market_review/write_market_review_screen.dart'
+    as market_review;
 import 'widgets/market_ui.dart';
 
 void main() {
@@ -28,7 +29,10 @@ class PasarOroOroDowoApp extends StatelessWidget {
     final Widget page;
 
     if (path.startsWith('/detail-toko/')) {
-      page = StoreDetailScreen(storeId: uri.pathSegments.last);
+      page = StoreDetailScreen(
+        storeId: uri.pathSegments.last,
+        expectedStoreName: uri.queryParameters['name'],
+      );
     } else {
       switch (path) {
         case '/':
@@ -46,6 +50,7 @@ class PasarOroOroDowoApp extends StatelessWidget {
             storeId: uri.pathSegments.length > 1
                 ? uri.pathSegments.last
                 : 'lumpur-kentang-27',
+            expectedStoreName: uri.queryParameters['name'],
           );
         case '/denah':
           page = const MarketMapScreen();

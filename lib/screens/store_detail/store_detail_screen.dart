@@ -7,9 +7,14 @@ import '../../data/store_api.dart';
 import '../../widgets/market_ui.dart';
 
 class StoreDetailScreen extends StatefulWidget {
-  const StoreDetailScreen({this.storeId = 'lumpur-kentang-27', super.key});
+  const StoreDetailScreen({
+    this.storeId = 'lumpur-kentang-27',
+    this.expectedStoreName,
+    super.key,
+  });
 
   final String storeId;
+  final String? expectedStoreName;
 
   @override
   State<StoreDetailScreen> createState() => _StoreDetailScreenState();
@@ -47,7 +52,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
       _loadError = null;
     });
     try {
-      final store = await StoreApi.fetchStore(widget.storeId);
+      final store = await StoreApi.fetchStore(
+        widget.storeId,
+        expectedName: widget.expectedStoreName,
+      );
       if (!mounted) return;
       setState(() {
         _loadedStore = store;
@@ -205,6 +213,15 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     );
   }
 
+  Widget _storeImage({required BoxFit fit, required Widget fallback}) {
+    if (_store.image.isEmpty) return fallback;
+    return Image.asset(
+      assetPath(_store.image),
+      fit: fit,
+      errorBuilder: (_, _, _) => fallback,
+    );
+  }
+
   // --- Top Navigation Header ---
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -319,10 +336,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    assetPath(_store.image),
+                  _storeImage(
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _storeImageFallback(),
+                    fallback: _storeImageFallback(),
                   ),
                   // Dark bottom gradient overlay
                   Container(
@@ -415,10 +431,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          assetPath(_store.image),
+                        child: _storeImage(
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => _storeAvatarFallback(),
+                          fallback: _storeAvatarFallback(),
                         ),
                       ),
                     ),
@@ -809,11 +824,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 aspectRatio: 1,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    assetPath(_store.image),
+                  child: _storeImage(
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        Container(color: const Color(0xFFD8E3FB)),
+                    fallback: Container(color: const Color(0xFFD8E3FB)),
                   ),
                 ),
               ),
@@ -824,11 +837,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 aspectRatio: 1,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    assetPath(_store.image),
+                  child: _storeImage(
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        Container(color: const Color(0xFFD8E3FB)),
+                    fallback: Container(color: const Color(0xFFD8E3FB)),
                   ),
                 ),
               ),
@@ -842,11 +853,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(
-                        assetPath(_store.image),
+                      _storeImage(
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
-                            Container(color: const Color(0xFFD8E3FB)),
+                        fallback: Container(color: const Color(0xFFD8E3FB)),
                       ),
                       Container(
                         color: const Color.fromRGBO(0, 0, 0, 0.40),
@@ -1179,10 +1188,13 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               color: const Color.fromRGBO(251, 191, 36, 0.25),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 Row(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -1234,33 +1246,40 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${_store.reviewCount} Ulasan Pembeli',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF111C2D),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_store.reviewCount} Ulasan Pembeli',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF111C2D),
+                            ),
                           ),
-                        ),
-                        const Text(
-                          'Data dari Backend',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF485C13),
+                          const Text(
+                            'Data dari Backend',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF485C13),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
                 // 5 stars
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: List.generate(
                     _store.rating.isNotEmpty ? 5 : 0,
                     (_) => Padding(

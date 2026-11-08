@@ -187,20 +187,6 @@ class _StoreListScreenState extends State<StoreListScreen> {
                         ),
                       ),
                     ),
-                  if (!_isLoading &&
-                      _stores.any((store) => store.isLocalFallback))
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
-                        child: Text(
-                          'Katalog Mobile tetap ditampilkan. Status Backend hanya digunakan untuk toko dengan nama dan slug yang cocok.',
-                          style: TextStyle(
-                            color: Color(0xFF6B7280),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ),
-                    ),
                   if (!_isLoading && stores.isEmpty)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
@@ -640,15 +626,23 @@ class _StoreListScreenState extends State<StoreListScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(
-                    assetPath(store.image),
-                    fit: BoxFit.cover,
-                    cacheWidth: imageCacheWidth,
-                    errorBuilder: (_, _, _) => const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: MarketColors.muted,
+                  if (store.image.isEmpty)
+                    const Center(
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: MarketColors.muted,
+                      ),
+                    )
+                  else
+                    Image.asset(
+                      assetPath(store.image),
+                      fit: BoxFit.cover,
+                      cacheWidth: imageCacheWidth,
+                      errorBuilder: (_, _, _) => const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: MarketColors.muted,
+                      ),
                     ),
-                  ),
                   if (store.badge.isNotEmpty)
                     Positioned(
                       left: 5,
@@ -767,7 +761,11 @@ class _StoreListScreenState extends State<StoreListScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: InkWell(
-                    onTap: () => goTo(context, '/detail-toko/${store.id}'),
+                    key: ValueKey('store-open-${store.id}'),
+                    onTap: () => goTo(
+                      context,
+                      '/detail-toko/${store.id}?name=${Uri.encodeQueryComponent(store.name)}',
+                    ),
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       width: double.infinity,

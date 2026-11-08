@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/testing.dart';
 import 'package:frontend_flutter/data/market_data.dart';
+import 'package:frontend_flutter/data/store_api.dart';
+import 'package:frontend_flutter/screens/store_detail/store_detail_screen.dart';
 import 'package:frontend_flutter/screens/store_list/store_list_screen.dart';
 
 import 'store_api_test_helper.dart';
@@ -71,7 +75,7 @@ void main() {
     expect(find.text('Mama Hong Pulsa'), findsOneWidget);
   });
 
-  testWidgets('displays the 49-store catalog when Backend returns a subset', (
+  testWidgets('retains the static catalog when Backend returns a subset', (
     tester,
   ) async {
     installStoreApiMock(backendStores: marketStores.take(11).toList());
@@ -85,14 +89,85 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('49 Toko'), findsOneWidget);
-    expect(
-      find.text(
-        'Katalog Mobile tetap ditampilkan. Status Backend hanya digunakan untuk toko dengan nama dan slug yang cocok.',
+    expect(find.text('Lumpur Kentang 27'), findsOneWidget);
+    await scrollUntilStoreVisible(tester, 'Mama Hong Pulsa');
+    expect(find.text('Mama Hong Pulsa'), findsOneWidget);
+  });
+
+  testWidgets('keeps the local catalog when Backend is unavailable', (
+    tester,
+  ) async {
+    StoreApi.clientForTesting = MockClient(
+      (_) async => throw const SocketException('Backend unavailable'),
+    );
+
+    await tester.pumpWidget(
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(home: StoreListScreen()),
       ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('49 Toko'), findsOneWidget);
+    expect(
+      find.text('Gagal memuat Backend. Katalog Mobile ditampilkan.'),
       findsOneWidget,
     );
     await scrollUntilStoreVisible(tester, 'Mama Hong Pulsa');
     expect(find.text('Mama Hong Pulsa'), findsOneWidget);
+  });
+
+  testWidgets('opens a Backend-only public store from its list card', (
+    tester,
+  ) async {
+    final backendStore = StoreData(
+      id: 'toko-baru-admin',
+      name: 'Toko Baru Admin',
+      category: 'Makanan',
+      displayCategory: '',
+      badge: '',
+      rating: '',
+      products: '0 Produk',
+      image: '',
+      status: 'tutup',
+      isLocalFallback: false,
+    );
+    installStoreApiMock(backendStores: [backendStore]);
+
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(0.8)),
+        child: MaterialApp(
+          home: const StoreListScreen(),
+          onGenerateRoute: (settings) {
+            final uri = Uri.parse(settings.name ?? '/');
+            if (!uri.path.startsWith('/detail-toko/')) return null;
+            return MaterialPageRoute<void>(
+              builder: (_) => StoreDetailScreen(
+                storeId: uri.pathSegments.last,
+                expectedStoreName: uri.queryParameters['name'],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('${marketStores.length + 1} Toko'), findsOneWidget);
+    await scrollUntilStoreVisible(tester, 'Toko Baru Admin');
+    expect(find.text('Toko Baru Admin'), findsOneWidget);
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('store-open-toko-baru-admin')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('store-open-toko-baru-admin')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Toko Baru Admin'), findsWidgets);
+    expect(find.textContaining('TUTUP'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   test(
