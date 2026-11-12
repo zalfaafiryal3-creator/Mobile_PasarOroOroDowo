@@ -190,7 +190,7 @@ void main() {
         'Oma Panda': 'makanan/Oma Panda.jpeg',
       };
       const legendaryCuisineImages = {
-        'Bagoplek Bakso Goreng': 'kuliner legend/BAGOPLEK bakso Goreng.jpeg',
+        'Bakso Goreng Bagoplek': 'kuliner legend/BAGOPLEK bakso Goreng.jpeg',
         'Jemblem Mentega': 'kuliner legend/JEMBLEM MENTEGA.jpeg',
         'Lumpia Semarang 83': 'kuliner legend/Lumpia Semarang 83.jpg',
         'Om Rizal Aneka Kuliner': 'kuliner legend/OM RIZAL ANEKA KULINER.jpeg',

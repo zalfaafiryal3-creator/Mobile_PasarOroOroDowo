@@ -99,7 +99,7 @@ const marketStores = <StoreData>[
   ),
   StoreData(
     id: 'bagoplek-bakso-goreng',
-    name: 'Bagoplek Bakso Goreng',
+    name: 'Bakso Goreng Bagoplek',
     category: 'Kuliner Legendaris',
     displayCategory: '',
     badge: '',

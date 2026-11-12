@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/recommendations_api.dart';
 import '../../widgets/market_ui.dart';
 
 class RecommendationsScreen extends StatefulWidget {
@@ -12,30 +13,13 @@ class RecommendationsScreen extends StatefulWidget {
 class _RecommendationsScreenState extends State<RecommendationsScreen> {
   bool _sortByRating = false;
   final Set<String> _savedProducts = {};
-
-  static const _stores = <_RecommendedStore>[
-    _RecommendedStore(
-      'Lumpur Kentang 27',
-      'Kuliner Legend',
-      'Blok B No. 12',
-      '4.8',
-      'lumpur kentang 27.jpeg',
-    ),
-    _RecommendedStore(
-      'Pangsit Mie Arema',
-      'Makanan',
-      'Teras Timur No. 04',
-      '4.9',
-      'pangsit mie arema.png',
-    ),
-    _RecommendedStore(
-      'Kios Bu Lilik',
-      'Jajanan Pasar',
-      'Blok Basah D-09',
-      '4.9',
-      'jajanan pasar.jpg',
-    ),
-  ];
+  List<_RecommendedStore> _stores = [];
+  List<_RecommendationProduct> _products = [];
+  bool _storesLoading = true;
+  bool _productsLoading = true;
+  String? _storesError;
+  String? _productsError;
+  int _productRequest = 0;
 
   static const _highlights = <_RecommendationProduct>[
     _RecommendationProduct(
@@ -70,79 +54,70 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
     ),
   ];
 
-  static const _products = <_RecommendationProduct>[
-    _RecommendationProduct(
-      'tempe',
-      'Lapak Tempe Bu Siti',
-      'Tempe Segar Daun...',
-      'Rp 4.500',
-      'per papan',
-      '4.9',
-      'tempe segar.jpg',
-      'Terlaris',
-    ),
-    _RecommendationProduct(
-      'lumpur',
-      'Kue Lumpur 27',
-      'Kue Lumpur',
-      'Rp 7.000',
-      '/1 pcs',
-      '4.9',
-      'kue lumpur 27.jpeg',
-      'Terlaris',
-    ),
-    _RecommendationProduct(
-      'keripik',
-      'Oleh-Oleh Khas Dowo',
-      'Keripik Tempe Renyah',
-      'Rp 15.000',
-      'isi 200gr',
-      '4.8',
-      'kripik tempe.jpg',
-      'Terlaris',
-    ),
-    _RecommendationProduct(
-      'beras',
-      'Toko Beras Barokah',
-      'Beras Premium 5kg',
-      'Rp 68.000',
-      'per karung',
-      '4.9',
-      'tempe segar.jpg',
-      'Terlaris',
-    ),
-    _RecommendationProduct(
-      'klepon',
-      'Klepon-ku',
-      'Klepon Original',
-      'Rp 15.000',
-      '/10 biji',
-      '4.8',
-      'klepon.png',
-      'Terlaris',
-    ),
-    _RecommendationProduct(
-      'jajanan',
-      'Kios Bu Lilik',
-      'Jajanan Pasar Tampah',
-      'Rp 25.000',
-      'porsi 1 tampah mini',
-      '5.0',
-      'jajanan pasar.jpg',
-      'Terlaris',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadStores();
+    _loadFeaturedProducts();
+  }
+
+  Future<void> _loadStores() async {
+    try {
+      final stores = await RecommendationsApi.fetchStores();
+      if (!mounted) return;
+      setState(() {
+        _stores = stores.map(_RecommendedStore.fromApi).toList();
+        _storesLoading = false;
+        _storesError = null;
+      });
+    } on Exception catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _storesLoading = false;
+        _storesError = error.toString();
+      });
+    }
+  }
+
+  Future<void> _loadFeaturedProducts() async {
+    final request = ++_productRequest;
+    setState(() {
+      _productsLoading = true;
+      _productsError = null;
+    });
+    try {
+      final products = await RecommendationsApi.fetchFeaturedProducts(
+        sort: _sortByRating ? 'highest_rating' : 'best_selling',
+      );
+      if (!mounted || request != _productRequest) return;
+      setState(() {
+        _products = products.map((product) {
+          final rating = product.rating?.toStringAsFixed(1) ?? '—';
+          return _RecommendationProduct(
+            product.id.toString(),
+            product.storeName,
+            product.name,
+            'Rp ${_formatRupiah(product.price)}',
+            '',
+            rating,
+            product.photoUrl ?? '',
+            'Terlaris',
+          );
+        }).toList();
+        _productsLoading = false;
+        _productsError = null;
+      });
+    } on Exception catch (error) {
+      if (!mounted || request != _productRequest) return;
+      setState(() {
+        _productsLoading = false;
+        _productsError = error.toString();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final products = [..._products];
-    if (_sortByRating) {
-      products.sort(
-        (first, second) =>
-            double.parse(second.rating).compareTo(double.parse(first.rating)),
-      );
-    }
-
     return MarketPage(
       child: Column(
         children: [
@@ -159,14 +134,23 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 const SizedBox(height: 10),
                 SizedBox(
                   height: 244,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _stores.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 12),
-                    itemBuilder: (context, index) =>
-                        _storeCard(context, _stores[index]),
-                  ),
+                  child: _storesLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _storesError != null
+                      ? Center(
+                          child: Text(
+                            _storesError!,
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _stores.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 12),
+                          itemBuilder: (context, index) =>
+                              _storeCard(context, _stores[index]),
+                        ),
                 ),
                 const SizedBox(height: 22),
                 _sectionHeading(
@@ -189,8 +173,10 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 _sectionHeading(
                   'Produk Pilihan',
                   trailing: TextButton.icon(
-                    onPressed: () =>
-                        setState(() => _sortByRating = !_sortByRating),
+                    onPressed: () {
+                      setState(() => _sortByRating = !_sortByRating);
+                      _loadFeaturedProducts();
+                    },
                     icon: const Icon(Icons.tune_rounded, size: 15),
                     label: Text(_sortByRating ? 'Rating' : 'Terlaris'),
                     style: TextButton.styleFrom(
@@ -202,19 +188,31 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: products.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    mainAxisExtent: 270,
+                if (_productsLoading)
+                  const SizedBox(
+                    height: 120,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (_productsError != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(_productsError!, textAlign: TextAlign.center),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _products.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: 270,
+                        ),
+                    itemBuilder: (context, index) =>
+                        _productCard(_products[index]),
                   ),
-                  itemBuilder: (context, index) =>
-                      _productCard(products[index]),
-                ),
               ],
             ),
           ),
@@ -331,8 +329,8 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
               ),
               child: Text(action),
             )
-          else if (trailing != null)
-    trailing,
+          else
+            ?trailing,
         ],
       ),
     );
@@ -383,8 +381,8 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                       color: MarketColors.green,
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Text(
-                      '● Buka',
+                    child: Text(
+                      '● ${store.status == 'buka' ? 'Buka' : 'Tutup'}',
                       style: TextStyle(
                         color: MarketColors.ink,
                         fontSize: 10,
@@ -413,10 +411,7 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
             ),
             Text(
               store.category,
-              style: const TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
             ),
             const Spacer(),
             const Divider(height: 12, color: Color(0xFFF1F5F9)),
@@ -533,7 +528,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        '${product.price} ${product.unit}',
+                        product.unit.isEmpty
+                            ? product.price
+                            : '${product.price} ${product.unit}',
                         style: const TextStyle(
                           color: MarketColors.greenDark,
                           fontSize: 11,
@@ -661,7 +658,9 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${product.price} ${product.unit}',
+                  product.unit.isEmpty
+                      ? product.price
+                      : '${product.price} ${product.unit}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -677,6 +676,11 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
       ),
     );
   }
+
+  static String _formatRupiah(int amount) => amount.toString().replaceAllMapped(
+    RegExp(r'\B(?=(\d{3})+(?!\d))'),
+    (_) => '.',
+  );
 
   Widget _ratingBadge(String rating) {
     return Container(
@@ -699,18 +703,33 @@ class _RecommendationsScreenState extends State<RecommendationsScreen> {
 
 class _RecommendedStore {
   const _RecommendedStore(
+    this.slug,
     this.name,
     this.category,
     this.address,
     this.rating,
     this.image,
+    this.status,
   );
 
+  factory _RecommendedStore.fromApi(RecommendedStore store) =>
+      _RecommendedStore(
+        store.slug,
+        store.name,
+        store.category,
+        store.location,
+        store.rating.toStringAsFixed(1),
+        store.photoUrl ?? '',
+        store.status,
+      );
+
+  final String slug;
   final String name;
   final String category;
   final String address;
   final String rating;
   final String image;
+  final String status;
 }
 
 class _RecommendationProduct {
