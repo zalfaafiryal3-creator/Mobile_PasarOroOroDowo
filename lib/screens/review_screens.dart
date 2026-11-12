@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class _MarketReviewPreview {
     required this.date,
     required this.text,
     required this.helpfulIndex,
+    this.databaseId,
     this.helpfulCount = 0,
     this.tags = const [],
     this.photos = const [],
@@ -23,6 +25,7 @@ class _MarketReviewPreview {
   final String date;
   final String text;
   final int helpfulIndex;
+  final int? databaseId;
   int helpfulCount;
   final List<String> tags;
   final List<String> photos;
@@ -117,36 +120,152 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
   final _searchController = TextEditingController();
   String _filter = 'all';
   bool _newestFirst = true;
-  int _visibleCount = 3;
+  static const _pageSize = 10;
+  final List<_MarketReviewPreview> _reviews = [];
+  MarketReviewStatistics? _statistics;
+  String? _statisticsError;
+  String? _reviewsError;
+  bool _loading = true;
+  bool _loadingMore = false;
+  int _page = 0;
+  int _totalCount = 0;
+  int _requestGeneration = 0;
+  Timer? _searchDebounce;
 
-  List<_MarketReviewPreview> get _filteredReviews {
-    final query = _searchController.text.trim().toLowerCase();
-    final reviews = _globalMarketReviews.where((review) {
-      final matchesFilter = switch (_filter) {
-        'photo' => review.photos.isNotEmpty,
-        '5' => review.rating == 5,
-        '4' => review.rating >= 4 && review.rating < 5,
-        'low' => review.rating < 4,
-        _ => true,
-      };
-      final matchesQuery =
-          '${review.name} ${review.text}'.toLowerCase().contains(query);
-      return matchesFilter && matchesQuery;
-    }).toList();
-    if (!_newestFirst) return reviews.reversed.toList();
-    return reviews;
+  bool get _hasMore => _reviews.length < _totalCount;
+
+  List<_MarketReviewPreview> get _displayedReviews =>
+      _newestFirst ? _reviews : _reviews.reversed.toList();
+
+  int _countForFilter(String filter) {
+    final statistics = _statistics;
+    if (statistics == null) return 0;
+    return switch (filter) {
+      'photo' => statistics.withPhoto,
+      '5' => statistics.star5,
+      '4' => statistics.star4,
+      'low' => statistics.star1To3,
+      _ => statistics.totalReviews,
+    };
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatistics();
+    _loadReviews(reset: true);
+  }
+
+  Future<void> _loadStatistics() async {
+    try {
+      final statistics = await MarketReviewApi.fetchStatistics();
+      if (!mounted) return;
+      setState(() {
+        _statistics = statistics;
+        _statisticsError = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _statisticsError = error.toString());
+    }
+  }
+
+  Future<void> _loadReviews({required bool reset}) async {
+    if (!reset &&
+        (_loadingMore || !_hasMore || (_searchDebounce?.isActive ?? false))) {
+      return;
+    }
+
+    final generation = reset ? ++_requestGeneration : _requestGeneration;
+    final requestedPage = reset ? 1 : _page + 1;
+    setState(() {
+      _reviewsError = null;
+      if (reset) {
+        _loading = true;
+        _loadingMore = false;
+        _page = 0;
+        _totalCount = 0;
+        _reviews.clear();
+      } else {
+        _loadingMore = true;
+      }
+    });
+
+    try {
+      final result = await MarketReviewApi.fetchReviews(
+        page: requestedPage,
+        limit: _pageSize,
+        filter: _filter,
+        search: _searchController.text,
+      );
+      if (!mounted || generation != _requestGeneration) return;
+
+      setState(() {
+        final existingIds = _reviews
+            .map((review) => review.databaseId)
+            .whereType<int>()
+            .toSet();
+        for (final review in result.reviews) {
+          if (!existingIds.add(review.id)) continue;
+          _reviews.add(
+            _MarketReviewPreview(
+              name: review.name,
+              rating: review.rating,
+              date: review.date,
+              text: review.text,
+              helpfulIndex: review.id,
+              databaseId: review.id,
+              tags: const [],
+              photos: review.photos,
+            ),
+          );
+        }
+        _page = result.page;
+        _totalCount = result.totalCount;
+        _loading = false;
+        _loadingMore = false;
+      });
+    } catch (error) {
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _reviewsError = error.toString();
+        _loading = false;
+        _loadingMore = false;
+      });
+    }
+  }
+
+  void _onSearchChanged() {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _loadReviews(reset: true),
+    );
+    setState(() {});
+  }
+
+  void _submitSearch() {
+    _searchDebounce?.cancel();
+    _loadReviews(reset: true);
+  }
+
+  void _selectFilter(String value) {
+    if (_filter == value) return;
+    _searchDebounce?.cancel();
+    setState(() => _filter = value);
+    _loadReviews(reset: true);
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filteredReviews;
-    final displayedReviews = filtered.take(_visibleCount).toList();
+    final displayedReviews = _displayedReviews;
 
     return MarketPage(
       background: const Color(0xFFF0F6DF),
@@ -199,7 +318,8 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                 ),
                 child: TextField(
                   controller: _searchController,
-                  onChanged: (_) => setState(() {}),
+                  onChanged: (_) => _onSearchChanged(),
+                  onSubmitted: (_) => _submitSearch(),
                   style: const TextStyle(fontSize: 13, color: MarketColors.ink),
                   decoration: InputDecoration(
                     prefixIcon: const Icon(
@@ -216,7 +336,7 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                             ),
                             onPressed: () {
                               _searchController.clear();
-                              setState(() {});
+                              _submitSearch();
                             },
                           )
                         : null,
@@ -484,8 +604,14 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: () =>
-                            goTo(context, '/tulis-ulasan-pasar'),
+                        onPressed: () async {
+                          final submitted = await Navigator.of(context)
+                              .pushNamed<bool>('/tulis-ulasan-pasar');
+                          if (submitted == true) {
+                            _loadStatistics();
+                            _loadReviews(reset: true);
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFC928),
                           foregroundColor: Colors.white,
@@ -632,30 +758,30 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                 child: Row(
                   children: [
                     _filterChip(
-                      label: 'Semua (1.2k)',
+                      label: 'Semua (${_countForFilter('all')})',
                       value: 'all',
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'Dengan Foto (1)',
+                      label: 'Dengan Foto (${_countForFilter('photo')})',
                       value: 'photo',
                       icon: Icons.camera_alt_outlined,
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'Bintang 5 (2)',
+                      label: 'Bintang 5 (${_countForFilter('5')})',
                       value: '5',
                       icon: Icons.star_rounded,
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'Bintang 4 (1)',
+                      label: 'Bintang 4 (${_countForFilter('4')})',
                       value: '4',
                       icon: Icons.star_rounded,
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'Bintang 1-3 (0)',
+                      label: 'Bintang 1-3 (${_countForFilter('low')})',
                       value: 'low',
                       icon: Icons.star_rounded,
                     ),
@@ -663,9 +789,34 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                 ),
               ),
               const SizedBox(height: 14),
+              if (_statisticsError != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Gagal memuat statistik ulasan: $_statisticsError',
+                    style: const TextStyle(
+                      color: Color(0xFFB91C1C),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
 
               // 5. Daftar Card Ulasan Pengunjung
-              if (displayedReviews.isEmpty)
+              if (_loading && displayedReviews.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(28),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (_reviewsError != null && displayedReviews.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(28),
+                  child: Text(
+                    'Gagal memuat ulasan pasar: $_reviewsError',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: MarketColors.muted),
+                  ),
+                )
+              else if (displayedReviews.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(28),
                   child: Text(
@@ -679,13 +830,24 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                 )
               else
                 ...displayedReviews.map(_reviewCard),
+              if (_reviewsError != null && displayedReviews.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'Gagal memuat ulasan berikutnya: $_reviewsError',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: MarketColors.muted),
+                  ),
+                ),
 
               // 6. Tombol "Muat Ulasan Lainnya"
-              if (filtered.length > _visibleCount) ...[
+              if (_hasMore) ...[
                 const SizedBox(height: 14),
                 Center(
                   child: InkWell(
-                    onTap: () => setState(() => _visibleCount += 3),
+                    onTap: _loadingMore
+                        ? null
+                        : () => _loadReviews(reset: false),
                     borderRadius: BorderRadius.circular(999),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -752,10 +914,7 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
   }) {
     final selected = _filter == value;
     return GestureDetector(
-      onTap: () => setState(() {
-        _filter = value;
-        _visibleCount = 3;
-      }),
+      onTap: () => _selectFilter(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),

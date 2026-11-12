@@ -9,6 +9,7 @@ import 'screens/recommendations/recommendations_screen.dart' as recommendations;
 import 'screens/review_screens.dart' hide WriteMarketReviewScreen;
 import 'screens/store_detail/store_detail_screen.dart';
 import 'screens/store_list/store_list_screen.dart';
+import 'screens/store_reviews/store_reviews_screen.dart';
 import 'screens/visit_planner/visit_planner_screen.dart' as visit_planner;
 import 'screens/welcome_screens.dart';
 import 'screens/write_store_review/write_store_review_screen.dart';
@@ -72,10 +73,24 @@ class PasarOroOroDowoApp extends StatelessWidget {
         case '/tulis-ulasan-pasar':
           page = const market_review.WriteMarketReviewScreen();
         case '/tulis-ulasan-toko':
-          page = const WriteStoreReviewScreen();
+          page = WriteStoreReviewScreen(
+            storeId: uri.queryParameters['storeId'],
+          );
+        case '/ulasan-toko':
+          page = StoreReviewsScreen(
+            storeId: uri.queryParameters['storeId'] ?? '',
+            storeName: uri.queryParameters['storeName'] ?? 'Toko',
+          );
         default:
           page = const HomeScreen();
       }
+    }
+
+    if (path == '/tulis-ulasan-pasar') {
+      return MaterialPageRoute<bool>(
+        settings: settings,
+        builder: (_) => page,
+      );
     }
 
     return MaterialPageRoute<void>(settings: settings, builder: (_) => page);

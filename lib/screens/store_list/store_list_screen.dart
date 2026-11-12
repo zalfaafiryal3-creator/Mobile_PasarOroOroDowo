@@ -66,26 +66,32 @@ class _StoreListScreenState extends State<StoreListScreen> {
 
     if (cat.contains('makanan') && !cat.contains('minuman')) {
       return sCat == 'makanan';
-    } else if (cat.contains('sayur') || cat.contains('buah')) {
+    }
+    if (cat.contains('sayur') || cat.contains('buah')) {
       return combined.contains('sayur') ||
           combined.contains('buah') ||
           combined.contains('organic');
-    } else if (cat.contains('kuliner') || cat.contains('legend')) {
+    }
+    if (cat.contains('kuliner') || cat.contains('legend')) {
       return combined.contains('kuliner') ||
           combined.contains('legend') ||
           sCat.contains('kuliner');
-    } else if (cat.contains('daging') || cat.contains('ikan')) {
+    }
+    if (cat.contains('daging') || cat.contains('ikan')) {
       return combined.contains('daging') || combined.contains('ikan');
-    } else if (cat.contains('sembako') || cat.contains('perabotan')) {
+    }
+    if (cat.contains('sembako') ||
+        cat.contains('perabotan') ||
+        cat.contains('peralatan')) {
       return combined.contains('sembako') ||
           combined.contains('perabotan') ||
           combined.contains('peralatan');
-    } else if (cat.contains('mainan') && !cat.contains('baju')) {
-      return combined.contains('mainan') || combined.contains('kids toys');
-    } else if (cat.contains('mainan') || cat.contains('baju')) {
+    }
+    if (cat.contains('mainan') || cat.contains('pakaian') || cat.contains('baju')) {
       return combined.contains('mainan') ||
+          combined.contains('pakaian') ||
           combined.contains('baju') ||
-          combined.contains('pakaian');
+          combined.contains('kids toys');
     }
     return combined.contains(cat);
   }

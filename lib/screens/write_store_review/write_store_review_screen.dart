@@ -9,7 +9,9 @@ import '../../data/review_api.dart';
 import '../../widgets/market_ui.dart';
 
 class WriteStoreReviewScreen extends StatefulWidget {
-  const WriteStoreReviewScreen({super.key});
+  const WriteStoreReviewScreen({this.storeId, super.key});
+
+  final String? storeId;
 
   @override
   State<WriteStoreReviewScreen> createState() => _WriteStoreReviewScreenState();
@@ -87,6 +89,7 @@ class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
         name: name,
         text: text,
         rating: _rating,
+        storeId: widget.storeId,
       );
 
       if (!mounted) return;
@@ -109,7 +112,9 @@ class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
           Navigator.of(context).pop(true);
         } else {
           Navigator.of(context)
-              .pushReplacementNamed('/detail-toko/lumpur-kentang-27');
+              .pushReplacementNamed(
+                '/detail-toko/${Uri.encodeComponent(widget.storeId ?? 'lumpur-kentang-27')}',
+              );
         }
       }
     } catch (error) {

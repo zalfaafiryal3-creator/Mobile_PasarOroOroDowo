@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../data/review_api.dart';
 import '../../widgets/market_ui.dart';
-import '../review_screens.dart' show addGlobalMarketReview;
 
 class WriteMarketReviewScreen extends StatefulWidget {
   const WriteMarketReviewScreen({super.key});
@@ -88,30 +87,11 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           ? 'Pengunjung belum menambahkan cerita.'
           : _experienceController.text.trim();
 
-      await StoreReviewApi.submitFormReview(
+      await MarketReviewApi.submitReview(
         name: name,
+        date: 'Baru saja',
         text: text,
         rating: _rating,
-      );
-
-      addGlobalMarketReview(
-        name: name,
-        rating: _rating,
-        text: text,
-        tags: _selectedAspects.map((a) {
-          switch (a) {
-            case 'kebersihan':
-              return 'Kebersihan: Bersih';
-            case 'keramahan':
-              return 'Keramahan: Ramah';
-            case 'parkir':
-              return 'Parkir: Tertata';
-            case 'kelengkapan':
-              return 'Komoditas: Lengkap';
-            default:
-              return 'Ulasan Pengunjung';
-          }
-        }).toList(),
       );
 
       if (!mounted) return;

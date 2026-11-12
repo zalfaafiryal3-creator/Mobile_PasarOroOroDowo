@@ -235,9 +235,7 @@ class StoreApi {
         productCount: backend.productCount > 0
             ? backend.productCount
             : local.productCount,
-        reviewCount: backend.reviewCount > 0
-            ? backend.reviewCount
-            : local.reviewCount,
+        reviewCount: backend.reviewCount,
         catalogProducts: backend.catalogProducts.isNotEmpty
             ? backend.catalogProducts
             : local.catalogProducts,

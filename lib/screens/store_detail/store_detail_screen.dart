@@ -26,6 +26,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   bool _isLoading = true;
 
   StoreData get _store => _loadedStore!;
+  int get _storeReviewCount => _store.isLocalFallback ? 0 : _store.reviewCount;
   String get _statusText => switch (_store.status) {
     'buka' => 'BUKA',
     'tutup' => 'TUTUP',
@@ -523,7 +524,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${_store.reviewCount} Ulasan',
+                              '$_storeReviewCount Ulasan',
                               style: const TextStyle(
                                 fontFamily: 'Plus Jakarta Sans',
                                 fontSize: 10,
@@ -1144,7 +1145,12 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                 ),
               ),
               InkWell(
-                onTap: () => goTo(context, '/tulis-ulasan-toko'),
+                onTap: () async {
+                  final submitted = await Navigator.of(context).pushNamed<bool>(
+                    '/tulis-ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}',
+                  );
+                  if (submitted == true && mounted) await _loadStore();
+                },
                 borderRadius: BorderRadius.circular(9999),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -1259,7 +1265,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${_store.reviewCount} Ulasan Pembeli',
+                            '$_storeReviewCount Ulasan Pembeli',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1316,12 +1322,16 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
 
           // Action Button: Lihat Semua Ulasan
           InkWell(
-            onTap: () => goTo(context, '/review-pasar'),
+            onTap: () => goTo(
+              context,
+              '/ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}'
+              '&storeName=${Uri.encodeQueryComponent(_store.name)}',
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Lihat Ulasan Pasar',
+                  'Lihat Semua Ulasan',
                   style: TextStyle(
                     fontFamily: 'Plus Jakarta Sans',
                     fontSize: 12,
