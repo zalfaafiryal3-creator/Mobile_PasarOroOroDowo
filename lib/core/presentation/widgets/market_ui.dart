@@ -1,0 +1,574 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+class MarketColors {
+  static const canvas = Color(0xFFF3EEF1);
+  static const background = Color(0xFFF0F6DF);
+  static const paper = Colors.white;
+  static const pink = Color(0xFFD56989);
+  static const pinkLight = Color(0xFFEA9CAF);
+  static const green = Color(0xFFC2DC80);
+  static const greenDark = Color(0xFF4B6515);
+  static const brown = Color(0xFF594045);
+  static const ink = Color(0xFF1F2937);
+  static const muted = Color(0xFF6B7280);
+  static const yellow = Color(0xFFFBBF24);
+}
+
+void goTo(BuildContext context, String route) {
+  Navigator.of(context).pushNamed(route);
+}
+
+void goBack(BuildContext context, {String fallback = '/home'}) {
+  if (Navigator.of(context).canPop()) {
+    Navigator.of(context).pop();
+  } else {
+    Navigator.of(context).pushReplacementNamed(fallback);
+  }
+}
+
+String assetPath(String file) {
+  final clean = file.trim().replaceAll('\\', '/');
+  if (clean.startsWith('assets/')) return clean;
+  return 'assets/$clean';
+}
+
+class MarketPage extends StatelessWidget {
+  const MarketPage({
+    required this.child,
+    this.background = MarketColors.background,
+    super.key,
+  });
+
+  final Widget child;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: MarketColors.canvas,
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            width: 402,
+            height: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 402),
+            decoration: BoxDecoration(
+              color: background,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x22000000),
+                  blurRadius: 20,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MarketAsset extends StatelessWidget {
+  const MarketAsset(
+    this.file, {
+    this.width,
+    this.height,
+    this.fit = BoxFit.contain,
+    this.color,
+    super.key,
+  });
+
+  final String file;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final clean = file.trim();
+    if (clean.isEmpty) {
+      return const Icon(
+        Icons.image_not_supported_outlined,
+        color: MarketColors.muted,
+      );
+    }
+    if (clean.startsWith('http://') || clean.startsWith('https://')) {
+      return Image.network(
+        clean,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => const Icon(
+          Icons.image_not_supported_outlined,
+          color: MarketColors.muted,
+        ),
+      );
+    }
+    final path = assetPath(clean);
+    if (clean.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.asset(
+        path,
+        width: width,
+        height: height,
+        fit: fit,
+        colorFilter: color == null
+            ? null
+            : ColorFilter.mode(color!, BlendMode.srcIn),
+      );
+    }
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: fit,
+      errorBuilder: (_, _, _) => const Icon(
+        Icons.image_not_supported_outlined,
+        color: MarketColors.muted,
+      ),
+    );
+  }
+}
+
+class BrandHeader extends StatelessWidget {
+  const BrandHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // Brand Logo Icon Shape (Figma #495:733)
+        Container(
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFBBF24), Color(0xFFC2DC80)],
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x66C2DC80),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Color(0x33D56989),
+                blurRadius: 6,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Image.asset(
+              'assets/logo_oro_atap.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, _, _) =>
+                  Image.asset('assets/logo oro hijau.png', fit: BoxFit.contain),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        const Expanded(
+          child: Text(
+            'Pasar Oro-Oro Dowo',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Color(0xFF594045),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.6,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SearchField extends StatelessWidget {
+  const SearchField({
+    required this.controller,
+    required this.hint,
+    this.onChanged,
+    super.key,
+  });
+
+  final TextEditingController controller;
+  final String hint;
+  final ValueChanged<String>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 38,
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        style: const TextStyle(fontSize: 12, color: MarketColors.ink),
+        decoration: InputDecoration(
+          prefixIcon: const Padding(
+            padding: EdgeInsets.all(11),
+            child: MarketAsset('14528.svg', width: 16, height: 16),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 36,
+          ),
+          hintText: hint,
+          hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(999),
+            borderSide: const BorderSide(color: Color(0x66EA9CAF)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(999),
+            borderSide: const BorderSide(color: Color(0x66EA9CAF)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(999),
+            borderSide: const BorderSide(color: MarketColors.pink),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PageTitleBar extends StatelessWidget {
+  const PageTitleBar({
+    required this.title,
+    this.subtitle,
+    this.onBack,
+    this.asset,
+    super.key,
+  });
+
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onBack;
+  final String? asset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 64),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF0F6DF),
+        border: Border(bottom: BorderSide(color: Color(0xFFC2DC80))),
+      ),
+      child: Row(
+        children: [
+          if (onBack != null)
+            SizedBox(
+              width: 36,
+              height: 36,
+              child: Material(
+                color: Colors.white,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: onBack,
+                  child: const Icon(
+                    Icons.arrow_back,
+                    size: 18,
+                    color: MarketColors.brown,
+                  ),
+                ),
+              ),
+            )
+          else
+            const SizedBox(width: 36),
+          const SizedBox(width: 8),
+          if (asset != null) ...[
+            MarketAsset(asset!, width: 28, height: 28),
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: MarketColors.brown,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: MarketColors.pink,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 44),
+        ],
+      ),
+    );
+  }
+}
+
+class BottomNavigation extends StatelessWidget {
+  const BottomNavigation({
+    required this.active,
+    this.includeVisitInfo = false,
+    super.key,
+  });
+
+  final String active;
+  final bool includeVisitInfo;
+
+  static const items = <(String, String, String)>[
+    ('Home', '/home', 'dfd0c.svg'),
+    ('Toko', '/toko', '2781e.svg'),
+    ('Promo', '/promo', '75326.svg'),
+    ('Review Pasar', '/review-pasar', '3de6e.svg'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final navItems = includeVisitInfo
+        ? [...items.take(3), ('Info Kunjungan', '/info-kunjungan', '')]
+        : items;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      height: 68,
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.sizeOf(context).width < 350 ? 16 : 24,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(9999),
+        border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x20C2DC80),
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: navItems.map((item) {
+          final selected = item.$1 == active;
+          return InkWell(
+            onTap: selected ? () {} : () => goTo(context, item.$2),
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? const Color(0xFFC2DC80).withValues(alpha: 0.5)
+                        : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: item.$3.isEmpty
+                      ? const Icon(
+                          Icons.event_note_rounded,
+                          size: 20,
+                          color: Color(0xFF4B6515),
+                        )
+                      : MarketAsset(
+                          item.$3,
+                          width: item.$1 == 'Home'
+                              ? 16
+                              : item.$1 == 'Promo'
+                              ? 22
+                              : 20,
+                          height: item.$1 == 'Home'
+                              ? 16
+                              : item.$1 == 'Promo'
+                              ? 22
+                              : 20,
+                          color: selected
+                              ? const Color(0xFF4B6515)
+                              : const Color(0xFF6B7280),
+                        ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item.$1,
+                  style: TextStyle(
+                    color: selected
+                        ? const Color(0xFF4B6515)
+                        : const Color(0xFF9CA3AF),
+                    fontSize:
+                        item.$1 == 'Review Pasar' || item.$1 == 'Info Kunjungan'
+                        ? 9
+                        : 10,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class SectionHeading extends StatelessWidget {
+  const SectionHeading(this.title, {this.action, this.onTap, super.key});
+
+  final String title;
+  final String? action;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF111827),
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        if (action != null)
+          TextButton(
+            onPressed: onTap,
+            style: TextButton.styleFrom(
+              foregroundColor: MarketColors.pink,
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              action!,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class RoundedCard extends StatelessWidget {
+  const RoundedCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(14),
+    super.key,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0x33EA9CAF)),
+      ),
+      child: child,
+    );
+  }
+}
+
+class PrimaryMarketButton extends StatelessWidget {
+  const PrimaryMarketButton({
+    required this.label,
+    required this.onPressed,
+    this.icon = Icons.chevron_right,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: MarketColors.yellow,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+        ),
+      ),
+    );
+  }
+}
+
+class ErrorNotice extends StatelessWidget {
+  const ErrorNotice(this.message, {super.key});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF0F2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0x55D56989)),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: MarketColors.brown,
+          fontSize: 11,
+          height: 1.4,
+        ),
+      ),
+    );
+  }
+}
