@@ -35,6 +35,11 @@ import 'package:frontend_flutter/features/promotions/data/repositories/promo_rep
 import 'package:frontend_flutter/features/promotions/domain/repositories/promo_repository.dart';
 import 'package:frontend_flutter/features/promotions/domain/usecases/get_promotions.dart';
 import 'package:frontend_flutter/features/categories/domain/usecases/store_category_matcher.dart';
+import 'package:frontend_flutter/features/categories/data/datasources/category_remote_data_source.dart';
+import 'package:frontend_flutter/features/categories/data/datasources/local/category_local_data_source.dart';
+import 'package:frontend_flutter/features/categories/data/repositories/category_repository_impl.dart';
+import 'package:frontend_flutter/features/categories/domain/repositories/category_repository.dart';
+import 'package:frontend_flutter/features/categories/domain/usecases/get_categories.dart';
 
 class AppDependencies {
   AppDependencies._({
@@ -58,6 +63,8 @@ class AppDependencies {
     required this.submitMarketReview,
     required this.promoRepository,
     required this.getPromotions,
+    required this.categoryRepository,
+    required this.getCategories,
     required this.storeCategoryMatcher,
   });
 
@@ -82,6 +89,10 @@ class AppDependencies {
     final promoRepository = PromoRepositoryImpl(
       PromoRemoteDataSource(client: client),
       const PromoLocalDataSource(),
+    );
+    final categoryRepository = CategoryRepositoryImpl(
+      remoteDataSource: CategoryRemoteDataSource(client: client),
+      localDataSource: const CategoryLocalDataSource(),
     );
     return AppDependencies._(
       storeRepository: storeRepository,
@@ -108,6 +119,8 @@ class AppDependencies {
       submitMarketReview: SubmitMarketReview(marketReviewsRepository),
       promoRepository: promoRepository,
       getPromotions: GetPromotions(promoRepository),
+      categoryRepository: categoryRepository,
+      getCategories: GetCategories(categoryRepository),
       storeCategoryMatcher: const StoreCategoryMatcher(),
     );
   }
@@ -132,5 +145,7 @@ class AppDependencies {
   final SubmitMarketReview submitMarketReview;
   final PromoRepository promoRepository;
   final GetPromotions getPromotions;
+  final CategoryRepository categoryRepository;
+  final GetCategories getCategories;
   final StoreCategoryMatcher storeCategoryMatcher;
 }

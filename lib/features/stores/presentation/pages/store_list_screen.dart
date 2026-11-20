@@ -5,6 +5,7 @@ import 'package:frontend_flutter/features/stores/domain/entities/store.dart';
 import 'package:frontend_flutter/features/stores/domain/usecases/get_local_stores.dart';
 import 'package:frontend_flutter/features/stores/domain/usecases/get_stores.dart';
 import 'package:frontend_flutter/features/categories/domain/usecases/store_category_matcher.dart';
+import 'package:frontend_flutter/features/categories/domain/usecases/get_categories.dart';
 import 'package:frontend_flutter/core/presentation/widgets/market_ui.dart';
 
 class StoreListScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class StoreListScreen extends StatefulWidget {
     required this.getStores,
     required this.getLocalStores,
     required this.categoryMatcher,
+    this.getCategories,
     this.initialCategory,
     super.key,
   });
@@ -19,6 +21,7 @@ class StoreListScreen extends StatefulWidget {
   final GetStores getStores;
   final GetLocalStores getLocalStores;
   final StoreCategoryMatcher categoryMatcher;
+  final GetCategories? getCategories;
   final String? initialCategory;
 
   @override
@@ -29,6 +32,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String? _activeCategory;
   List<Store> _stores = const [];
+  List<String> _categoryNames = const [];
   String? _loadError;
   bool _isLoading = true;
 
@@ -37,6 +41,20 @@ class _StoreListScreenState extends State<StoreListScreen> {
     super.initState();
     _activeCategory = widget.initialCategory;
     _loadStores();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    if (widget.getCategories == null) return;
+    try {
+      final categories = await widget.getCategories!();
+      if (!mounted) return;
+      if (categories.isNotEmpty) {
+        setState(() {
+          _categoryNames = categories.map((c) => c.name).toList();
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -345,59 +363,67 @@ class _StoreListScreenState extends State<StoreListScreen> {
     );
   }
 
-  // --- 6 CATEGORY GRID CARD (White card from Figma) ---
-  Widget _buildCategoryGridCard() {
-    final categories = [
-      (
+  (String, String, Color, Color, String) _resolveCategoryMeta(String catName) {
+    final lower = catName.toLowerCase().trim();
+    if (lower.contains('makanan') && !lower.contains('mainan')) {
+      return (
         'Makanan',
-        'Makanan',
+        catName,
         const Color(0x59FBBF24),
-        const Color(0x738BC34A), // rgba(139, 195, 74, 0.45) - hijau muda
+        const Color(0x738BC34A),
         '''<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M12.2543 1.41667L9.95425 3.71667C8.81082 4.8832 8.81082 6.75014 9.95425 7.91667L11.7543 9.71667C12.9208 10.8601 14.7877 10.8601 15.9543 9.71667L18.2543 7.41667" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M11.0824 10.5112L2.47655 2.42761C1.88351 2.97341 1.54932 3.72046 1.54932 4.50034C1.54932 5.28022 1.88351 6.02727 2.47655 6.57307L7.84598 11.6167C8.36086 12.1003 9.31706 12.1003 9.90549 11.6167L11.0824 10.5112ZM11.0824 10.5112L16.2311 15.3476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M1.48755 17.2792L7.88755 10.9792" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M15.5 3.54167L8.5 10.5417" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 </svg>''',
-      ),
-      (
+      );
+    }
+    if (lower.contains('sayur') || lower.contains('buah')) {
+      return (
         'Sayur\n& Buah',
-        'Sayur & Buah',
+        catName,
         const Color(0x40C2DC80),
-        const Color(0x59FFC107), // rgba(255, 193, 7, 0.35) - kuning keemasan
+        const Color(0x59FFC107),
         '''<svg width="19" height="17" viewBox="0 0 19 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3.95837 14.875C4.35421 11.6875 5.93754 9.20834 9.50004 7.79167" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M7.12506 12.75C12.0476 12.75 15.4376 10.421 15.8334 4.24999V2.83333H12.6556C5.53064 2.83333 3.16672 5.66666 3.15564 9.20833C3.15564 9.91666 3.15564 11.3333 4.73897 12.75H7.11397H7.12506Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 </svg>''',
-      ),
-      (
+      );
+    }
+    if (lower.contains('kuliner') || lower.contains('legend')) {
+      return (
         'Kuliner\nLegend',
-        'Kuliner Legendaris',
+        catName,
         const Color(0x59FBBF24),
-        const Color(0x738BC34A), // rgba(139, 195, 74, 0.45) - hijau muda
+        const Color(0x738BC34A),
         '''<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M2 1.33333V6C2 6.73333 2.6 7.33333 3.33333 7.33333H6C6.73589 7.33333 7.33333 6.73588 7.33333 6V1.33333" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M4.66663 1.33333V14.6667" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M14 10V1.33333C12.159 1.33333 10.6666 2.82571 10.6666 4.66666V8.66666C10.6666 9.4 11.2666 10 12 10H14V10M14 10V14.6667" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 </svg>''',
-      ),
-      (
+      );
+    }
+    if (lower.contains('daging') || lower.contains('ikan')) {
+      return (
         'Daging\n& Ikan',
-        'Daging & Ikan',
+        catName,
         const Color(0x40C2DC80),
-        const Color(0x59FFC107), // rgba(255, 193, 7, 0.35) - kuning keemasan
+        const Color(0x59FFC107),
         '''<svg width="22" height="17" viewBox="0 0 22 17" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15.2992 5.27C14.2979 6.16813 13.7481 7.31457 13.75 8.5C13.75 9.73746 14.3367 10.8694 15.3074 11.7378" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M1.83337 6.732C8.90546 12.857 15.3542 14.003 20.1667 8.50142C15.3542 3.00404 8.90546 4.15083 1.83337 10.2751" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M16.5 7.79167V7.79876" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M10.5417 7.4375C9.93028 8.14583 9.93028 8.85417 10.5417 9.5625" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 </svg>''',
-      ),
-      (
+      );
+    }
+    if (lower.contains('sembako') || lower.contains('perabot')) {
+      return (
         'Sembako\n& Perabot',
-        'Sembako & Perabotan',
+        catName,
         const Color(0x59FBBF24),
-        const Color(0x738BC34A), // rgba(139, 195, 74, 0.45) - hijau muda
+        const Color(0x738BC34A),
         '''<svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15 9.16667L14 18.1667" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M19 10.3333L15 3.33333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
@@ -407,17 +433,123 @@ class _StoreListScreenState extends State<StoreListScreen> {
 <path d="M5 10.3333L9 3.33333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 <path d="M9 9.16667L10 18.1667" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="#FBBF24"/>
 </svg>''',
-      ),
-      (
+      );
+    }
+    if (lower.contains('mainan') || lower.contains('pakaian') || lower.contains('baju')) {
+      return (
         'Toko\nMainan &\nPakaian',
-        'Toko Mainan & Pakaian',
+        catName,
         const Color(0x40C2DC80),
-        const Color(0x59FFC107), // rgba(255, 193, 7, 0.35) - kuning keemasan
+        const Color(0x59FFC107),
         '''<svg width="19" height="16" viewBox="0 0 19 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M14.9767 1.10768C15.7732 0.98865 16.5355 0.96246 17.1544 1.0896C17.2935 1.11772 17.4203 1.17846 17.5201 1.2648C17.6187 1.35013 17.687 1.45699 17.7171 1.57324C17.8625 2.10986 17.8323 2.75727 17.6905 3.43307C17.547 4.11745 17.2817 4.86473 16.9226 5.61486C16.2072 7.10964 15.0967 8.66246 13.7585 9.7835C13.3652 10.1167 12.9437 10.4253 12.4974 10.7069C12.5266 11.3204 12.4435 11.9553 12.1466 12.5291L12.1463 12.5297C11.6652 13.4564 10.7984 14.0382 9.9635 14.3996C9.13107 14.7598 8.29439 14.9173 7.79788 14.9845C7.65747 15.0036 7.51372 14.9953 7.37774 14.9602C7.24176 14.925 7.1172 14.864 7.01367 14.7819C6.91015 14.6998 6.83045 14.5987 6.78072 14.4864C6.73098 14.3742 6.71256 14.2539 6.72687 14.1347C6.72704 14.1333 6.72721 14.1319 6.7274 14.1305L6.98895 12.1236C6.96246 12.1214 6.93599 12.119 6.90953 12.1166C6.61809 12.0912 6.34606 11.9817 6.13973 11.8065C6.13926 11.8061 6.13879 11.8057 6.13831 11.8053L4.97833 10.8284C4.97785 10.828 4.97737 10.8276 4.9769 10.8272C4.76892 10.6536 4.63879 10.4246 4.60863 10.1793C4.60554 10.1559 4.60262 10.1325 4.59985 10.109L2.21455 10.3295L2.21209 10.3297L2.21025 10.3299C2.06856 10.3421 1.92542 10.3267 1.79194 10.2848C1.65845 10.243 1.53821 10.1758 1.44053 10.0885C1.34285 10.0012 1.27034 9.89614 1.22864 9.78145C1.18694 9.66675 1.17716 9.54551 1.20005 9.42712L1.20023 9.42624C1.28176 9.00944 1.46967 8.30593 1.89812 7.60534C2.32769 6.90293 3.01841 6.17351 4.11803 5.76636L4.11961 5.76578C4.80133 5.51534 5.55927 5.44546 6.29236 5.47241C6.62674 5.09795 6.99294 4.74426 7.38814 4.41413C8.72321 3.29092 10.5951 2.35624 12.3818 1.75415C13.2786 1.45196 14.1689 1.22841 14.9767 1.10768Z" fill="#4B6515"/>
 </svg>''',
-      ),
-    ];
+      );
+    }
+    final shortLabel =
+        catName.length > 10 ? '${catName.substring(0, 8)}...' : catName;
+    return (
+      shortLabel,
+      catName,
+      const Color(0x40C2DC80),
+      const Color(0x59FFC107),
+      '''<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4B6515" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+<line x1="3" y1="6" x2="21" y2="6"/>
+<path d="M16 10a4 4 0 0 1-8 0"/>
+</svg>''',
+    );
+  }
+
+  // --- 6 CATEGORY GRID CARD (White card from Figma) ---
+  Widget _buildCategoryGridCard() {
+    final categoryList = _categoryNames.isNotEmpty
+        ? _categoryNames
+        : const [
+            'Makanan',
+            'Sayur & Buah',
+            'Kuliner Legendaris',
+            'Daging & Ikan',
+            'Sembako & Perabotan',
+            'Toko Mainan & Pakaian',
+          ];
+    final categories = categoryList.map(_resolveCategoryMeta).toList();
+
+    Widget buildCategoryItem((String, String, Color, Color, String) cat) {
+      final label = cat.$1;
+      final value = cat.$2;
+      final bg = cat.$3;
+      final activeShadowColor = cat.$4;
+      final svgIcon = cat.$5;
+      final isSelected =
+          _activeCategory != null &&
+          (_activeCategory!.toLowerCase() == value.toLowerCase() ||
+              value.toLowerCase().contains(_activeCategory!.toLowerCase()));
+
+      return GestureDetector(
+        onTap: () {
+          setState(() {
+            if (_activeCategory == value) {
+              _activeCategory = null;
+            } else {
+              _activeCategory = value;
+            }
+          });
+        },
+        child: SizedBox(
+          width: 52,
+          height: 82,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: activeShadowColor,
+                            blurRadius: 10,
+                            offset: const Offset(0, 6),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: SvgPicture.string(svgIcon),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected
+                      ? const Color(0xFF4B6515)
+                      : const Color(0xFF374151),
+                  fontFamily: 'Inter',
+                  fontSize: 9,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 14, 10, 18),
@@ -436,86 +568,22 @@ class _StoreListScreenState extends State<StoreListScreen> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: categories.map((cat) {
-          final label = cat.$1;
-          final value = cat.$2;
-          final bg = cat.$3;
-          final activeShadowColor = cat.$4;
-          final svgIcon = cat.$5;
-          final isSelected =
-              _activeCategory != null &&
-              (_activeCategory!.toLowerCase() == value.toLowerCase() ||
-                  value.toLowerCase().contains(_activeCategory!.toLowerCase()));
-
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                if (_activeCategory == value) {
-                  _activeCategory = null;
-                } else {
-                  _activeCategory = value;
-                }
-              });
-            },
-            child: SizedBox(
-              width: 52,
-              height: 82,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: activeShadowColor,
-                                blurRadius: 10,
-                                offset: const Offset(0, 6),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: bg,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: SvgPicture.string(svgIcon),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isSelected
-                          ? const Color(0xFF4B6515)
-                          : const Color(0xFF374151),
-                      fontFamily: 'Inter',
-                      fontSize: 9,
-                      fontWeight: isSelected
-                          ? FontWeight.w800
-                          : FontWeight.w700,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
+      child: categories.length <= 6
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: categories.map(buildCategoryItem).toList(),
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: categories.map((cat) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: buildCategoryItem(cat),
+                  );
+                }).toList(),
               ),
             ),
-          );
-        }).toList(),
-      ),
     );
   }
 

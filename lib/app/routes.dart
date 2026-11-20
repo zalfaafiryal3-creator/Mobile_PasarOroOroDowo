@@ -45,12 +45,14 @@ Route<dynamic> generateAppRoute(
           getStores: dependencies.getStores,
           getLocalStores: dependencies.getLocalStores,
           categoryMatcher: dependencies.storeCategoryMatcher,
+          getCategories: dependencies.getCategories,
         );
       case '/toko':
         page = StoreListScreen(
           getStores: dependencies.getStores,
           getLocalStores: dependencies.getLocalStores,
           categoryMatcher: dependencies.storeCategoryMatcher,
+          getCategories: dependencies.getCategories,
           initialCategory: uri.queryParameters['category'],
         );
       case '/detail-toko':

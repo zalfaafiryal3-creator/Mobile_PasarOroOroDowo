@@ -6,6 +6,7 @@ import 'package:frontend_flutter/features/stores/domain/entities/store.dart';
 import 'package:frontend_flutter/features/stores/domain/usecases/get_local_stores.dart';
 import 'package:frontend_flutter/features/stores/domain/usecases/get_stores.dart';
 import 'package:frontend_flutter/features/categories/domain/usecases/store_category_matcher.dart';
+import 'package:frontend_flutter/features/categories/domain/usecases/get_categories.dart';
 import 'package:frontend_flutter/core/presentation/widgets/market_ui.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,12 +14,14 @@ class HomeScreen extends StatefulWidget {
     required this.getStores,
     required this.getLocalStores,
     required this.categoryMatcher,
+    this.getCategories,
     super.key,
   });
 
   final GetStores getStores;
   final GetLocalStores getLocalStores;
   final StoreCategoryMatcher categoryMatcher;
+  final GetCategories? getCategories;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedCategory;
   bool _isFavorite = false;
   List<Store> _stores = const [];
+  List<String> _categoryNames = const [];
   String? _loadError;
   bool _isLoading = true;
 
@@ -36,6 +40,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadStores();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    if (widget.getCategories == null) return;
+    try {
+      final categories = await widget.getCategories!();
+      if (!mounted) return;
+      if (categories.isNotEmpty) {
+        setState(() {
+          _categoryNames = categories.map((c) => c.name).toList();
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -991,7 +1009,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // --- CATEGORY SECTION ---
   Widget _buildCategorySection(BuildContext context) {
-    const categories = [
+    const defaultCategories = [
       {
         'name': 'Pakaian',
         'color': Color(0x80FBBF24),
@@ -1014,6 +1032,22 @@ class _HomeScreenState extends State<HomeScreen> {
         'color': Color(0x80FBBF24),
       }, // rgba(251, 191, 36, 0.50)
     ];
+
+    final List<Map<String, dynamic>> categories;
+    if (_categoryNames.isNotEmpty) {
+      const colors = [
+        Color(0x80FBBF24),
+        Color(0x4DC2DC80),
+      ];
+      categories = _categoryNames.asMap().entries.map((entry) {
+        return {
+          'name': entry.value,
+          'color': colors[entry.key % colors.length],
+        };
+      }).toList();
+    } else {
+      categories = defaultCategories;
+    }
 
     return Column(
       children: [
@@ -1139,24 +1173,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Toko Mainan & Pakaian':
-        return const Icon(
-          Icons.toys_outlined,
-          size: 20,
-          color: Color(0xFF4B6515),
-        );
-      case 'Pakaian':
-        return SvgPicture.string(
-          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    final lower = category.toLowerCase();
+    if (lower.contains('mainan')) {
+      return const Icon(
+        Icons.toys_outlined,
+        size: 20,
+        color: Color(0xFF4B6515),
+      );
+    }
+    if (lower.contains('pakaian') || lower.contains('baju') || lower.contains('fashion')) {
+      return SvgPicture.string(
+        '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M16.9833 2.88335L13.3333 1.66669C13.3333 3.5064 11.8397 5.00002 9.99995 5.00002C8.16023 5.00002 6.66661 3.5064 6.66661 1.66669L3.01661 2.88335C2.23731 3.14299 1.76337 3.9317 1.89995 4.74169L2.38328 7.63335C2.44883 8.03776 2.7986 8.33453 3.20828 8.33335H4.99995V16.6667C4.99995 17.5834 5.74995 18.3334 6.66661 18.3334H13.3333C14.2538 18.3334 14.9999 17.5872 14.9999 16.6667V8.33335H16.7916C17.2013 8.33453 17.5511 8.03776 17.6166 7.63335L18.0999 4.74169C18.2365 3.9317 17.7626 3.14299 16.9833 2.88335V2.88335" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 </svg>''',
-          width: 20,
-          height: 20,
-        );
-      case 'Sembako':
-        return SvgPicture.string(
-          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        width: 20,
+        height: 20,
+      );
+    }
+    if (lower.contains('sembako') || lower.contains('sayur') || lower.contains('buah') || lower.contains('daging')) {
+      return SvgPicture.string(
+        '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M12.5 9.16669L11.6666 16.6667" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M15.8333 9.16665L12.5 3.33331" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M1.66663 9.16669H18.3333" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
@@ -1165,31 +1201,33 @@ class _HomeScreenState extends State<HomeScreen> {
 <path d="M4.16663 9.16665L7.49996 3.33331" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M7.5 9.16669L8.33333 16.6667" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 </svg>''',
-          width: 20,
-          height: 20,
-        );
-      case 'Makanan':
-        return SvgPicture.string(
-          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        width: 20,
+        height: 20,
+      );
+    }
+    if (lower.contains('makan') || lower.contains('kuliner') || lower.contains('minum')) {
+      return SvgPicture.string(
+        '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M13.3333 1.66669L11.4167 3.58335C10.4638 4.55546 10.4638 6.11124 11.4167 7.08335L12.9167 8.58335C13.8888 9.53621 15.4446 9.53621 16.4167 8.58335L18.3333 6.66669" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M12.5 12.5L2.74997 2.75C2.07809 3.40831 1.69946 4.30936 1.69946 5.25C1.69946 6.19064 2.07809 7.09169 2.74997 7.75L8.83331 13.8333C9.41664 14.4167 10.5 14.4167 11.1666 13.8333L12.5 12.5V12.5M12.5 12.5L18.3333 18.3333" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M1.75 18.1667L7.08333 12.9167" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M15.8333 4.16669L10 10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 </svg>''',
-          width: 20,
-          height: 20,
-        );
-      case 'Perabotan':
-        return SvgPicture.string(
-          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        width: 20,
+        height: 20,
+      );
+    }
+    if (lower.contains('perabot') || lower.contains('alat')) {
+      return SvgPicture.string(
+        '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M13.3333 16.6667V3.33335C13.3333 2.41288 12.5871 1.66669 11.6666 1.66669H8.33329C7.41282 1.66669 6.66663 2.41288 6.66663 3.33335V16.6667" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 <path d="M3.33329 5H16.6666C17.5871 5 18.3333 5.74619 18.3333 6.66667V15C18.3333 15.9205 17.5871 16.6667 16.6666 16.6667H3.33329C2.41282 16.6667 1.66663 15.9205 1.66663 15V6.66667C1.66663 5.74619 2.41282 5 3.33329 5V5" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
 </svg>''',
-          width: 20,
-          height: 20,
-        );
-      default:
-        return SvgPicture.string(
+        width: 20,
+        height: 20,
+      );
+    }
+    return SvgPicture.string(
           '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M9.16663 10C9.16663 10.4599 9.54003 10.8334 9.99996 10.8334C10.4599 10.8334 10.8333 10.4599 10.8333 10C10.8333 9.54009 10.4599 9.16669 9.99996 9.16669C9.54003 9.16669 9.16663 9.54009 9.16663 10V10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M15 10C15 10.4599 15.3734 10.8334 15.8333 10.8334C16.2933 10.8334 16.6667 10.4599 16.6667 10C16.6667 9.54009 16.2933 9.16669 15.8333 9.16669C15.3734 9.16669 15 9.54009 15 10V10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
