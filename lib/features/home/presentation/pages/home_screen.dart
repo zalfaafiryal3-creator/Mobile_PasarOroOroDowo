@@ -791,7 +791,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               Text(
-                                '± 251',
+                                'Â± 251',
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   color: Color(0xFF594045),
@@ -1035,10 +1035,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final List<Map<String, dynamic>> categories;
     if (_categoryNames.isNotEmpty) {
-      const colors = [
-        Color(0x80FBBF24),
-        Color(0x4DC2DC80),
-      ];
+      const colors = [Color(0x80FBBF24), Color(0x4DC2DC80)];
       categories = _categoryNames.asMap().entries.map((entry) {
         return {
           'name': entry.value,
@@ -1181,7 +1178,9 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Color(0xFF4B6515),
       );
     }
-    if (lower.contains('pakaian') || lower.contains('baju') || lower.contains('fashion')) {
+    if (lower.contains('pakaian') ||
+        lower.contains('baju') ||
+        lower.contains('fashion')) {
       return SvgPicture.string(
         '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M16.9833 2.88335L13.3333 1.66669C13.3333 3.5064 11.8397 5.00002 9.99995 5.00002C8.16023 5.00002 6.66661 3.5064 6.66661 1.66669L3.01661 2.88335C2.23731 3.14299 1.76337 3.9317 1.89995 4.74169L2.38328 7.63335C2.44883 8.03776 2.7986 8.33453 3.20828 8.33335H4.99995V16.6667C4.99995 17.5834 5.74995 18.3334 6.66661 18.3334H13.3333C14.2538 18.3334 14.9999 17.5872 14.9999 16.6667V8.33335H16.7916C17.2013 8.33453 17.5511 8.03776 17.6166 7.63335L18.0999 4.74169C18.2365 3.9317 17.7626 3.14299 16.9833 2.88335V2.88335" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
@@ -1190,7 +1189,10 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 20,
       );
     }
-    if (lower.contains('sembako') || lower.contains('sayur') || lower.contains('buah') || lower.contains('daging')) {
+    if (lower.contains('sembako') ||
+        lower.contains('sayur') ||
+        lower.contains('buah') ||
+        lower.contains('daging')) {
       return SvgPicture.string(
         '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M12.5 9.16669L11.6666 16.6667" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#4B6515"/>
@@ -1205,7 +1207,9 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 20,
       );
     }
-    if (lower.contains('makan') || lower.contains('kuliner') || lower.contains('minum')) {
+    if (lower.contains('makan') ||
+        lower.contains('kuliner') ||
+        lower.contains('minum')) {
       return SvgPicture.string(
         '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M13.3333 1.66669L11.4167 3.58335C10.4638 4.55546 10.4638 6.11124 11.4167 7.08335L12.9167 8.58335C13.8888 9.53621 15.4446 9.53621 16.4167 8.58335L18.3333 6.66669" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
@@ -1228,15 +1232,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     return SvgPicture.string(
-          '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      '''<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M9.16663 10C9.16663 10.4599 9.54003 10.8334 9.99996 10.8334C10.4599 10.8334 10.8333 10.4599 10.8333 10C10.8333 9.54009 10.4599 9.16669 9.99996 9.16669C9.54003 9.16669 9.16663 9.54009 9.16663 10V10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M15 10C15 10.4599 15.3734 10.8334 15.8333 10.8334C16.2933 10.8334 16.6667 10.4599 16.6667 10C16.6667 9.54009 16.2933 9.16669 15.8333 9.16669C15.3734 9.16669 15 9.54009 15 10V10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 <path d="M3.33337 10C3.33337 10.4599 3.70678 10.8334 4.16671 10.8334C4.62664 10.8334 5.00004 10.4599 5.00004 10C5.00004 9.54009 4.62664 9.16669 4.16671 9.16669C3.70678 9.16669 3.33337 9.54009 3.33337 10V10" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" stroke="#F59E0B"/>
 </svg>''',
-          width: 20,
-          height: 20,
-        );
-    }
+      width: 20,
+      height: 20,
+    );
   }
 
   // --- STORE LIST SECTION ---
@@ -1458,7 +1461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           if (store.rating.isNotEmpty) ...[
                             Text(
-                              '★ ${store.rating}',
+                              'â˜… ${store.rating}',
                               style: const TextStyle(
                                 fontFamily: 'Inter',
                                 color: Color(0xFFF59E0B),
