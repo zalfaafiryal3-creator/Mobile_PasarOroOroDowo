@@ -31,16 +31,18 @@ void main() {
     },
   );
 
-  test('konflik nama tidak mengganti data katalog Mobile', () async {
-    installStoreApiMock(transform: (store) => {...store, 'name': 'Dicuri'});
+  test('nama toko dari admin menggantikan nama katalog lokal', () async {
+    installStoreApiMock(
+      transform: (store) => {...store, 'name': 'Nama Toko Terbaru'},
+    );
 
     final store = await fetchStoreWithRepository('lumpur-kentang-27');
 
-    expect(store.name, 'Lumpur Kentang 27');
+    expect(store.name, 'Nama Toko Terbaru');
     expect(store.image, '4ef0e.png');
-    expect(store.status, isEmpty);
-    expect(store.openTime, isNull);
-    expect(store.isLocalFallback, isTrue);
+    expect(store.status, 'buka');
+    expect(store.openTime, '06:00');
+    expect(store.isLocalFallback, isFalse);
   });
 
   test(
@@ -82,27 +84,22 @@ void main() {
     },
   );
 
-  test(
-    'nama berbeda pada slug yang sama tidak meminjam metadata lokal',
-    () async {
-      installStoreApiMock(
-        backendStores: [
-          _backendOnlyStore(id: 'lumpur-kentang-27', name: 'Toko Backend'),
-        ],
-      );
+  test('nama berbeda pada slug yang sama mengikuti data admin', () async {
+    installStoreApiMock(
+      backendStores: [
+        _backendOnlyStore(id: 'lumpur-kentang-27', name: 'Toko Backend'),
+      ],
+    );
 
-      final stores = await fetchStoresWithRepository();
-      final store = stores.singleWhere(
-        (item) => item.id == 'lumpur-kentang-27',
-      );
+    final stores = await fetchStoresWithRepository();
+    final store = stores.singleWhere((item) => item.id == 'lumpur-kentang-27');
 
-      expect(stores, hasLength(marketStores.length));
-      expect(store.name, 'Lumpur Kentang 27');
-      expect(store.image, marketStores.first.image);
-      expect(store.isLocalFallback, isTrue);
-      expect(stores.any((item) => item.name == 'Toko Backend'), isFalse);
-    },
-  );
+    expect(stores, hasLength(marketStores.length));
+    expect(store.name, 'Toko Backend');
+    expect(store.image, 'https://example.com/banner.jpg');
+    expect(store.isLocalFallback, isFalse);
+    expect(stores.any((item) => item.name == 'Toko Backend'), isTrue);
+  });
 
   test(
     'detail toko lokal tetap tersedia ketika Backend mengembalikan 404',
@@ -163,43 +160,57 @@ void main() {
     expect(stores.any((s) => s.name == 'FresGreen Organic'), isFalse);
   });
 
-  test('toko tanpa gambar disembunyikan dari daftar toko mobile', () async {
-    final barokah = _backendOnlyStore(
-      id: 'toko-sembako-barokah',
-      name: 'Toko Sembako Barokah',
-      status: 'buka',
-      image: '',
-    );
-    final ceria = _backendOnlyStore(
-      id: 'kios-mainan-baju',
-      name: 'Kios Mainan & Baju Ceria',
-      status: 'buka',
-      image: '',
-    );
-    final ujiAdmin = _backendOnlyStore(
-      id: 'toko-uji-persetujuan-admin',
-      name: 'Toko Uji Persetujuan Admin Revisi',
-      status: 'buka',
-      image: '',
-    );
+  test(
+    'toko terverifikasi tanpa gambar tetap tampil di daftar toko mobile',
+    () async {
+      final barokah = _backendOnlyStore(
+        id: 'toko-sembako-barokah',
+        name: 'Toko Sembako Barokah',
+        status: 'buka',
+        image: '',
+      );
+      final ceria = _backendOnlyStore(
+        id: 'kios-mainan-baju',
+        name: 'Kios Mainan & Baju Ceria',
+        status: 'buka',
+        image: '',
+      );
+      final ujiAdmin = _backendOnlyStore(
+        id: 'toko-uji-persetujuan-admin',
+        name: 'Toko Uji Persetujuan Admin Revisi',
+        status: 'buka',
+        image: '',
+      );
 
-    installStoreApiMock(
-      backendStores: [...marketStores, barokah, ceria, ujiAdmin],
-    );
+      installStoreApiMock(
+        backendStores: [...marketStores, barokah, ceria, ujiAdmin],
+      );
 
-    final stores = await fetchStoresWithRepository();
-    final storeIds = stores.map((s) => s.id).toSet();
+      final stores = await fetchStoresWithRepository();
+      final storeIds = stores.map((s) => s.id).toSet();
+      final storesWithoutImages = stores
+          .where(
+            (store) =>
+                storeIds.contains(store.id) && !StoreApi.hasValidImage(store),
+          )
+          .map((store) => store.id)
+          .toSet();
 
-    expect(storeIds.contains('toko-sembako-barokah'), isFalse);
-    expect(storeIds.contains('kios-mainan-baju'), isFalse);
-    expect(storeIds.contains('toko-uji-persetujuan-admin'), isFalse);
+      expect(storeIds.contains('toko-sembako-barokah'), isTrue);
+      expect(storeIds.contains('kios-mainan-baju'), isTrue);
+      expect(storeIds.contains('toko-uji-persetujuan-admin'), isTrue);
 
-    // Toko lain dengan gambar tetap lengkap
-    expect(stores.length, marketStores.length);
-    for (final store in stores) {
-      expect(StoreApi.hasValidImage(store), isTrue);
-    }
-  });
+      expect(stores.length, marketStores.length + 3);
+      expect(
+        storesWithoutImages,
+        containsAll([
+          'toko-sembako-barokah',
+          'kios-mainan-baju',
+          'toko-uji-persetujuan-admin',
+        ]),
+      );
+    },
+  );
 
   test(
     'toko backend yang kemudian memiliki gambar otomatis muncul di mobile',

@@ -42,7 +42,7 @@ class StoreModel extends Store {
         _nullableString(json['logoUrl']) ??
         _nullableString(json['image']) ??
         _nullableString(json['photoUrl']);
-    final image = backendImage == null
+    final image = backendImage == null || backendImage.trim().isEmpty
         ? ''
         : backendImage.startsWith('http://') ||
               backendImage.startsWith('https://')
@@ -50,19 +50,17 @@ class StoreModel extends Store {
         : backendImage.startsWith('/')
         ? '$baseUrl$backendImage'
         : backendImage;
-    final localImage = matchingLocalStore?.image.trim() ?? '';
-
     return StoreModel(
       id: slug,
       name: _requiredString(json, 'name'),
       category: _requiredString(json, 'category'),
-      displayCategory: matchingLocalStore?.displayCategory ?? '',
+      displayCategory: _requiredString(json, 'category'),
       badge: matchingLocalStore?.badge ?? '',
       rating: _number(json['rating']) > 0
           ? _number(json['rating']).toString()
           : '',
       products: '$productCount Produk',
-      image: localImage.isNotEmpty ? matchingLocalStore!.image : image,
+      image: image,
       owner: _string(json['owner']),
       zone: _string(json['zone']),
       status: _string(json['status']),

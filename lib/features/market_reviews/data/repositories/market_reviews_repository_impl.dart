@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../../domain/entities/market_review.dart' as domain;
 import '../../domain/repositories/market_reviews_repository.dart';
 import '../models/market_review_model.dart' as model;
@@ -42,16 +44,21 @@ class MarketReviewsRepositoryImpl implements MarketReviewsRepository {
   }
 
   @override
+  Future<String> uploadPhoto(XFile photo) => _dataSource.uploadPhoto(photo);
+
+  @override
   Future<void> submitReview({
     required String name,
     required String date,
     required String text,
     required int rating,
+    List<String> photos = const [],
   }) => _dataSource.submitReview(
     name: name,
     date: date,
     text: text,
     rating: rating,
+    photos: photos,
   );
 
   domain.MarketReview _toEntity(model.MarketReview review) =>

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:frontend_flutter/core/network/api_config.dart';
 
 import '../models/market_review_model.dart';
@@ -80,23 +82,85 @@ class MarketReviewApi {
     );
   }
 
+  static Future<String> uploadPhoto(
+    XFile photo, {
+    http.Client? client,
+  }) async {
+    final uri = Uri.parse('${ApiConfig.baseUrl}/api/upload');
+    final request = http.MultipartRequest('POST', uri);
+    request.fields['folder'] = 'market-reviews';
+
+    final bytes = await photo.readAsBytes();
+    final filename = photo.name.isNotEmpty ? photo.name : 'review_photo.jpg';
+
+    final ext = filename.split('.').last.toLowerCase();
+    final MediaType contentType;
+    if (ext == 'png') {
+      contentType = MediaType('image', 'png');
+    } else if (ext == 'webp') {
+      contentType = MediaType('image', 'webp');
+    } else {
+      contentType = MediaType('image', 'jpeg');
+    }
+
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        bytes,
+        filename: filename,
+        contentType: contentType,
+      ),
+    );
+
+    final requestClient = clientForTesting ?? client;
+    final streamedResponse = requestClient != null
+        ? await requestClient.send(request).timeout(const Duration(seconds: 30))
+        : await request.send().timeout(const Duration(seconds: 30));
+
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      String message = 'Gagal mengunggah foto (${response.statusCode}).';
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map && body['error'] is String) {
+          message = body['error'] as String;
+        }
+      } on FormatException {
+        // Keep the status-based message for non-JSON responses.
+      }
+      throw Exception(message);
+    }
+
+    final body = jsonDecode(response.body);
+    if (body is Map &&
+        body['url'] is String &&
+        (body['url'] as String).isNotEmpty) {
+      return body['url'] as String;
+    }
+    throw const FormatException('URL foto tidak ditemukan dalam respon unggah.');
+  }
+
   static Future<void> submitReview({
     required String name,
     required String date,
     required String text,
     required int rating,
+    List<String> photos = const [],
     http.Client? client,
   }) async {
+    final payload = <String, dynamic>{
+      'name': name,
+      'date': date,
+      'text': text,
+      'rating': rating,
+      if (photos.isNotEmpty) 'photos': photos,
+    };
     final response = await _post(
       _uri(''),
       headers: const {'Content-Type': 'application/json'},
       client: client,
-      body: jsonEncode({
-        'name': name,
-        'date': date,
-        'text': text,
-        'rating': rating,
-      }),
+      body: jsonEncode(payload),
     ).timeout(const Duration(seconds: 12));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       String message = 'Gagal mengirim ulasan pasar (${response.statusCode}).';

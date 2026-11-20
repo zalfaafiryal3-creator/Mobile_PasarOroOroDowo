@@ -1,5 +1,6 @@
 // lib/screens/write_market_review/write_market_review_screen.dart
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   final List<XFile> _photos = [];
   int _rating = 5;
   bool _sending = false;
+  String? _uploadStatus;
   String? _error;
 
   // Selected aspect chips (all selected by default as in the design)
@@ -42,13 +44,6 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     4: 'Puas! / Direkomendasikan',
     5: 'Sangat Puas! / Sangat Direkomendasikan',
   };
-
-  // Mock sample images matching the reference mockup
-  final List<String> _sampleImages = [
-    'https://api.builder.io/api/v1/image/assets/TEMP/281087ddf5a502278dbbffd2002884256a7752c8?width=197',
-    'https://api.builder.io/api/v1/image/assets/TEMP/f4caf1c7c8b48d3370ebb5e48d3299eefdb4750a?width=197',
-  ];
-  final Set<int> _removedSampleIndices = {};
 
   @override
   void initState() {
@@ -83,6 +78,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     setState(() {
       _error = null;
       _sending = true;
+      _uploadStatus = null;
     });
     try {
       final name = _nameController.text.trim().isEmpty
@@ -92,11 +88,31 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           ? 'Pengunjung belum menambahkan cerita.'
           : _experienceController.text.trim();
 
+      final List<String> uploadedUrls = [];
+      if (_photos.isNotEmpty) {
+        for (int i = 0; i < _photos.length; i++) {
+          if (mounted) {
+            setState(() {
+              _uploadStatus = 'Mengunggah foto (${i + 1}/${_photos.length})...';
+            });
+          }
+          final url = await widget.submitReview.uploadPhoto(_photos[i]);
+          uploadedUrls.add(url);
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _uploadStatus = 'Menyimpan ulasan...';
+        });
+      }
+
       await widget.submitReview(
         name: name,
         date: 'Baru saja',
         text: text,
         rating: _rating,
+        photos: uploadedUrls,
       );
 
       if (!mounted) return;
@@ -138,7 +154,12 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) {
+        setState(() {
+          _sending = false;
+          _uploadStatus = null;
+        });
+      }
     }
   }
 
@@ -875,8 +896,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
 
   // --- CARD 6: UPLOAD PHOTO SECTION ---
   Widget _buildUploadPhotoSection() {
-    final int totalSelected =
-        _photos.length + (_sampleImages.length - _removedSampleIndices.length);
+    final int totalSelected = _photos.length;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -926,7 +946,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 ),
               ),
               Text(
-                '$totalSelected Terpilih',
+                '$totalSelected / 5 Terpilih',
                 style: const TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 11,
@@ -942,126 +962,53 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             child: Row(
               children: [
                 // + Foto Button
-                InkWell(
-                  onTap: _pickPhotos,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    width: 90,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF7FEE7),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFC2DC80),
-                        width: 1.5,
+                if (_photos.length < 5) ...[
+                  InkWell(
+                    onTap: _sending ? null : _pickPhotos,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 90,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF7FEE7),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFC2DC80),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.add,
+                              size: 18,
+                              color: Color(0xFF4B6515),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            '+ Foto',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF4B6515),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.add,
-                            size: 18,
-                            color: Color(0xFF4B6515),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        const Text(
-                          '+ Foto',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF4B6515),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
-                ),
-
-                // Sample Images
-                for (int idx = 0; idx < _sampleImages.length; idx++)
-                  if (!_removedSampleIndices.contains(idx)) ...[
-                    const SizedBox(width: 10),
-                    Stack(
-                      children: [
-                        Container(
-                          width: 90,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFFE2E8F0),
-                              width: 1,
-                            ),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: Image.network(
-                            _sampleImages[idx],
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        if (idx == 1)
-                          Positioned(
-                            left: 5,
-                            bottom: 5,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xB3000000),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                'Lorong',
-                                style: TextStyle(
-                                  fontFamily: 'Plus Jakarta Sans',
-                                  fontSize: 9,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: InkWell(
-                            onTap: () => setState(() {
-                              _removedSampleIndices.add(idx);
-                            }),
-                            child: Container(
-                              width: 20,
-                              height: 20,
-                              decoration: const BoxDecoration(
-                                color: Color(0x99000000),
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: const Text(
-                                '✕',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                ],
 
                 // Picked user photos
                 for (int i = 0; i < _photos.length; i++) ...[
@@ -1079,33 +1026,27 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                           ),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: kIsWeb
-                            ? Image.network(_photos[i].path, fit: BoxFit.cover)
-                            : Image.file(
-                                File(_photos[i].path),
-                                fit: BoxFit.cover,
-                              ),
+                        child: _ReviewThumbnail(file: _photos[i]),
                       ),
                       Positioned(
                         top: 4,
                         right: 4,
                         child: InkWell(
-                          onTap: () => setState(() => _photos.removeAt(i)),
+                          onTap: _sending
+                              ? null
+                              : () => setState(() => _photos.removeAt(i)),
                           child: Container(
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                             decoration: const BoxDecoration(
                               color: Color(0x99000000),
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
-                              '✕',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 14,
                             ),
                           ),
                         ),
@@ -1235,13 +1176,28 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
         ),
         alignment: Alignment.center,
         child: _sending
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    _uploadStatus ?? 'Mengirim...',
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1263,6 +1219,73 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                   ),
                 ],
               ),
+      ),
+    );
+  }
+}
+
+class _ReviewThumbnail extends StatefulWidget {
+  const _ReviewThumbnail({required this.file});
+
+  final XFile file;
+
+  @override
+  State<_ReviewThumbnail> createState() => _ReviewThumbnailState();
+}
+
+class _ReviewThumbnailState extends State<_ReviewThumbnail> {
+  Uint8List? _bytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReviewThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.file.path != widget.file.path) {
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    try {
+      final bytes = await widget.file.readAsBytes();
+      if (mounted) setState(() => _bytes = bytes);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_bytes == null) {
+      return Container(
+        color: const Color(0xFFF8FAFC),
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Color(0xFF4B6515),
+          ),
+        ),
+      );
+    }
+    return Image.memory(
+      _bytes!,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => Container(
+        color: const Color(0xFFF8FAFC),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.image_outlined,
+          color: Color(0xFF94A3B8),
+          size: 24,
+        ),
       ),
     );
   }

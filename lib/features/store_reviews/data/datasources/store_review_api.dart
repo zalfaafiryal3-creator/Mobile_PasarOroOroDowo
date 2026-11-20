@@ -69,7 +69,9 @@ class StoreReviewApi {
     ).timeout(const Duration(seconds: 12));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
-        'Gagal mengambil statistik ulasan toko (${response.statusCode}).',
+        response.statusCode == 404
+            ? 'Toko belum terdaftar di server. Admin perlu mendaftarkan atau menyinkronkan toko ke Kelola Toko.'
+            : 'Gagal mengambil statistik ulasan toko (${response.statusCode}).',
       );
     }
     final body = jsonDecode(response.body);
@@ -102,7 +104,9 @@ class StoreReviewApi {
     ).timeout(const Duration(seconds: 12));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
-        'Gagal mengambil daftar ulasan toko (${response.statusCode}).',
+        response.statusCode == 404
+            ? 'Toko belum terdaftar di server. Admin perlu mendaftarkan atau menyinkronkan toko ke Kelola Toko.'
+            : 'Gagal mengambil daftar ulasan toko (${response.statusCode}).',
       );
     }
     final body = jsonDecode(response.body);

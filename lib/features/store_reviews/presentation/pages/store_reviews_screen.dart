@@ -11,6 +11,7 @@ class StoreReviewsScreen extends StatefulWidget {
     required this.storeName,
     required this.getStatistics,
     required this.getReviews,
+    this.isLocalFallback = false,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class StoreReviewsScreen extends StatefulWidget {
   final String storeName;
   final GetStoreReviewStatistics getStatistics;
   final GetStoreReviews getReviews;
+  final bool isLocalFallback;
 
   @override
   State<StoreReviewsScreen> createState() => _StoreReviewsScreenState();
@@ -47,6 +49,10 @@ class _StoreReviewsScreenState extends State<StoreReviewsScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.isLocalFallback) {
+      _loading = false;
+      return;
+    }
     _loadStatistics();
     _loadReviews(reset: true);
   }
@@ -154,121 +160,135 @@ class _StoreReviewsScreenState extends State<StoreReviewsScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextField(
-                    controller: _searchController,
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (_) => _loadReviews(reset: true),
-                    decoration: InputDecoration(
-                      hintText: 'Cari ulasan...',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          _loadReviews(reset: true);
-                        },
-                        icon: const Icon(Icons.close),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                if (widget.isLocalFallback)
+                  const Expanded(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'Ulasan toko ini belum tersambung ke server. Admin perlu mendaftarkan atau menyinkronkan toko ke Kelola Toko terlebih dahulu.',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 46,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    children: _filters.map((entry) {
-                      final (value, label) = entry;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: ChoiceChip(
-                          label: Text('$label (${_countFor(value)})'),
-                          selected: _filter == value,
-                          onSelected: (_) {
-                            setState(() => _filter = value);
-                            _loadReviews(reset: true);
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                if (_statisticsError != null)
+                  )
+                else ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Statistik ulasan gagal dimuat: $_statisticsError',
-                      style: const TextStyle(
-                        color: Color(0xFFB91C1C),
-                        fontSize: 12,
+                    child: TextField(
+                      controller: _searchController,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (_) => _loadReviews(reset: true),
+                      decoration: InputDecoration(
+                        hintText: 'Cari ulasan...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            _loadReviews(reset: true);
+                          },
+                          icon: const Icon(Icons.close),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
-                const Divider(height: 1),
-                Expanded(
-                  child: _loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _error != null && _reviews.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(_error!, textAlign: TextAlign.center),
-                                const SizedBox(height: 12),
-                                OutlinedButton(
-                                  onPressed: () {
-                                    _loadStatistics();
-                                    _loadReviews(reset: true);
-                                  },
-                                  child: const Text('Coba Lagi'),
-                                ),
-                              ],
-                            ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 46,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      children: _filters.map((entry) {
+                        final (value, label) = entry;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: ChoiceChip(
+                            label: Text('$label (${_countFor(value)})'),
+                            selected: _filter == value,
+                            onSelected: (_) {
+                              setState(() => _filter = value);
+                              _loadReviews(reset: true);
+                            },
                           ),
-                        )
-                      : _reviews.isEmpty
-                      ? const Center(
-                          child: Text('Belum ada ulasan untuk filter ini.'),
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _reviews.length + (_hasMore ? 1 : 0),
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            if (index == _reviews.length) {
-                              return Center(
-                                child: OutlinedButton(
-                                  onPressed: _loadingMore
-                                      ? null
-                                      : () => _loadReviews(reset: false),
-                                  child: Text(
-                                    _loadingMore
-                                        ? 'Memuat...'
-                                        : 'Muat Ulasan Lainnya',
-                                  ),
-                                ),
-                              );
-                            }
-                            return _ReviewCard(review: _reviews[index]);
-                          },
-                        ),
-                ),
-                if (!_loading && _reviews.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      '${_reviews.length} dari $_totalCount ulasan',
-                      style: const TextStyle(color: MarketColors.muted),
+                        );
+                      }).toList(),
                     ),
                   ),
+                  if (_statisticsError != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Statistik ulasan gagal dimuat: $_statisticsError',
+                        style: const TextStyle(
+                          color: Color(0xFFB91C1C),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: _loading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _error != null && _reviews.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(_error!, textAlign: TextAlign.center),
+                                  const SizedBox(height: 12),
+                                  OutlinedButton(
+                                    onPressed: () {
+                                      _loadStatistics();
+                                      _loadReviews(reset: true);
+                                    },
+                                    child: const Text('Coba Lagi'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : _reviews.isEmpty
+                        ? const Center(
+                            child: Text('Belum ada ulasan untuk filter ini.'),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _reviews.length + (_hasMore ? 1 : 0),
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              if (index == _reviews.length) {
+                                return Center(
+                                  child: OutlinedButton(
+                                    onPressed: _loadingMore
+                                        ? null
+                                        : () => _loadReviews(reset: false),
+                                    child: Text(
+                                      _loadingMore
+                                          ? 'Memuat...'
+                                          : 'Muat Ulasan Lainnya',
+                                    ),
+                                  ),
+                                );
+                              }
+                              return _ReviewCard(review: _reviews[index]);
+                            },
+                          ),
+                  ),
+                  if (!_loading && _reviews.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        '${_reviews.length} dari $_totalCount ulasan',
+                        style: const TextStyle(color: MarketColors.muted),
+                      ),
+                    ),
+                ],
               ],
             ),
           ),

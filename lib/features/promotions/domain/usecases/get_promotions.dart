@@ -6,5 +6,7 @@ class GetPromotions {
 
   final PromoRepository _repository;
 
-  List<Promo> call() => _repository.getPromotions();
+  Future<List<Promo>> call() => _repository.getPromotions();
+
+  List<Promo> get localFallback => _repository.getLocalPromotions();
 }

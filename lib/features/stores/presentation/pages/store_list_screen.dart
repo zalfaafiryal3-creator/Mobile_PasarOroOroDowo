@@ -55,6 +55,9 @@ class _StoreListScreenState extends State<StoreListScreen> {
       if (!mounted) return;
       setState(() {
         _stores = stores;
+        _loadError = widget.getStores.lastFetchError == null
+            ? null
+            : 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
         _isLoading = false;
       });
     } catch (error) {

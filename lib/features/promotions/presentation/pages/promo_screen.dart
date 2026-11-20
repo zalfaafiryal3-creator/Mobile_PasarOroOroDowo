@@ -15,6 +15,9 @@ class PromoScreen extends StatefulWidget {
 class _PromoScreenState extends State<PromoScreen> {
   final _searchController = TextEditingController();
   String _filter = 'Semua Jadwal';
+  late List<Promo> _promos;
+  String? _loadError;
+  bool _isLoading = true;
 
   static const _filters = [
     'Semua Jadwal',
@@ -24,15 +27,42 @@ class _PromoScreenState extends State<PromoScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _promos = widget.getPromotions.localFallback;
+    Future<void>.microtask(_loadPromotions);
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadPromotions() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+    try {
+      final promotions = await widget.getPromotions();
+      if (!mounted) return;
+      setState(() => _promos = promotions);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _promos = widget.getPromotions.localFallback;
+        _loadError = error.toString();
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final search = _searchController.text.trim().toLowerCase();
-    final promos = widget.getPromotions().where((promo) {
+    final promos = _promos.where((promo) {
       final matchesQuery = '${promo.title} ${promo.status} ${promo.description}'
           .toLowerCase()
           .contains(search);
@@ -236,6 +266,48 @@ class _PromoScreenState extends State<PromoScreen> {
                       }),
                     ),
                     const SizedBox(height: 12),
+                    if (_loadError != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7E5),
+                          border: Border.all(color: const Color(0xFFF2D38C)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.wifi_off_outlined,
+                              color: Color(0xFF8A5A00),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Promo terbaru belum dapat dimuat. Menampilkan data lokal. $_loadError',
+                                style: const TextStyle(
+                                  color: Color(0xFF704B00),
+                                  fontSize: 9,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _isLoading ? null : _loadPromotions,
+                              child: const Text(
+                                'Coba lagi',
+                                style: TextStyle(fontSize: 9),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else if (_isLoading)
+                      const LinearProgressIndicator(
+                        minHeight: 2,
+                        color: MarketColors.yellow,
+                        backgroundColor: Color(0xFFDCE8C5),
+                      ),
                     _featuredFestival(),
                     const SizedBox(height: 13),
                     Row(
@@ -257,7 +329,7 @@ class _PromoScreenState extends State<PromoScreen> {
                           ),
                         ),
                         Text(
-                          '4 Program Aktif',
+                          '${_promos.length} Promo',
                           style: const TextStyle(
                             color: MarketColors.muted,
                             fontSize: 8,

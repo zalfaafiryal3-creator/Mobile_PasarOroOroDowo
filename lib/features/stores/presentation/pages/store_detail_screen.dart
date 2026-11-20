@@ -1149,7 +1149,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               InkWell(
                 onTap: () async {
                   final submitted = await Navigator.of(context).pushNamed<bool>(
-                    '/tulis-ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}',
+                    '/tulis-ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}'
+                    '&localOnly=${_store.isLocalFallback}',
                   );
                   if (submitted == true && mounted) await _loadStore();
                 },
@@ -1327,7 +1328,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
             onTap: () => goTo(
               context,
               '/ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}'
-              '&storeName=${Uri.encodeQueryComponent(_store.name)}',
+              '&storeName=${Uri.encodeQueryComponent(_store.name)}'
+              '&localOnly=${_store.isLocalFallback}',
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

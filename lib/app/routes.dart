@@ -94,6 +94,7 @@ Route<dynamic> generateAppRoute(
         page = WriteStoreReviewScreen(
           submitReview: dependencies.submitStoreReview,
           storeId: uri.queryParameters['storeId'],
+          isLocalFallback: uri.queryParameters['localOnly'] == 'true',
         );
       case '/ulasan-toko':
         page = StoreReviewsScreen(
@@ -101,6 +102,7 @@ Route<dynamic> generateAppRoute(
           storeName: uri.queryParameters['storeName'] ?? 'Toko',
           getStatistics: dependencies.getStoreReviewStatistics,
           getReviews: dependencies.getStoreReviews,
+          isLocalFallback: uri.queryParameters['localOnly'] == 'true',
         );
       default:
         page = HomeScreen(
@@ -111,7 +113,7 @@ Route<dynamic> generateAppRoute(
     }
   }
 
-  if (path == '/tulis-ulasan-pasar') {
+  if (path == '/tulis-ulasan-pasar' || path == '/tulis-ulasan-toko') {
     return MaterialPageRoute<bool>(settings: settings, builder: (_) => page);
   }
   return MaterialPageRoute<void>(settings: settings, builder: (_) => page);

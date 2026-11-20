@@ -12,11 +12,13 @@ class WriteStoreReviewScreen extends StatefulWidget {
   const WriteStoreReviewScreen({
     required this.submitReview,
     this.storeId,
+    this.isLocalFallback = false,
     super.key,
   });
 
   final SubmitStoreReview submitReview;
   final String? storeId;
+  final bool isLocalFallback;
 
   @override
   State<WriteStoreReviewScreen> createState() => _WriteStoreReviewScreenState();
@@ -144,6 +146,25 @@ class _WriteStoreReviewScreenState extends State<WriteStoreReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLocalFallback) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          foregroundColor: MarketColors.ink,
+          title: const Text('Tulis Ulasan Toko'),
+        ),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'Ulasan belum dapat dikirim karena toko ini belum terdaftar di server. Admin perlu mendaftarkan atau menyinkronkan toko ke Kelola Toko terlebih dahulu.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
     return MarketPage(
       background: Colors.white,
       child: Container(

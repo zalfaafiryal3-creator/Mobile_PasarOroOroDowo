@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend_flutter/app/dependencies.dart';
+import 'package:frontend_flutter/app/routes.dart';
 import 'package:frontend_flutter/features/stores/data/datasources/local/store_catalog.dart';
 import 'package:frontend_flutter/features/stores/presentation/pages/store_detail_screen.dart';
 
@@ -47,7 +48,7 @@ void main() {
       expect(find.text('Nomor telepon belum tersedia'), findsOneWidget);
       expect(find.text('Deskripsi toko belum tersedia.'), findsOneWidget);
       expect(find.text('Produk belum tersedia.'), findsOneWidget);
-      expect(find.text('4.9'), findsNWidgets(2));
+      expect(find.text('4.9'), findsNothing);
       expect(find.text('Ulasan Toko & Pembeli'), findsOneWidget);
       expect(find.text('+ Tulis Ulasan'), findsOneWidget);
       expect(find.text('Katalog Produk Kios'), findsNothing);
@@ -65,6 +66,58 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('review link opens the review screen for a local store', (
+    tester,
+  ) async {
+    installStoreApiMock(backendStores: []);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _storeDetailScreen(
+          storeId: 'oma-panda',
+          expectedStoreName: 'Oma Panda',
+        ),
+        onGenerateRoute: (settings) =>
+            generateAppRoute(settings, _dependencies),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Lihat Semua Ulasan'));
+    await tester.tap(find.text('Lihat Semua Ulasan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Review Toko'), findsOneWidget);
+    expect(
+      find.textContaining('Admin perlu mendaftarkan atau menyinkronkan toko'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('write-review link responds for a local store', (tester) async {
+    installStoreApiMock(backendStores: []);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _storeDetailScreen(
+          storeId: 'oma-panda',
+          expectedStoreName: 'Oma Panda',
+        ),
+        onGenerateRoute: (settings) =>
+            generateAppRoute(settings, _dependencies),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('+ Tulis Ulasan'));
+    await tester.tap(find.text('+ Tulis Ulasan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tulis Ulasan Toko'), findsOneWidget);
+    expect(
+      find.textContaining('Admin perlu mendaftarkan atau menyinkronkan toko'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Backend-only store uses placeholders instead of empty assets', (
     tester,

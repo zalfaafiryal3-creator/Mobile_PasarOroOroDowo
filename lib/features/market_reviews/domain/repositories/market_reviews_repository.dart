@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../entities/market_review.dart';
 
 abstract interface class MarketReviewsRepository {
@@ -10,10 +12,13 @@ abstract interface class MarketReviewsRepository {
 
   Future<MarketReviewStatistics> fetchStatistics();
 
+  Future<String> uploadPhoto(XFile photo);
+
   Future<void> submitReview({
     required String name,
     required String date,
     required String text,
     required int rating,
+    List<String> photos = const [],
   });
 }

@@ -1102,23 +1102,56 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
             const SizedBox(height: 8),
             SizedBox(
               height: 80,
-              child: Row(
-                children: review.photos.map((photo) {
-                  return Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: MarketAsset(
-                          photo,
-                          fit: BoxFit.cover,
-                          height: 80,
-                          width: double.infinity,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: review.photos.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, idx) {
+                  final photo = review.photos[idx];
+                  return GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => Dialog(
+                          backgroundColor: Colors.transparent,
+                          insetPadding: const EdgeInsets.all(16),
+                          child: Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              InteractiveViewer(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: MarketAsset(
+                                    photo,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          ),
                         ),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: MarketAsset(
+                        photo,
+                        fit: BoxFit.cover,
+                        width: 80,
+                        height: 80,
                       ),
                     ),
                   );
-                }).toList(),
+                },
               ),
             ),
           ],

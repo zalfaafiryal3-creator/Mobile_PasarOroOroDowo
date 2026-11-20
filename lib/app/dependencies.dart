@@ -30,6 +30,7 @@ import 'package:frontend_flutter/features/market_reviews/domain/usecases/get_mar
 import 'package:frontend_flutter/features/market_reviews/domain/usecases/get_market_reviews.dart';
 import 'package:frontend_flutter/features/market_reviews/domain/usecases/submit_market_review.dart';
 import 'package:frontend_flutter/features/promotions/data/datasources/local/promo_catalog.dart';
+import 'package:frontend_flutter/features/promotions/data/datasources/promo_remote_data_source.dart';
 import 'package:frontend_flutter/features/promotions/data/repositories/promo_repository_impl.dart';
 import 'package:frontend_flutter/features/promotions/domain/repositories/promo_repository.dart';
 import 'package:frontend_flutter/features/promotions/domain/usecases/get_promotions.dart';
@@ -78,7 +79,10 @@ class AppDependencies {
     final marketReviewsRepository = MarketReviewsRepositoryImpl(
       MarketReviewsRemoteDataSource(client: client),
     );
-    final promoRepository = PromoRepositoryImpl(const PromoLocalDataSource());
+    final promoRepository = PromoRepositoryImpl(
+      PromoRemoteDataSource(client: client),
+      const PromoLocalDataSource(),
+    );
     return AppDependencies._(
       storeRepository: storeRepository,
       getStores: GetStores(storeRepository),

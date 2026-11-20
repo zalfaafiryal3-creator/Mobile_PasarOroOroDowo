@@ -23,9 +23,27 @@ class StoreRepositoryImpl implements StoreRepository {
     'fresh-green': 'fresgreen-organic',
   };
 
+  static List<Store> _lastKnownStores = [];
+  static String? _lastFetchError;
+
+  @override
+  String? get lastFetchError => _lastFetchError;
+
   @override
   Future<List<Store>> fetchStores() async {
-    final backendStores = await _remoteDataSource.fetchStores();
+    List<Store> backendStores = const [];
+    try {
+      backendStores = await _remoteDataSource.fetchStores();
+      _lastFetchError = null;
+    } catch (e) {
+      _lastFetchError = e.toString();
+      debugPrint(
+        'Koneksi backend gagal: $e. Menggunakan cache / katalog lokal.',
+      );
+      if (_lastKnownStores.isNotEmpty) {
+        return _lastKnownStores;
+      }
+    }
     final localStores = _localDataSource.fetchStores();
     final storesBySlug = <String, Store>{};
     for (final store in backendStores) {
@@ -45,13 +63,17 @@ class StoreRepositoryImpl implements StoreRepository {
       final backendStore = storesBySlug[localStore.id];
       if (backendStore == null) {
         mergedStores.putIfAbsent(localStore.id, () => localStore);
-      } else if (backendStore.name == localStore.name ||
-          _isDuplicateAlias(backendStore.id, localStore.id)) {
-        if (StoreApi.isPublicStatus(backendStore.status)) {
-          mergedStores[localStore.id] = _mergeStores(localStore, backendStore);
-        }
       } else {
-        mergedStores.putIfAbsent(localStore.id, () => localStore);
+        if (StoreApi.isPublicStatus(backendStore.status)) {
+          mergedStores[localStore.id] = _mergeStores(
+            localStore,
+            backendStore,
+            preserveLocalName: _isDuplicateAlias(
+              backendStore.id,
+              localStore.id,
+            ),
+          );
+        }
       }
     }
 
@@ -67,18 +89,22 @@ class StoreRepositoryImpl implements StoreRepository {
             (store) => store.id == backendStore.id || store.id == canonical,
           )
           .firstOrNull;
-      if (localStore == null && StoreApi.hasValidImage(backendStore)) {
+      if (localStore == null) {
         mergedStores[backendStore.id] = backendStore;
       }
     }
 
-    return mergedStores.values
+    final result = mergedStores.values
         .where(
           (store) =>
-              StoreApi.hasValidImage(store) &&
-              (store.status.isEmpty || StoreApi.isPublicStatus(store.status)),
+              store.status.isEmpty || StoreApi.isPublicStatus(store.status),
         )
         .toList();
+
+    if (result.isNotEmpty) {
+      _lastKnownStores = result;
+    }
+    return result;
   }
 
   @override
@@ -103,10 +129,7 @@ class StoreRepositoryImpl implements StoreRepository {
     try {
       final backendStore = await _remoteDataSource.fetchStore(slug);
       if ((backendStore.id != StoreApi.backendSlug(slug) &&
-              _canonicalSlug(backendStore.id) != canonicalSlug) ||
-          (requestedName != null &&
-              backendStore.name != requestedName &&
-              !_isDuplicateAlias(backendStore.id, slug))) {
+          _canonicalSlug(backendStore.id) != canonicalSlug)) {
         if (fallbackStore != null) return fallbackStore;
         throw const FormatException(
           'Detail toko dari server tidak sesuai dengan toko yang dipilih.',
@@ -118,13 +141,20 @@ class StoreRepositoryImpl implements StoreRepository {
       }
       final matchingLocalStore =
           mobileStore != null &&
-              (mobileStore.name == backendStore.name ||
+              (mobileStore.id == _canonicalSlug(backendStore.id) ||
                   _isDuplicateAlias(backendStore.id, mobileStore.id))
           ? mobileStore
           : null;
       return matchingLocalStore == null
           ? backendStore
-          : _mergeStores(matchingLocalStore, backendStore);
+          : _mergeStores(
+              matchingLocalStore,
+              backendStore,
+              preserveLocalName: _isDuplicateAlias(
+                backendStore.id,
+                matchingLocalStore.id,
+              ),
+            );
     } on Exception catch (error) {
       if (fallbackStore != null) {
         if (error is StoreApiException && error.statusCode == 404) {
@@ -148,33 +178,31 @@ class StoreRepositoryImpl implements StoreRepository {
         _canonicalToBackend[b] == a;
   }
 
-  static Store _mergeStores(Store local, Store backend) => Store(
+  static Store _mergeStores(
+    Store local,
+    Store backend, {
+    bool preserveLocalName = false,
+  }) => Store(
     id: local.id,
-    name: local.name,
-    category: local.category.isNotEmpty ? local.category : backend.category,
-    displayCategory: local.displayCategory.isNotEmpty
+    name: preserveLocalName ? local.name : backend.name,
+    category: backend.category,
+    displayCategory: backend.category == local.category
         ? local.displayCategory
         : backend.displayCategory,
     badge: local.badge.isNotEmpty ? local.badge : backend.badge,
-    rating: backend.rating.isNotEmpty ? backend.rating : local.rating,
-    products: backend.productCount > 0 ? backend.products : local.products,
-    image: local.image.trim().isNotEmpty ? local.image : backend.image,
-    owner: backend.owner.isNotEmpty ? backend.owner : local.owner,
-    zone: backend.zone.isNotEmpty ? backend.zone : local.zone,
+    rating: backend.rating,
+    products: backend.products,
+    image: StoreApi.hasValidImage(backend) ? backend.image : local.image,
+    owner: backend.owner,
+    zone: backend.zone,
     status: backend.status,
-    openTime: backend.openTime ?? local.openTime,
-    closeTime: backend.closeTime ?? local.closeTime,
-    phone: backend.phone.isNotEmpty ? backend.phone : local.phone,
-    description: backend.description.isNotEmpty
-        ? backend.description
-        : local.description,
-    productCount: backend.productCount > 0
-        ? backend.productCount
-        : local.productCount,
+    openTime: backend.openTime,
+    closeTime: backend.closeTime,
+    phone: backend.phone,
+    description: backend.description,
+    productCount: backend.productCount,
     reviewCount: backend.reviewCount,
-    catalogProducts: backend.catalogProducts.isNotEmpty
-        ? backend.catalogProducts
-        : local.catalogProducts,
+    catalogProducts: backend.catalogProducts,
     isLocalFallback: false,
   );
 }
