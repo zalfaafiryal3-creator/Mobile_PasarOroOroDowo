@@ -181,8 +181,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
                             _buildAtmosphereGallery(),
                           ],
                           const SizedBox(height: 16),
-                          _buildProductCatalog(),
-                          const SizedBox(height: 16),
+                          if (_shouldShowProductCatalog()) ...[
+                            _buildProductCatalog(),
+                            const SizedBox(height: 16),
+                          ],
                           _buildReviewsSection(),
                           const SizedBox(height: 20),
                         ],
@@ -951,6 +953,20 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
         ),
       ],
     );
+  }
+
+  bool _shouldShowProductCatalog() {
+    final categoryId = _store.categoryId;
+    if (categoryId == 1 || categoryId == 3) {
+      return true;
+    }
+    if (categoryId != null) {
+      return false;
+    }
+    final name = _store.category.trim().toLowerCase();
+    return name == 'makanan' ||
+        name == 'kuliner legendaris' ||
+        name == 'kuliner legend';
   }
 
   // --- 4. Product Catalog Header & 2-Column Grid ---

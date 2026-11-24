@@ -8,6 +8,7 @@ class Store {
     required this.rating,
     required this.products,
     required this.image,
+    this.categoryId,
     this.owner = '',
     this.zone = '',
     this.status = '',
@@ -29,6 +30,7 @@ class Store {
   final String rating;
   final String products;
   final String image;
+  final int? categoryId;
   final String owner;
   final String zone;
   final String status;

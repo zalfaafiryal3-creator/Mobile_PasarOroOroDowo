@@ -10,6 +10,7 @@ class StoreModel extends Store {
     required super.rating,
     required super.products,
     required super.image,
+    super.categoryId,
     super.owner,
     super.zone,
     super.status,
@@ -50,6 +51,9 @@ class StoreModel extends Store {
         : backendImage.startsWith('/')
         ? '$baseUrl$backendImage'
         : backendImage;
+    final categoryIdRaw = json['categoryId'];
+    final categoryId =
+        categoryIdRaw is num ? categoryIdRaw.toInt() : null;
     return StoreModel(
       id: slug,
       name: _requiredString(json, 'name'),
@@ -61,6 +65,7 @@ class StoreModel extends Store {
           : '',
       products: '$productCount Produk',
       image: image,
+      categoryId: categoryId ?? matchingLocalStore?.categoryId,
       owner: _string(json['owner']),
       zone: _string(json['zone']),
       status: _string(json['status']),
