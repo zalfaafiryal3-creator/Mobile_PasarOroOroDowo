@@ -1,45 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Base href placeholder for Flutter build.
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Primary SEO Meta Tags -->
+  <title>Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage & Belanja Modern</title>
+  <meta name="title" content="Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage & Belanja Modern">
+  <meta name="description" content="Informasi resmi Pasar Oro-Oro Dowo Malang. Pasar tradisional terbersih dan cagar budaya di Kota Malang dengan direktori toko lengkap, kuliner legendaris, promo menarik, denah lokasi, dan rekomendasi kunjungan.">
+  <meta name="keywords" content="Pasar Oro Oro Dowo, Pasar Tradisional Malang, Toko Pasar Oro Oro Dowo, Produk Pasar Oro Oro Dowo, Informasi Pasar Oro Oro Dowo Malang, Kuliner Pasar Oro Oro Dowo, Wisata Belanja Malang, Pasar Bersih Malang">
+  <meta name="author" content="Pasar Oro-Oro Dowo">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="Pasar Oro-Oro Dowo Malang">
+  <meta property="og:title" content="Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage & Belanja Modern">
+  <meta property="og:description" content="Pusat belanja pangan segar dan kuliner tradisional modern terbersih di Kota Malang. Temukan kios sayur, jajanan legendaris, promo, denah pasar, dan ulasan pengunjung.">
+  <meta property="og:image" content="assets/ba6b2.png">
+  <meta property="og:image:alt" content="Suasana dan Gedung Cagar Budaya Pasar Oro-Oro Dowo Malang">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage">
+  <meta name="twitter:description" content="Pasar tradisional terbersih dan cagar budaya di Kota Malang dengan kuliner legendaris, sayur segar, dan UMKM lokal.">
+  <meta name="twitter:image" content="assets/ba6b2.png">
+
+  <!-- Canonical URL Placeholder: Ganti dengan domain resmi jika sudah tersedia -->
+  <!-- <link rel="canonical" href="https://pasaroroorodowo.malang.go.id/"> -->
+
+  <!-- Theme & Mobile App Configuration -->
+  <meta name="theme-color" content="#4B6515">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="frontend_flutter">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Pasar Oro-Oro Dowo">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>frontend_flutter</title>
+  <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.json">
+
+  <!-- Structured Data: Schema.org Market & LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Market",
+    "name": "Pasar Oro-Oro Dowo",
+    "alternateName": "Pasar Tradisional Oro-Oro Dowo Malang",
+    "description": "Pasar tradisional cagar budaya terbersih di Kota Malang yang menyediakan produk sembako, sayuran segar, oleh-oleh, dan kuliner legendaris.",
+    "url": "https://pasaroroorodowo.malang.go.id",
+    "image": "assets/ba6b2.png",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Jl. Guntur No.20, Oro-oro Dowo",
+      "addressLocality": "Klojen",
+      "addressRegion": "Kota Malang, Jawa Timur",
+      "postalCode": "65119",
+      "addressCountry": "ID"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": -7.9719,
+      "longitude": 112.6288
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ],
+        "opens": "06:00",
+        "closes": "17:00"
+      }
+    ],
+    "priceRange": "Rp 5.000 - Rp 120.000",
+    "hasMap": "https://maps.google.com/?q=Pasar+Oro-Oro+Dowo+Malang"
+  }
+  </script>
+
+  <style>
+    /* Styling for early loading screen (First Contentful Paint optimization) */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F0F6DF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #594045;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .loading-logo {
+      width: 72px;
+      height: 72px;
+      margin-bottom: 16px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(75, 101, 21, 0.25);
+    }
+    .loading-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #4B6515;
+      margin: 0 0 6px 0;
+    }
+    .loading-subtitle {
+      font-size: 13px;
+      color: #594045;
+      margin: 0 0 20px 0;
+    }
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3.5px solid rgba(194, 220, 128, 0.5);
+      border-top-color: #4B6515;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Semantic fallback hidden when Flutter UI is rendered */
+    .seo-crawler-content {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <!-- Loading indicator shown immediately during WASM & JavaScript download -->
+  <div id="loading-container">
+    <img src="favicon.png" alt="Logo Pasar Oro-Oro Dowo Malang" class="loading-logo" onerror="this.style.display='none'">
+    <h1 class="loading-title">Pasar Oro-Oro Dowo</h1>
+    <p class="loading-subtitle">Pusat Belanja & Kuliner Tradisional Modern Malang</p>
+    <div class="loading-spinner" aria-label="Memuat aplikasi..."></div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
+  <!-- Semantic fallback content for search crawlers (Googlebot, Bing, indexing tools) -->
+  <noscript>
+    <div style="padding: 24px; max-width: 800px; margin: 0 auto; color: #333;">
+      <h1>Pasar Oro-Oro Dowo Malang</h1>
+      <p>Pasar Oro-Oro Dowo adalah pasar tradisional cagar budaya modern yang terletak di Klojen, Kota Malang, Jawa Timur. Terkenal sebagai pasar rakyat paling bersih, rapi, dan ramah pengunjung.</p>
+
+      <h2>Navigasi Halaman Utama</h2>
+      <ul>
+        <li><a href="/home">Beranda Pasar Oro-Oro Dowo</a></li>
+        <li><a href="/toko">Daftar Toko & Pedagang Pasar</a></li>
+        <li><a href="/promo">Promo & Diskon Belanja</a></li>
+        <li><a href="/rekomendasi">Rekomendasi Kuliner & Produk Pilihan</a></li>
+        <li><a href="/review-pasar">Review & Ulasan Pengunjung</a></li>
+        <li><a href="/denah">Denah & Peta Lokasi Toko</a></li>
+        <li><a href="/fasilitas-pasar">Fasilitas Lengkap Pasar</a></li>
+        <li><a href="/sejarah-pasar">Sejarah Cagar Budaya Pasar</a></li>
+        <li><a href="/info-kunjungan">Informasi Jam Buka & Kunjungan</a></li>
+        <li><a href="/chatbot-rekomendasi">AI Perencana Kunjungan Pasar</a></li>
+      </ul>
+
+      <h2>Kategori Belanja & Komoditas</h2>
+      <p>Pasar Oro-Oro Dowo menyediakan aneka kebutuhan seperti kuliner legendaris (kue lumpur, ote-ote, bakso goreng, soto rawon), sayuran dan buah segar, daging & sembako berkualitas, pakaian, serta peralatan rumah tangga.</p>
+    </div>
+  </noscript>
+
+  <!-- Semantic HTML container accessible to search crawlers while maintaining Flutter canvas overlay -->
+  <header class="seo-crawler-content">
+    <h1>Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage & Belanja Modern</h1>
+    <p>Direktori toko lengkap, kuliner legendaris, sayur segar, dan oleh-oleh khas Malang di Pasar Oro-Oro Dowo.</p>
+    <nav>
+      <ul>
+        <li><a href="/home">Beranda</a></li>
+        <li><a href="/toko">Toko</a></li>
+        <li><a href="/promo">Promo</a></li>
+        <li><a href="/review-pasar">Review Pasar</a></li>
+        <li><a href="/denah">Denah Pasar</a></li>
+        <li><a href="/info-kunjungan">Info Kunjungan</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!--
+    Flutter bootstrap loader
   -->
   <script src="flutter_bootstrap.js" async></script>
 </body>

@@ -78,6 +78,7 @@ class MarketAsset extends StatelessWidget {
     this.height,
     this.fit = BoxFit.contain,
     this.color,
+    this.semanticLabel,
     super.key,
   });
 
@@ -86,6 +87,30 @@ class MarketAsset extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final Color? color;
+  final String? semanticLabel;
+
+  String _deriveAltText(String path) {
+    if (semanticLabel != null && semanticLabel!.trim().isNotEmpty) {
+      return semanticLabel!.trim();
+    }
+    final rawName = path
+        .split('/')
+        .last
+        .replaceAll(RegExp(r'\.[a-zA-Z0-9]+$'), '')
+        .replaceAll('%20', ' ')
+        .replaceAll('_', ' ')
+        .replaceAll('-', ' ')
+        .trim();
+
+    // Jika hash atau kode hex bawaan aset
+    if (RegExp(r'^[a-f0-9]{4,10}$', caseSensitive: false).hasMatch(rawName)) {
+      return 'Foto Produk dan Kios Pasar Oro-Oro Dowo Malang';
+    }
+    if (rawName.isEmpty) {
+      return 'Ilustrasi Pasar Oro-Oro Dowo';
+    }
+    return '$rawName - Pasar Oro-Oro Dowo Malang';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,12 +121,23 @@ class MarketAsset extends StatelessWidget {
         color: MarketColors.muted,
       );
     }
+    final effectiveAlt = _deriveAltText(clean);
+    final targetCacheWidth = (width != null && width!.isFinite && width! > 0)
+        ? (width! * 2.5).round().clamp(64, 1600)
+        : null;
+    final targetCacheHeight = (height != null && height!.isFinite && height! > 0)
+        ? (height! * 2.5).round().clamp(64, 1600)
+        : null;
+
     if (clean.startsWith('http://') || clean.startsWith('https://')) {
       return Image.network(
         clean,
         width: width,
         height: height,
         fit: fit,
+        cacheWidth: targetCacheWidth,
+        cacheHeight: targetCacheHeight,
+        semanticLabel: effectiveAlt,
         errorBuilder: (_, _, _) => const Icon(
           Icons.image_not_supported_outlined,
           color: MarketColors.muted,
@@ -115,6 +151,7 @@ class MarketAsset extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        semanticsLabel: effectiveAlt,
         colorFilter: color == null
             ? null
             : ColorFilter.mode(color!, BlendMode.srcIn),
@@ -125,6 +162,9 @@ class MarketAsset extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      cacheWidth: targetCacheWidth,
+      cacheHeight: targetCacheHeight,
+      semanticLabel: effectiveAlt,
       errorBuilder: (_, _, _) => const Icon(
         Icons.image_not_supported_outlined,
         color: MarketColors.muted,
@@ -170,22 +210,29 @@ class BrandHeader extends StatelessWidget {
             child: Image.asset(
               'assets/logo_oro_atap.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, _, _) =>
-                  Image.asset('assets/logo oro hijau.png', fit: BoxFit.contain),
+              semanticLabel: 'Logo Pasar Oro-Oro Dowo Malang',
+              errorBuilder: (_, _, _) => Image.asset(
+                'assets/logo oro hijau.png',
+                fit: BoxFit.contain,
+                semanticLabel: 'Logo Pasar Oro-Oro Dowo Malang',
+              ),
             ),
           ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
-          child: Text(
-            'Pasar Oro-Oro Dowo',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Color(0xFF594045),
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.6,
+        Expanded(
+          child: Semantics(
+            header: true,
+            child: const Text(
+              'Pasar Oro-Oro Dowo',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Color(0xFF594045),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.6,
+              ),
             ),
           ),
         ),
@@ -300,15 +347,18 @@ class PageTitleBar extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: MarketColors.brown,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: MarketColors.brown,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 if (subtitle != null)

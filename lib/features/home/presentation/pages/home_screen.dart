@@ -1461,7 +1461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           if (store.rating.isNotEmpty) ...[
                             Text(
-                              'â˜… ${store.rating}',
+                              '★ ${store.rating}',
                               style: const TextStyle(
                                 fontFamily: 'Inter',
                                 color: Color(0xFFF59E0B),
@@ -1483,14 +1483,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ],
-                          Text(
-                            store.products,
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: Color(0xFF6B7280),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              height: 1.5,
+                          Flexible(
+                            child: Text(
+                              store.products,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                color: Color(0xFF6B7280),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                height: 1.5,
+                              ),
                             ),
                           ),
                         ],

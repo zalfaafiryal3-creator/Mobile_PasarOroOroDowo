@@ -1,18 +1,23 @@
 // lib/screens/write_market_review/write_market_review_screen.dart
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:frontend_flutter/features/market_reviews/domain/usecases/get_market_review_statistics.dart';
 import 'package:frontend_flutter/features/market_reviews/domain/usecases/submit_market_review.dart';
 import 'package:frontend_flutter/core/presentation/widgets/market_ui.dart';
 
 class WriteMarketReviewScreen extends StatefulWidget {
-  const WriteMarketReviewScreen({required this.submitReview, super.key});
+  const WriteMarketReviewScreen({
+    required this.submitReview,
+    required this.getStatistics,
+    super.key,
+  });
 
   final SubmitMarketReview submitReview;
+  final GetMarketReviewStatistics getStatistics;
 
   @override
   State<WriteMarketReviewScreen> createState() =>
@@ -29,13 +34,19 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   String? _uploadStatus;
   String? _error;
 
-  // Selected aspect chips (all selected by default as in the design)
-  final Set<String> _selectedAspects = {
-    'kebersihan',
-    'keramahan',
-    'parkir',
-    'kelengkapan',
-  };
+  String? _nameError;
+  String? _aspectError;
+  String? _experienceError;
+
+  int? _verifiedReviewCount;
+  bool _loadingReviewCount = true;
+
+  final GlobalKey _nameFieldKey = GlobalKey();
+  final GlobalKey _aspectFieldKey = GlobalKey();
+  final GlobalKey _experienceFieldKey = GlobalKey();
+
+  // Selected aspect chips (none selected by default)
+  final Set<String> _selectedAspects = <String>{};
 
   static const _ratingLabels = {
     1: 'Sangat Kecewa',
@@ -48,7 +59,50 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   @override
   void initState() {
     super.initState();
-    _experienceController.addListener(() => setState(() {}));
+    _loadVerifiedReviewCount();
+    _nameController.addListener(() {
+      if (_nameError != null && _nameController.text.trim().isNotEmpty) {
+        setState(() => _nameError = null);
+      }
+    });
+    _experienceController.addListener(() {
+      if (_experienceError != null &&
+          _experienceController.text.trim().isNotEmpty) {
+        setState(() => _experienceError = null);
+      } else {
+        setState(() {});
+      }
+    });
+  }
+
+  Future<void> _loadVerifiedReviewCount() async {
+    try {
+      final statistics = await widget.getStatistics();
+      if (!mounted) return;
+      setState(() {
+        _verifiedReviewCount = statistics.totalReviews;
+        _loadingReviewCount = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _verifiedReviewCount = null;
+        _loadingReviewCount = false;
+      });
+    }
+  }
+
+  String _formatReviewCount(int value) {
+    final digits = value.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      final remaining = digits.length - i;
+      buffer.write(digits[i]);
+      if (remaining > 1 && remaining % 3 == 1) {
+        buffer.write('.');
+      }
+    }
+    return buffer.toString();
   }
 
   @override
@@ -75,18 +129,68 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   }
 
   Future<void> _submit() async {
+    final name = _nameController.text.trim();
+    final text = _experienceController.text.trim();
+    final hasAspects = _selectedAspects.isNotEmpty;
+
+    String? nameError;
+    String? aspectError;
+    String? experienceError;
+
+    if (name.isEmpty) {
+      nameError = 'Nama pengunjung wajib diisi.';
+    }
+    if (!hasAspects) {
+      aspectError = 'Silakan pilih minimal satu aspek penilaian.';
+    }
+    if (text.isEmpty) {
+      experienceError = 'Ceritakan pengalaman Anda terlebih dahulu.';
+    }
+
+    if (nameError != null || aspectError != null || experienceError != null) {
+      setState(() {
+        _nameError = nameError;
+        _aspectError = aspectError;
+        _experienceError = experienceError;
+      });
+
+      final firstKey = nameError != null
+          ? _nameFieldKey
+          : (aspectError != null ? _aspectFieldKey : _experienceFieldKey);
+      if (firstKey.currentContext != null) {
+        Scrollable.ensureVisible(
+          firstKey.currentContext!,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+
+      final firstErrorMsg = nameError ?? aspectError ?? experienceError;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            firstErrorMsg!,
+            style: const TextStyle(fontFamily: 'Plus Jakarta Sans'),
+          ),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
+      _nameError = null;
+      _aspectError = null;
+      _experienceError = null;
       _error = null;
       _sending = true;
       _uploadStatus = null;
     });
     try {
-      final name = _nameController.text.trim().isEmpty
-          ? 'Anonim'
-          : _nameController.text.trim();
-      final text = _experienceController.text.trim().isEmpty
-          ? 'Pengunjung belum menambahkan cerita.'
-          : _experienceController.text.trim();
 
       final List<String> uploadedUrls = [];
       if (_photos.isNotEmpty) {
@@ -113,6 +217,7 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
         text: text,
         rating: _rating,
         photos: uploadedUrls,
+        aspects: Set<String>.from(_selectedAspects),
       );
 
       if (!mounted) return;
@@ -365,13 +470,16 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                     children: const [
                       Icon(Icons.star, size: 11, color: Color(0xFFB45309)),
                       SizedBox(width: 4),
-                      Text(
-                        'Pasar Wisata Cagar Budaya',
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF92400E),
+                      Flexible(
+                        child: Text(
+                          'Pasar Wisata Cagar Budaya',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF92400E),
+                          ),
                         ),
                       ),
                     ],
@@ -389,10 +497,10 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 ),
                 const SizedBox(height: 3),
                 Row(
-                  children: const [
-                    Icon(Icons.star, size: 13, color: Color(0xFFF59E0B)),
-                    SizedBox(width: 3),
-                    Text(
+                  children: [
+                    const Icon(Icons.star, size: 13, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 3),
+                    const Text(
                       '4.8',
                       style: TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
@@ -401,8 +509,8 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                         color: Color(0xFF1E293B),
                       ),
                     ),
-                    SizedBox(width: 6),
-                    Text(
+                    const SizedBox(width: 6),
+                    const Text(
                       '•',
                       style: TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
@@ -410,12 +518,16 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                         color: Color(0xFF94A3B8),
                       ),
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '1.240+ ulasan terverifikasi',
+                        _loadingReviewCount
+                            ? 'Memuat ulasan terverifikasi...'
+                            : (_verifiedReviewCount == null
+                                ? 'Ulasan terverifikasi tidak tersedia'
+                                : '${_formatReviewCount(_verifiedReviewCount!)} ulasan terverifikasi'),
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
@@ -523,15 +635,18 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  _ratingLabels[_rating] ??
-                      'Sangat Puas! / Sangat Direkomendasikan',
-                  style: const TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF594045),
-                    height: 1.33,
+                Flexible(
+                  child: Text(
+                    _ratingLabels[_rating] ??
+                        'Sangat Puas! / Sangat Direkomendasikan',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF594045),
+                      height: 1.33,
+                    ),
                   ),
                 ),
               ],
@@ -545,13 +660,16 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   // --- CARD 3: PENILAIAN ASPEK PASAR ---
   Widget _buildAspectChipsSection() {
     return Container(
+      key: _aspectFieldKey,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
-          width: 1,
+          color: _aspectError != null
+              ? const Color(0xFFEF4444)
+              : const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: _aspectError != null ? 1.4 : 1,
         ),
         boxShadow: const [
           BoxShadow(
@@ -628,6 +746,30 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
               ),
             ],
           ),
+          if (_aspectError != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 14,
+                  color: Color(0xFFEF4444),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    _aspectError!,
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -640,18 +782,15 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
     required String aspectKey,
   }) {
     final isSelected = _selectedAspects.contains(aspectKey);
-    final bgColor = isSelected
-        ? (isYellow ? const Color(0xFFFEF3C7) : const Color(0xFFE2F0C2))
-        : Colors.grey.shade50;
-    final borderColor = isSelected
-        ? (isYellow ? const Color(0xFFF59E0B) : const Color(0xFF84CC16))
-        : const Color(0xFFE2E8F0);
-    final iconColor = isSelected
-        ? (isYellow ? const Color(0xFFD97706) : const Color(0xFF4B6515))
-        : const Color(0xFF94A3B8);
-    final textColor = isSelected
-        ? (isYellow ? const Color(0xFF78350F) : const Color(0xFF1E3A1A))
-        : const Color(0xFF64748B);
+    // Warna asli aspek dipertahankan pada kondisi awal maupun terpilih.
+    final bgColor =
+        isYellow ? const Color(0xFFFEF3C7) : const Color(0xFFE2F0C2);
+    final borderColor =
+        isYellow ? const Color(0xFFF59E0B) : const Color(0xFF84CC16);
+    final iconColor =
+        isYellow ? const Color(0xFFD97706) : const Color(0xFF4B6515);
+    final textColor =
+        isYellow ? const Color(0xFF78350F) : const Color(0xFF1E3A1A);
 
     return InkWell(
       onTap: () {
@@ -660,6 +799,9 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             _selectedAspects.remove(aspectKey);
           } else {
             _selectedAspects.add(aspectKey);
+          }
+          if (_selectedAspects.isNotEmpty && _aspectError != null) {
+            _aspectError = null;
           }
         });
       },
@@ -671,6 +813,19 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: borderColor, width: 1.2),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: (isYellow
+                            ? const Color(0xFFF59E0B)
+                            : const Color(0xFF84CC16))
+                        .withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           children: [
@@ -697,13 +852,16 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   // --- CARD 4: USER NAME INPUT ---
   Widget _buildUserProfileSection() {
     return Container(
+      key: _nameFieldKey,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
-          width: 1,
+          color: _nameError != null
+              ? const Color(0xFFEF4444)
+              : const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: _nameError != null ? 1.4 : 1,
         ),
         boxShadow: const [
           BoxShadow(
@@ -731,7 +889,12 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFFE2F0C2).withValues(alpha: 0.50),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFC2DC80), width: 1.2),
+              border: Border.all(
+                color: _nameError != null
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFFC2DC80),
+                width: 1.2,
+              ),
             ),
             child: Row(
               children: [
@@ -761,16 +924,48 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
                 Container(
                   width: 20,
                   height: 20,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFBBF24),
+                  decoration: BoxDecoration(
+                    color: _nameError != null
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFFFBBF24),
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.check, size: 13, color: Colors.white),
+                  child: Icon(
+                    _nameError != null
+                        ? Icons.priority_high_rounded
+                        : Icons.check,
+                    size: 13,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
           ),
+          if (_nameError != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 14,
+                  color: Color(0xFFEF4444),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    _nameError!,
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -779,13 +974,16 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
   // --- CARD 5: STORY / EXPERIENCE INPUT ---
   Widget _buildTextStorySection() {
     return Container(
+      key: _experienceFieldKey,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFC2DC80).withValues(alpha: 0.60),
-          width: 1,
+          color: _experienceError != null
+              ? const Color(0xFFEF4444)
+              : const Color(0xFFC2DC80).withValues(alpha: 0.60),
+          width: _experienceError != null ? 1.4 : 1,
         ),
         boxShadow: const [
           BoxShadow(
@@ -801,15 +999,18 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text(
-                'Ceritakan Pengalaman Anda',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF334155),
+              Expanded(
+                child: Text(
+                  'Ceritakan Pengalaman Anda',
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF334155),
+                  ),
                 ),
               ),
+              SizedBox(width: 8),
               Text(
                 'Maks. 500 karakter',
                 style: TextStyle(
@@ -828,7 +1029,12 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFFFEF3C7).withValues(alpha: 0.70),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFBBF24), width: 1.2),
+              border: Border.all(
+                color: _experienceError != null
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFFFBBF24),
+                width: 1.2,
+              ),
             ),
             child: TextField(
               controller: _experienceController,
@@ -863,21 +1069,39 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: const [
-                  Icon(Icons.check, size: 14, color: Color(0xFF10B981)),
-                  SizedBox(width: 4),
-                  Text(
-                    'Ulasan memenuhi syarat kualitas',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF10B981),
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      _experienceController.text.trim().isNotEmpty
+                          ? Icons.check
+                          : Icons.info_outline,
+                      size: 14,
+                      color: _experienceController.text.trim().isNotEmpty
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFF94A3B8),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        _experienceController.text.trim().isNotEmpty
+                            ? 'Ulasan memenuhi syarat kualitas'
+                            : 'Wajib diisi (maks. 500 karakter)',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: _experienceController.text.trim().isNotEmpty
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${_experienceController.text.length} / 500',
                 style: const TextStyle(
@@ -889,6 +1113,30 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
               ),
             ],
           ),
+          if (_experienceError != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 14,
+                  color: Color(0xFFEF4444),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    _experienceError!,
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -921,30 +1169,34 @@ class _WriteMarketReviewScreenState extends State<WriteMarketReviewScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RichText(
-                text: const TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Tambah Foto Kunjungan ',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF334155),
+              Flexible(
+                child: RichText(
+                  overflow: TextOverflow.ellipsis,
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Tambah Foto Kunjungan ',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF334155),
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: '(Opsional)',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF94A3B8),
+                      TextSpan(
+                        text: '(Opsional)',
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF94A3B8),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '$totalSelected / 5 Terpilih',
                 style: const TextStyle(

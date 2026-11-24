@@ -22,6 +22,7 @@ class _MarketReviewPreview {
     this.helpfulCount = 0,
     this.tags = const [],
     this.photos = const [],
+    this.aspectLabels = const [],
   });
 
   final String name;
@@ -33,6 +34,7 @@ class _MarketReviewPreview {
   int helpfulCount;
   final List<String> tags;
   final List<String> photos;
+  final List<String> aspectLabels;
 }
 
 void addGlobalMarketReview({
@@ -223,6 +225,7 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
               databaseId: review.id,
               tags: const [],
               photos: review.photos,
+              aspectLabels: review.selectedAspectLabels,
             ),
           );
         }
@@ -477,117 +480,187 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
                         color: const Color(0xFFE2F0C2),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x10000000),
-                                  blurRadius: 4,
-                                  offset: Offset(0, 2),
+                      child: Builder(
+                        builder: (context) {
+                          final stats = _statistics;
+                          final total = stats?.totalReviews ?? 0;
+                          final average = stats?.averageRating ?? 0.0;
+                          final hasReviews = total > 0 && average > 0;
+                          final averageText =
+                              hasReviews ? average.toStringAsFixed(1) : '—';
+                          final filledStars = hasReviews
+                              ? average.round().clamp(0, 5)
+                              : 0;
+                          final satisfiedPercent = total > 0
+                              ? (((stats?.star5 ?? 0) + (stats?.star4 ?? 0)) *
+                                      100 /
+                                      total)
+                                  .round()
+                              : 0;
+
+                          String recommendationLabel;
+                          if (total == 0) {
+                            recommendationLabel = 'Belum Ada Ulasan';
+                          } else if (average >= 4.5) {
+                            recommendationLabel = 'Sangat Direkomendasikan';
+                          } else if (average >= 4.0) {
+                            recommendationLabel = 'Direkomendasikan';
+                          } else if (average >= 3.0) {
+                            recommendationLabel = 'Cukup Direkomendasikan';
+                          } else {
+                            recommendationLabel = 'Perlu Peningkatan';
+                          }
+
+                          final countText = total == 0
+                              ? 'Belum ada ulasan terverifikasi'
+                              : 'Dari $total ulasan terverifikasi';
+                          final satisfactionText = total == 0
+                              ? 'Belum ada data kepuasan pengunjung'
+                              : '($satisfiedPercent% pengunjung puas)';
+
+                          return Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  '4.8',
-                                  style: TextStyle(
-                                    color: Color(0xFF526B31),
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w900,
-                                    height: 1,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: List.generate(
-                                    5,
-                                    (_) => const Icon(
-                                      Icons.star_rounded,
-                                      size: 13,
-                                      color: Color(0xFFFFC928),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Color(0x10000000),
+                                      blurRadius: 4,
+                                      offset: Offset(0, 2),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Sangat Direkomendasikan',
-                                  style: TextStyle(
-                                    color: Color(0xFF526B31),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      averageText,
+                                      style: const TextStyle(
+                                        color: Color(0xFF526B31),
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w900,
+                                        height: 1,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: List.generate(
+                                        5,
+                                        (index) => Icon(
+                                          index < filledStars
+                                              ? Icons.star_rounded
+                                              : Icons.star_outline_rounded,
+                                          size: 13,
+                                          color: const Color(0xFFFFC928),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Dari 1.240+ ulasan terverifikasi',
-                                  style: TextStyle(
-                                    color: Color(0xFF526B31),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      recommendationLabel,
+                                      style: const TextStyle(
+                                        color: Color(0xFF526B31),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      countText,
+                                      style: const TextStyle(
+                                        color: Color(0xFF526B31),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      satisfactionText,
+                                      style: const TextStyle(
+                                        color: Color(0xFF526B31),
+                                        fontSize: 9.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 2),
-                                Text(
-                                  '(98% pengunjung puas)',
-                                  style: TextStyle(
-                                    color: Color(0xFF526B31),
-                                    fontSize: 9.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Aspect Ratings
-                    const _ReviewAspectRow(
-                      icon: Icons.person_outline_rounded,
-                      label: 'Kebersihan & Kerapian',
-                      rating: '4.9',
-                      progress: 0.98,
-                      color: Color(0xFFB8D66D),
-                    ),
-                    const _ReviewAspectRow(
-                      icon: Icons.shopping_basket_outlined,
-                      label: 'Kelengkapan Komoditas',
-                      rating: '4.8',
-                      progress: 0.95,
-                      color: Color(0xFFF59E0B),
-                    ),
-                    const _ReviewAspectRow(
-                      icon: Icons.sentiment_satisfied_outlined,
-                      label: 'Keramahan Pedagang',
-                      rating: '4.9',
-                      progress: 0.98,
-                      color: Color(0xFFFBBF24),
-                    ),
-                    const _ReviewAspectRow(
-                      icon: Icons.local_parking_rounded,
-                      label: 'Keamanan & Parkir',
-                      rating: '4.6',
-                      progress: 0.88,
-                      color: Color(0xFF594045),
+                    // Aspect Ratings — dynamic from backend statistics
+                    Builder(
+                      builder: (context) {
+                        final stats = _statistics;
+
+                        String fmtRating(double v) =>
+                            v > 0 ? v.toStringAsFixed(1) : '—';
+                        double fmtProgress(double v) =>
+                            v > 0 ? (v / 5.0).clamp(0.0, 1.0) : 0.0;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (stats != null && stats.totalReviews == 0)
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  'Belum ada penilaian aspek pasar dari ulasan pengunjung.',
+                                  style: TextStyle(
+                                    color: Color(0xFF594045),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            _ReviewAspectRow(
+                              icon: Icons.cleaning_services_outlined,
+                              label: 'Kebersihan & Kerapian',
+                              rating: fmtRating(stats?.aspectCleanliness ?? 0),
+                              progress: fmtProgress(stats?.aspectCleanliness ?? 0),
+                              color: const Color(0xFFB8D66D),
+                            ),
+                            _ReviewAspectRow(
+                              icon: Icons.shopping_basket_outlined,
+                              label: 'Kelengkapan Komoditas',
+                              rating: fmtRating(stats?.aspectVariety ?? 0),
+                              progress: fmtProgress(stats?.aspectVariety ?? 0),
+                              color: const Color(0xFFF59E0B),
+                            ),
+                            _ReviewAspectRow(
+                              icon: Icons.sentiment_satisfied_outlined,
+                              label: 'Keramahan Pedagang',
+                              rating: fmtRating(stats?.aspectHospitality ?? 0),
+                              progress: fmtProgress(stats?.aspectHospitality ?? 0),
+                              color: const Color(0xFFFBBF24),
+                            ),
+                            _ReviewAspectRow(
+                              icon: Icons.local_parking_rounded,
+                              label: 'Keamanan & Parkir',
+                              rating: fmtRating(stats?.aspectParking ?? 0),
+                              progress: fmtProgress(stats?.aspectParking ?? 0),
+                              color: const Color(0xFF594045),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 14),
 
@@ -1047,8 +1120,49 @@ class _MarketReviewsScreenState extends State<MarketReviewsScreen> {
             ],
           ),
 
-          // Tags row
-          if (review.tags.isNotEmpty) ...[
+          // Selected aspect chips (from saved review data)
+          if (review.aspectLabels.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: review.aspectLabels.map((label) {
+                final isParking = label.toLowerCase().contains('parkir');
+                final isYellow = label.toLowerCase().contains('kebersihan') ||
+                    label.toLowerCase().contains('kelengkapan');
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 3.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isParking || isYellow
+                        ? const Color(0xFFFEF3C7)
+                        : const Color(0xFFE2F0C2),
+                    border: Border.all(
+                      color: isParking || isYellow
+                          ? const Color(0xFFFDE68A)
+                          : const Color(0xFFC2DC80),
+                    ),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isParking || isYellow
+                          ? const Color(0xFFD97706)
+                          : const Color(0xFF526B31),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+
+          // Legacy/local tags (kept for existing preview data)
+          if (review.aspectLabels.isEmpty && review.tags.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,

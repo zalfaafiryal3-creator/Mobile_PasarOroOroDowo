@@ -13,7 +13,6 @@ import 'package:frontend_flutter/features/market_reviews/presentation/pages/writ
     as market_review;
 import 'package:frontend_flutter/features/recommendations/presentation/pages/recommendations_screen.dart'
     as recommendations;
-import 'package:frontend_flutter/features/store_reviews/presentation/pages/store_reviews_screen.dart';
 import 'package:frontend_flutter/features/store_reviews/presentation/pages/write_store_review_screen.dart';
 import 'package:frontend_flutter/features/stores/presentation/pages/store_detail_screen.dart';
 import 'package:frontend_flutter/features/stores/presentation/pages/store_list_screen.dart';
@@ -31,6 +30,7 @@ Route<dynamic> generateAppRoute(
   if (path.startsWith('/detail-toko/')) {
     page = StoreDetailScreen(
       getStore: dependencies.getStore,
+      getStoreReviews: dependencies.getStoreReviews,
       storeId: uri.pathSegments.last,
       expectedStoreName: uri.queryParameters['name'],
     );
@@ -58,9 +58,10 @@ Route<dynamic> generateAppRoute(
       case '/detail-toko':
         page = StoreDetailScreen(
           getStore: dependencies.getStore,
-          storeId: uri.pathSegments.length > 1
+          getStoreReviews: dependencies.getStoreReviews,
+          storeId: uri.queryParameters['id'] ?? (uri.pathSegments.length > 1
               ? uri.pathSegments.last
-              : 'lumpur-kentang-27',
+              : 'lumpur-kentang-27'),
           expectedStoreName: uri.queryParameters['name'],
         );
       case '/denah':
@@ -91,6 +92,7 @@ Route<dynamic> generateAppRoute(
       case '/tulis-ulasan-pasar':
         page = market_review.WriteMarketReviewScreen(
           submitReview: dependencies.submitMarketReview,
+          getStatistics: dependencies.getMarketReviewStatistics,
         );
       case '/tulis-ulasan-toko':
         page = WriteStoreReviewScreen(
@@ -99,12 +101,15 @@ Route<dynamic> generateAppRoute(
           isLocalFallback: uri.queryParameters['localOnly'] == 'true',
         );
       case '/ulasan-toko':
-        page = StoreReviewsScreen(
-          storeId: uri.queryParameters['storeId'] ?? '',
-          storeName: uri.queryParameters['storeName'] ?? 'Toko',
-          getStatistics: dependencies.getStoreReviewStatistics,
-          getReviews: dependencies.getStoreReviews,
-          isLocalFallback: uri.queryParameters['localOnly'] == 'true',
+        final storeId = uri.queryParameters['storeId'] ??
+            (uri.pathSegments.length > 1
+                ? uri.pathSegments.last
+                : 'lumpur-kentang-27');
+        page = StoreDetailScreen(
+          getStore: dependencies.getStore,
+          getStoreReviews: dependencies.getStoreReviews,
+          storeId: storeId,
+          expectedStoreName: uri.queryParameters['storeName'],
         );
       default:
         page = HomeScreen(
@@ -119,4 +124,60 @@ Route<dynamic> generateAppRoute(
     return MaterialPageRoute<bool>(settings: settings, builder: (_) => page);
   }
   return MaterialPageRoute<void>(settings: settings, builder: (_) => page);
+}
+
+String getSeoTitleForRoute(String? routeName) {
+  if (routeName == null || routeName.isEmpty) {
+    return 'Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage';
+  }
+  final uri = Uri.parse(routeName);
+  final path = uri.path;
+
+  if (path.startsWith('/detail-toko/')) {
+    final storeName = uri.queryParameters['name'] ?? 'Toko';
+    return 'Detail $storeName | Pasar Oro-Oro Dowo Malang';
+  }
+
+  switch (path) {
+    case '/':
+      return 'Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage';
+    case '/landing-page':
+      return 'Selamat Datang | Pasar Oro-Oro Dowo Malang';
+    case '/home':
+      return 'Beranda Belanja & Kuliner | Pasar Oro-Oro Dowo Malang';
+    case '/toko':
+      final cat = uri.queryParameters['category'];
+      return (cat != null && cat.isNotEmpty)
+          ? 'Toko Kategori $cat | Pasar Oro-Oro Dowo Malang'
+          : 'Daftar Toko & Pedagang | Pasar Oro-Oro Dowo Malang';
+    case '/detail-toko':
+      final storeName = uri.queryParameters['name'] ?? 'Toko';
+      return 'Detail $storeName | Pasar Oro-Oro Dowo Malang';
+    case '/denah':
+      return 'Denah & Peta Lokasi Pasar | Pasar Oro-Oro Dowo Malang';
+    case '/chatbot-rekomendasi':
+      return 'AI Perencana Kunjungan Belanja | Pasar Oro-Oro Dowo Malang';
+    case '/fasilitas-pasar':
+      return 'Fasilitas Pasar Lengkap | Pasar Oro-Oro Dowo Malang';
+    case '/sejarah-pasar':
+    case '/sejarah':
+      return 'Sejarah & Heritage Pasar | Pasar Oro-Oro Dowo Malang';
+    case '/info-kunjungan':
+      return 'Informasi Jam Buka & Kunjungan | Pasar Oro-Oro Dowo Malang';
+    case '/promo':
+      return 'Promo & Diskon Belanja | Pasar Oro-Oro Dowo Malang';
+    case '/rekomendasi':
+      return 'Rekomendasi Kuliner & Produk Pilihan | Pasar Oro-Oro Dowo Malang';
+    case '/review-pasar':
+      return 'Review & Ulasan Pengunjung | Pasar Oro-Oro Dowo Malang';
+    case '/tulis-ulasan-pasar':
+      return 'Tulis Ulasan Pasar | Pasar Oro-Oro Dowo Malang';
+    case '/tulis-ulasan-toko':
+      return 'Tulis Ulasan Toko | Pasar Oro-Oro Dowo Malang';
+    case '/ulasan-toko':
+      final storeName = uri.queryParameters['storeName'] ?? 'Toko';
+      return 'Ulasan $storeName | Pasar Oro-Oro Dowo Malang';
+    default:
+      return 'Pasar Oro-Oro Dowo Malang — Pasar Tradisional Heritage';
+  }
 }

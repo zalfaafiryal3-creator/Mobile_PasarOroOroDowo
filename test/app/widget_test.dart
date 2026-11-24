@@ -220,11 +220,26 @@ void main() {
     await tester.tap(find.text('Promo').last);
     await tester.pumpAndSettle();
     expect(find.text('Info Promo & Event'), findsOneWidget);
+    await tester.dragUntilVisible(
+      find.text('Diskon Tahu Bakso'),
+      find.byType(ListView).first,
+      const Offset(0, -300),
+    );
     expect(find.text('Diskon Tahu Bakso'), findsOneWidget);
-    expect(find.text('4 Program Aktif'), findsOneWidget);
+    expect(find.text('4 Promo'), findsOneWidget);
 
+    await tester.drag(
+      find.byType(ListView).first,
+      const Offset(0, 1000),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Akan Datang'));
     await tester.pumpAndSettle();
+    await tester.dragUntilVisible(
+      find.text('Diskon Cake'),
+      find.byType(ListView).first,
+      const Offset(0, -300),
+    );
     expect(find.text('Diskon Cake'), findsOneWidget);
     expect(find.text('Diskon Tahu Bakso'), findsNothing);
 

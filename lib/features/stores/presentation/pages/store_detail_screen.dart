@@ -4,17 +4,22 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:frontend_flutter/features/stores/domain/entities/store.dart';
 import 'package:frontend_flutter/features/stores/domain/usecases/get_store.dart';
+import 'package:frontend_flutter/features/store_reviews/domain/entities/store_review.dart';
+import 'package:frontend_flutter/features/store_reviews/domain/usecases/get_store_reviews.dart';
+import 'package:frontend_flutter/features/store_reviews/data/datasources/store_review_api.dart';
 import 'package:frontend_flutter/core/presentation/widgets/market_ui.dart';
 
 class StoreDetailScreen extends StatefulWidget {
   const StoreDetailScreen({
     required this.getStore,
+    this.getStoreReviews,
     this.storeId = 'lumpur-kentang-27',
     this.expectedStoreName,
     super.key,
   });
 
   final GetStore getStore;
+  final GetStoreReviews? getStoreReviews;
   final String storeId;
   final String? expectedStoreName;
 
@@ -27,8 +32,14 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   String? _loadError;
   bool _isLoading = true;
 
+  List<StoreReview> _reviews = [];
+  bool _isLoadingReviews = false;
+  bool _isReviewsExpanded = false;
+
   Store get _store => _loadedStore!;
-  int get _storeReviewCount => _store.isLocalFallback ? 0 : _store.reviewCount;
+  int get _storeReviewCount => _store.isLocalFallback
+      ? 0
+      : (_reviews.isNotEmpty ? _reviews.length : _store.reviewCount);
   String get _statusText => switch (_store.status) {
     'buka' => 'BUKA',
     'tutup' => 'TUTUP',
@@ -64,11 +75,59 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
         _loadedStore = store;
         _isLoading = false;
       });
+      await _loadReviews(store.id);
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _loadError = error.toString();
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadReviews(String storeId) async {
+    if (_store.isLocalFallback) {
+      if (mounted) {
+        setState(() {
+          _reviews = [];
+          _isLoadingReviews = false;
+        });
+      }
+      return;
+    }
+    setState(() => _isLoadingReviews = true);
+    try {
+      final getReviews = widget.getStoreReviews;
+      final List<StoreReview> reviews;
+      if (getReviews != null) {
+        final page = await getReviews(storeId, limit: 100);
+        reviews = page.reviews;
+      } else {
+        final rawPage =
+            await StoreReviewApi.fetchStoreReviews(storeId, limit: 100);
+        reviews = rawPage.reviews
+            .map(
+              (r) => StoreReview(
+                id: r.id,
+                name: r.name,
+                date: r.date,
+                text: r.text,
+                rating: r.rating,
+                photos: r.photos,
+              ),
+            )
+            .toList();
+      }
+      if (!mounted) return;
+      setState(() {
+        _reviews = reviews;
+        _isLoadingReviews = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _reviews = [];
+        _isLoadingReviews = false;
       });
     }
   }
@@ -1316,45 +1375,83 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
           ),
           const SizedBox(height: 12),
 
-          _buildReviewItem(
-            name: '',
-            time: '',
-            text: 'Ulasan tertulis belum tersedia.',
-          ),
-          const SizedBox(height: 12),
-
-          // Action Button: Lihat Semua Ulasan
-          InkWell(
-            onTap: () => goTo(
-              context,
-              '/ulasan-toko?storeId=${Uri.encodeQueryComponent(_store.id)}'
-              '&storeName=${Uri.encodeQueryComponent(_store.name)}'
-              '&localOnly=${_store.isLocalFallback}',
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Lihat Semua Ulasan',
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.24,
-                    color: Color(0xFFFBBF24),
+          // Review Items
+          if (_isLoadingReviews)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFF4B6515),
                   ),
                 ),
-                const SizedBox(width: 4),
-                SvgPicture.string(
-                  '''<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9.13125 6.75H0V5.25H9.13125L4.93125 1.05L6 0L12 6L6 12L4.93125 10.95L9.13125 6.75V6.75" fill="#FBBF24"/>
-</svg>''',
-                  width: 12,
-                  height: 12,
+              ),
+            )
+          else if (_reviews.isEmpty)
+            _buildReviewItem(
+              name: '',
+              time: '',
+              text: 'Belum ada ulasan untuk toko ini.',
+              rating: 0,
+            )
+          else ...[
+            _buildReviewItem(
+              name: _reviews.first.name,
+              time: _reviews.first.date,
+              text: _reviews.first.text,
+              rating: _reviews.first.rating,
+              photos: _reviews.first.photos,
+            ),
+            if (_isReviewsExpanded)
+              for (int i = 1; i < _reviews.length; i++) ...[
+                const SizedBox(height: 10),
+                _buildReviewItem(
+                  name: _reviews[i].name,
+                  time: _reviews[i].date,
+                  text: _reviews[i].text,
+                  rating: _reviews[i].rating,
+                  photos: _reviews[i].photos,
                 ),
               ],
+          ],
+
+          // Expand / Collapse Action Button
+          if (_reviews.length > 1) ...[
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isReviewsExpanded = !_isReviewsExpanded;
+                });
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _isReviewsExpanded ? 'Tutup Ulasan' : 'Lihat Semua Ulasan',
+                    style: const TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.24,
+                      color: Color(0xFFFBBF24),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    _isReviewsExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 16,
+                    color: const Color(0xFFFBBF24),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -1365,6 +1462,8 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     required String name,
     required String time,
     required String text,
+    int rating = 5,
+    List<String> photos = const [],
   }) {
     return Container(
       width: double.infinity,
@@ -1384,47 +1483,56 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111C2D),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111C2D),
+                        ),
                       ),
-                    ),
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF594045),
-                      ),
-                    ),
-                  ],
+                      if (time.isNotEmpty)
+                        Text(
+                          time,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF594045),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-                Row(
-                  children: List.generate(
-                    5,
-                    (_) => Padding(
-                      padding: const EdgeInsets.only(left: 1.5),
-                      child: SvgPicture.string(
-                        '''<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M2.07188 10.2917L2.95208 6.48646L0 3.92708L3.9 3.58854L5.41667 0L6.93333 3.58854L10.8333 3.92708L7.88125 6.48646L8.76146 10.2917L5.41667 8.27396L2.07188 10.2917V10.2917" fill="#F59E0B"/>
+                if (rating > 0)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      5,
+                      (index) => Padding(
+                        padding: const EdgeInsets.only(left: 1.5),
+                        child: SvgPicture.string(
+                          '''<svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.07188 10.2917L2.95208 6.48646L0 3.92708L3.9 3.58854L5.41667 0L6.93333 3.58854L10.8333 3.92708L7.88125 6.48646L8.76146 10.2917L5.41667 8.27396L2.07188 10.2917V10.2917" fill="${index < rating ? '#F59E0B' : '#D1D5DB'}"/>
 </svg>''',
-                        width: 11,
-                        height: 11,
+                          width: 11,
+                          height: 11,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
-          const SizedBox(height: 6),
+          if (name.isNotEmpty || time.isNotEmpty) const SizedBox(height: 6),
           Text(
             text,
             style: const TextStyle(
@@ -1435,6 +1543,39 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
               height: 1.37,
             ),
           ),
+          if (photos.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 60,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: photos.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 6),
+                itemBuilder: (context, index) => ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    photos[index],
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5E7EB),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.broken_image_outlined,
+                        size: 20,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

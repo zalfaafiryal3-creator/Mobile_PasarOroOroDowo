@@ -1,13 +1,15 @@
 {
-    "name": "frontend_flutter",
-    "short_name": "frontend_flutter",
+    "name": "Pasar Oro-Oro Dowo Malang",
+    "short_name": "Pasar Oro-Oro Dowo",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F0F6DF",
+    "theme_color": "#4B6515",
+    "description": "Aplikasi informasi, direktori toko, kuliner legendaris, dan rekomendasi kunjungan Pasar Oro-Oro Dowo Malang.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "categories": ["shopping", "food", "lifestyle"],
+    "lang": "id",
     "icons": [
         {
             "src": "icons/Icon-192.png",

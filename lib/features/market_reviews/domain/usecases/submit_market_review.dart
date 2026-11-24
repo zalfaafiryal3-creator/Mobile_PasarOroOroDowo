@@ -13,12 +13,14 @@ class SubmitMarketReview {
     required String text,
     required int rating,
     List<String> photos = const [],
+    Set<String> aspects = const {},
   }) => _repository.submitReview(
     name: name,
     date: date,
     text: text,
     rating: rating,
     photos: photos,
+    aspects: aspects,
   );
 
   Future<String> uploadPhoto(XFile photo) => _repository.uploadPhoto(photo);

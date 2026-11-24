@@ -20,5 +20,6 @@ abstract interface class MarketReviewsRepository {
     required String text,
     required int rating,
     List<String> photos = const [],
+    Set<String> aspects = const {},
   });
 }

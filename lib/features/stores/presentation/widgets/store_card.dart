@@ -24,7 +24,12 @@ class StoreCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                MarketAsset(store.image, fit: BoxFit.cover),
+                MarketAsset(
+                  store.image,
+                  fit: BoxFit.cover,
+                  semanticLabel:
+                      'Foto Kios ${store.name} - ${store.displayCategory} Pasar Oro-Oro Dowo',
+                ),
                 Positioned(top: 8, left: 8, child: _badge(store.badge)),
               ],
             ),

@@ -147,13 +147,29 @@ class MarketReviewApi {
     required String text,
     required int rating,
     List<String> photos = const [],
+    Set<String> aspects = const {},
     http.Client? client,
   }) async {
+    // Memetakan aspek yang dipilih pengguna ke nilai rating aspek individual.
+    // Semua aspek yang dipilih mendapat nilai rating yang sama dengan rating keseluruhan.
+    int? cleanlinessRating;
+    int? varietyRating;
+    int? hospitalityRating;
+    int? parkingRating;
+    if (aspects.contains('kebersihan')) cleanlinessRating = rating;
+    if (aspects.contains('kelengkapan')) varietyRating = rating;
+    if (aspects.contains('keramahan')) hospitalityRating = rating;
+    if (aspects.contains('parkir')) parkingRating = rating;
+
     final payload = <String, dynamic>{
       'name': name,
       'date': date,
       'text': text,
       'rating': rating,
+      if (cleanlinessRating != null) 'ratingCleanliness': cleanlinessRating,
+      if (varietyRating != null) 'ratingVariety': varietyRating,
+      if (hospitalityRating != null) 'ratingHospitality': hospitalityRating,
+      if (parkingRating != null) 'ratingParking': parkingRating,
       if (photos.isNotEmpty) 'photos': photos,
     };
     final response = await _post(

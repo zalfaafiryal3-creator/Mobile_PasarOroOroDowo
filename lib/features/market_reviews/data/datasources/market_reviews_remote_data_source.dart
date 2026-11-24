@@ -34,12 +34,14 @@ class MarketReviewsRemoteDataSource {
     required String text,
     required int rating,
     List<String> photos = const [],
+    Set<String> aspects = const {},
   }) => api.MarketReviewApi.submitReview(
     name: name,
     date: date,
     text: text,
     rating: rating,
     photos: photos,
+    aspects: aspects,
     client: client,
   );
 }

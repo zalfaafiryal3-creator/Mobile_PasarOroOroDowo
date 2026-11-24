@@ -40,6 +40,11 @@ class MarketReviewsRepositoryImpl implements MarketReviewsRepository {
       star5: statistics.star5,
       star4: statistics.star4,
       star1To3: statistics.star1To3,
+      averageRating: statistics.averageRating,
+      aspectCleanliness: statistics.aspectCleanliness,
+      aspectVariety: statistics.aspectVariety,
+      aspectHospitality: statistics.aspectHospitality,
+      aspectParking: statistics.aspectParking,
     );
   }
 
@@ -53,12 +58,14 @@ class MarketReviewsRepositoryImpl implements MarketReviewsRepository {
     required String text,
     required int rating,
     List<String> photos = const [],
+    Set<String> aspects = const {},
   }) => _dataSource.submitReview(
     name: name,
     date: date,
     text: text,
     rating: rating,
     photos: photos,
+    aspects: aspects,
   );
 
   domain.MarketReview _toEntity(model.MarketReview review) =>
@@ -69,5 +76,9 @@ class MarketReviewsRepositoryImpl implements MarketReviewsRepository {
         text: review.text,
         rating: review.rating,
         photos: review.photos,
+        ratingCleanliness: review.ratingCleanliness,
+        ratingVariety: review.ratingVariety,
+        ratingHospitality: review.ratingHospitality,
+        ratingParking: review.ratingParking,
       );
 }

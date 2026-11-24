@@ -1,0 +1,24 @@
+# Robots.txt untuk Pasar Oro-Oro Dowo Malang
+# https://pasaroroorodowo.malang.go.id (atau domain produksi resmi)
+
+User-agent: *
+Allow: /
+Allow: /home
+Allow: /toko
+Allow: /detail-toko/
+Allow: /promo
+Allow: /rekomendasi
+Allow: /review-pasar
+Allow: /denah
+Allow: /fasilitas-pasar
+Allow: /sejarah-pasar
+Allow: /info-kunjungan
+Allow: /chatbot-rekomendasi
+
+# Cegah perayapan form ulasan langsung tanpa konten publik
+Disallow: /tulis-ulasan-pasar
+Disallow: /tulis-ulasan-toko
+
+# Peta Situs / Sitemap XML
+# Catatan: Perbarui URL domain berikut saat domain produksi resmi telah terpasang.
+Sitemap: sitemap.xml
