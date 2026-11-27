@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       debugPrint('Gagal memuat daftar toko dari Backend: $error');
       setState(() {
         _stores = widget.getLocalStores();
-        _loadError = 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
+        _loadError = 'Gagal memuat daftar toko dari server.';
         _isLoading = false;
       });
     }

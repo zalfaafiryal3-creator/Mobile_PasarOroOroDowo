@@ -8,9 +8,10 @@ import '../datasources/store_api_client.dart';
 
 class StoreRepositoryImpl implements StoreRepository {
   const StoreRepositoryImpl({
-    required this._remoteDataSource,
-    required this._localDataSource,
-  });
+    required StoreRemoteDataSource remoteDataSource,
+    required StoreLocalDataSource localDataSource,
+  })  : _remoteDataSource = remoteDataSource,
+        _localDataSource = localDataSource;
 
   final StoreRemoteDataSource _remoteDataSource;
   final StoreLocalDataSource _localDataSource;
@@ -39,14 +40,14 @@ class StoreRepositoryImpl implements StoreRepository {
       _lastFetchError = null;
     } catch (e) {
       _lastFetchError = e.toString();
-      debugPrint(
-        'Koneksi backend gagal: $e. Menggunakan cache / katalog lokal.',
-      );
+      debugPrint('Koneksi backend gagal: $e.');
       if (_lastKnownStores.isNotEmpty) {
         return _lastKnownStores;
       }
+      return const [];
     }
-    final localStores = _localDataSource.fetchStores();
+
+    // Hanya toko dari backend (yang diinputkan melalui admin) yang ditampilkan.
     final storesBySlug = <String, Store>{};
     for (final store in backendStores) {
       final canonical = _canonicalSlug(store.id);
@@ -60,52 +61,14 @@ class StoreRepositoryImpl implements StoreRepository {
       }
     }
 
-    final mergedStores = <String, Store>{};
-    for (final localStore in localStores) {
-      final backendStore = storesBySlug[localStore.id];
-      if (backendStore == null) {
-        mergedStores.putIfAbsent(localStore.id, () => localStore);
-      } else {
-        if (StoreApi.isPublicStatus(backendStore.status)) {
-          mergedStores[localStore.id] = _mergeStores(
-            localStore,
-            backendStore,
-            preserveLocalName: _isDuplicateAlias(
-              backendStore.id,
-              localStore.id,
-            ),
-          );
-        }
-      }
-    }
-
-    for (final backendStore in backendStores) {
-      final canonical = _canonicalSlug(backendStore.id);
-      if (!StoreApi.isPublicStatus(backendStore.status) ||
-          mergedStores.containsKey(canonical) ||
-          mergedStores.containsKey(backendStore.id)) {
-        continue;
-      }
-      final localStore = localStores
-          .where(
-            (store) => store.id == backendStore.id || store.id == canonical,
-          )
-          .firstOrNull;
-      if (localStore == null) {
-        mergedStores[backendStore.id] = backendStore;
-      }
-    }
-
-    final result = mergedStores.values
+    final result = storesBySlug.values
         .where(
           (store) =>
               store.status.isEmpty || StoreApi.isPublicStatus(store.status),
         )
         .toList();
 
-    if (result.isNotEmpty) {
-      _lastKnownStores = result;
-    }
+    _lastKnownStores = result;
     return result;
   }
 
@@ -115,70 +78,26 @@ class StoreRepositoryImpl implements StoreRepository {
   @override
   Future<Store> fetchStore(String slug, {String? expectedName}) async {
     final canonicalSlug = _canonicalSlug(slug);
-    final localStores = _localDataSource.fetchStores();
-    final mobileStore = localStores
-        .where((store) => store.id == slug || store.id == canonicalSlug)
-        .firstOrNull;
-    final requestedName = expectedName ?? mobileStore?.name;
-    final fallbackStore =
-        mobileStore != null &&
-            (requestedName == null ||
-                mobileStore.name == requestedName ||
-                _isDuplicateAlias(slug, mobileStore.id))
-        ? mobileStore
-        : null;
-
     Store? backendStore;
     Exception? lastError;
 
-    // Untuk toko yang punya padanan di katalog lokal, cocokkan dulu dengan daftar
-    // toko Backend agar perbedaan slug/ID/nama tidak memicu request detail ke
-    // endpoint yang salah (404) dan agar toko local-only tidak memanggil Backend.
-    if (fallbackStore != null) {
+    // Ambil langsung dari backend
+    try {
+      backendStore = await _remoteDataSource.fetchStore(slug);
+    } on Exception catch (error) {
+      lastError = error;
+    }
+
+    // Jika gagal, cari padanan slug di daftar toko backend
+    if (backendStore == null) {
       try {
-        final backendStores = await _getBackendStoresForLookup();
+        final backendStores =
+            await _getBackendStoresForLookup(forceRefresh: true);
         final resolved = _findMatchingBackendStore(
           backendStores,
           slug: slug,
           canonicalSlug: canonicalSlug,
-          requestedName: requestedName,
-        );
-        if (resolved == null) {
-          return fallbackStore;
-        }
-        try {
-          backendStore = await _remoteDataSource.fetchStore(resolved.id);
-        } on Exception catch (error) {
-          lastError = error;
-          // Jika detail gagal tetapi toko ada di daftar Backend, gunakan data
-          // daftar Backend daripada jatuh ke katalog lokal mentah.
-          backendStore = resolved;
-        }
-      } on Exception catch (error) {
-        lastError = error;
-        // Gagal memuat daftar Backend; coba alur langsung di bawah.
-      }
-    }
-
-    // Alur langsung: toko tanpa fallback lokal, atau saat lookup daftar gagal.
-    if (backendStore == null) {
-      try {
-        backendStore = await _remoteDataSource.fetchStore(slug);
-      } on Exception catch (error) {
-        lastError = error;
-      }
-    }
-
-    // Jika masih gagal, coba resolusi dari daftar Backend (berguna saat fallback
-    // lokal tidak tersedia atau saat slug yang diminta berbeda dari Backend).
-    if (backendStore == null) {
-      try {
-        final backendStores = await _getBackendStoresForLookup(forceRefresh: true);
-        final resolved = _findMatchingBackendStore(
-          backendStores,
-          slug: slug,
-          canonicalSlug: canonicalSlug,
-          requestedName: requestedName,
+          requestedName: expectedName,
         );
         if (resolved != null) {
           try {
@@ -187,41 +106,16 @@ class StoreRepositoryImpl implements StoreRepository {
             backendStore = resolved;
           }
         }
-      } on Exception {
-        // Abaikan; fallback/error akhir ditangani di bawah.
+      } on Exception catch (error) {
+        lastError ??= error;
       }
     }
 
     if (backendStore != null) {
       if (!StoreApi.isPublicStatus(backendStore.status)) {
-        if (fallbackStore != null) return fallbackStore;
         throw const StoreApiException('Toko belum tersedia untuk publik.');
       }
-      final matchingLocalStore = _findMatchingLocalStore(
-        localStores,
-        backendStore: backendStore,
-        slug: slug,
-        canonicalSlug: canonicalSlug,
-      );
-      if (matchingLocalStore == null) {
-        return backendStore;
-      }
-      return _mergeStores(
-        matchingLocalStore,
-        backendStore,
-        preserveLocalName: _isDuplicateAlias(
-          backendStore.id,
-          matchingLocalStore.id,
-        ),
-      );
-    }
-
-    if (fallbackStore != null) {
-      if (lastError != null &&
-          !(lastError is StoreApiException && lastError.statusCode == 404)) {
-        debugPrint('Gagal memuat detail Backend untuk $slug: $lastError');
-      }
-      return fallbackStore;
+      return backendStore;
     }
 
     if (lastError != null) throw lastError;
@@ -264,61 +158,6 @@ class StoreRepositoryImpl implements StoreRepository {
     return null;
   }
 
-  static Store? _findMatchingLocalStore(
-    List<Store> localStores, {
-    required Store backendStore,
-    required String slug,
-    required String canonicalSlug,
-  }) {
-    for (final store in localStores) {
-      if (store.id == slug ||
-          store.id == canonicalSlug ||
-          store.id == backendStore.id ||
-          store.id == _canonicalSlug(backendStore.id) ||
-          _isDuplicateAlias(backendStore.id, store.id)) {
-        return store;
-      }
-    }
-    return null;
-  }
-
   static String _canonicalSlug(String slug) =>
       _backendToCanonical[slug] ?? slug;
-
-  static bool _isDuplicateAlias(String a, String b) {
-    if (a == b) return false;
-    return _backendToCanonical[a] == b ||
-        _backendToCanonical[b] == a ||
-        _canonicalToBackend[a] == b ||
-        _canonicalToBackend[b] == a;
-  }
-
-  static Store _mergeStores(
-    Store local,
-    Store backend, {
-    bool preserveLocalName = false,
-  }) => Store(
-    id: local.id,
-    name: preserveLocalName ? local.name : backend.name,
-    category: backend.category,
-    displayCategory: backend.category == local.category
-        ? local.displayCategory
-        : backend.displayCategory,
-    badge: local.badge.isNotEmpty ? local.badge : backend.badge,
-    rating: backend.rating,
-    products: backend.products,
-    image: StoreApi.hasValidImage(backend) ? backend.image : local.image,
-    categoryId: backend.categoryId ?? local.categoryId,
-    owner: backend.owner,
-    zone: backend.zone,
-    status: backend.status,
-    openTime: backend.openTime,
-    closeTime: backend.closeTime,
-    phone: backend.phone,
-    description: backend.description,
-    productCount: backend.productCount,
-    reviewCount: backend.reviewCount,
-    catalogProducts: backend.catalogProducts,
-    isLocalFallback: false,
-  );
 }

@@ -75,7 +75,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
         _stores = stores;
         _loadError = widget.getStores.lastFetchError == null
             ? null
-            : 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
+            : 'Gagal memuat daftar toko dari server.';
         _isLoading = false;
       });
     } catch (error) {
@@ -83,7 +83,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
       debugPrint('Gagal memuat daftar toko dari Backend: $error');
       setState(() {
         _stores = widget.getLocalStores();
-        _loadError = 'Gagal memuat Backend. Katalog Mobile ditampilkan.';
+        _loadError = 'Gagal memuat daftar toko dari server.';
         _isLoading = false;
       });
     }
